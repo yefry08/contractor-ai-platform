@@ -1,0 +1,28 @@
+# Fly.io app config for the Contractor AI API.
+# Deploy with: flyctl launch --copy-config --name contractor-ai-api (first time)
+#              flyctl deploy (subsequent)
+# Requires `flyctl auth login` to have been run first (user-authenticated,
+# not something this agent can do on your behalf).
+
+app = "contractor-ai-api"
+primary_region = "mia"
+
+[build]
+
+[env]
+  PORT = "8000"
+  # DATABASE_URL is set via `flyctl secrets set DATABASE_URL=...` — never
+  # committed here. Points at Fly Postgres once provisioned
+  # (`flyctl postgres create`, then `flyctl postgres attach`).
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512

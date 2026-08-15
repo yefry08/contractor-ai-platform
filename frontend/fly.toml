@@ -1,0 +1,23 @@
+# Fly.io app config for the Contractor AI public frontend.
+# Deploy with: flyctl launch --copy-config --name contractor-ai (first time)
+#              flyctl deploy (subsequent)
+# Deploy the backend first — this build bakes NEXT_PUBLIC_API_URL in at
+# build time, so it needs to point at a real, already-live API URL:
+#   flyctl deploy --build-arg NEXT_PUBLIC_API_URL=https://contractor-ai-api.fly.dev
+
+app = "contractor-ai"
+primary_region = "mia"
+
+[build]
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512

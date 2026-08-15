@@ -5,3 +5,4 @@ openpyxl
 pydantic
 pydantic-settings
 python-dotenv
+psycopg2-binary
