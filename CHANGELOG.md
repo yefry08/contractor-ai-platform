@@ -3,6 +3,17 @@
 Formato libre, orden cronológico inverso (más reciente arriba). Referencia a
 `docs/adr/` para el razonamiento detrás de decisiones de arquitectura.
 
+## 2026-08-15 — Relevamiento de países para Fase 2
+
+- Añadido `docs/architecture/fase2-relevamiento-paises.md`: de los 8 países
+  pendientes de revisar (más allá de Paraguay ya integrado), Colombia, Chile,
+  Perú y Ecuador tienen API OCDS documentada; Argentina, R. Dominicana,
+  Honduras y Costa Rica solo ofrecen descarga en bloque (candidatos a Fase 4,
+  no Fase 2); Nicaragua no tiene fuente OCDS conocida. Basado en búsqueda web,
+  no en verificación directa de cada endpoint — eso queda como parte de
+  implementar cada conector.
+- Resuelto el bloqueo correspondiente en `PROGRESS.md`.
+
 ## 2026-08-15 — Fase 1: backend + frontend mínimo sobre el dataset existente
 
 - Inicializado el repositorio git (no existía) con un commit inicial del

@@ -60,12 +60,16 @@ de arquitectura.
   de LLM sin esta clave.
 - **Credenciales de object storage de producción** (S3/MinIO) — necesarias antes de
   poder desplegar el flujo de carga multimodal (Fase 3) fuera de dev local.
-- **Confirmación de alcance de países para Fase 2** — más allá de Paraguay y
-  Colombia (ya presentes en el prototipo), falta relevar qué otros países del
-  listado (R. Dominicana, Argentina, Perú, Chile, Ecuador, Honduras, Costa Rica,
-  Nicaragua) tienen API OCDS suficientemente limpia vs. requieren scraper (Fase 4).
-  Esto es una decisión de alcance, no una credencial, pero bloquea planificar el
-  detalle de Fase 2 conector por conector.
+- ~~**Confirmación de alcance de países para Fase 2**~~ — relevado en
+  [`docs/architecture/fase2-relevamiento-paises.md`](docs/architecture/fase2-relevamiento-paises.md)
+  (2026-08-15, vía búsqueda web contra el registro de OCP, no verificación
+  directa de cada API). Resumen: Colombia, Chile, Perú y Ecuador tienen API
+  OCDS documentada — candidatos directos para Fase 2, en ese orden sugerido.
+  Argentina, R. Dominicana, Honduras y Costa Rica solo tienen descarga en
+  bloque — van a Fase 4 (scraping). Nicaragua no tiene fuente OCDS conocida.
+  **Sigue pendiente**: verificar cada endpoint real y sus términos de uso antes
+  de implementar el primer conector (esto es trabajo de Fase 2 en sí, no un
+  bloqueo previo).
 - **Postgres/Docker no disponibles en este entorno de desarrollo**: no hay
   `docker`, `psql` ni `pg_ctl` instalados en la máquina donde se corrió Fase 1.
   El backend usa SQLite localmente (`backend/contractor.db`, gitignored) con
