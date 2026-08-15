@@ -36,8 +36,8 @@ export default async function ContractsPage({
     <>
       <h1>Contratos públicos</h1>
       <p className="subtitle">
-        {data.total.toLocaleString("es")} contratos — Paraguay, Colombia y Costa Rica
-        (fuentes distintas por país, ver nota abajo).
+        {data.total.toLocaleString("es")} contratos — Paraguay, Colombia, Costa Rica y
+        República Dominicana (fuentes distintas por país, ver nota abajo).
       </p>
 
       <div className="note">
@@ -50,8 +50,11 @@ export default async function ContractsPage({
         cambio verificable por fecha, así que se muestra el monto original en pesos
         colombianos (COP). Costa Rica: ~1.600 contratos en vivo desde el Observatorio de
         Compra Pública (SICOP), actualizado a diario — con fecha real y monto en USD ya
-        convertido por el propio sistema oficial, sin score de anomalía todavía. Ver
-        docs/architecture/PLANNING.md y los scripts ingest_*_live.py en el repo para el
+        convertido por el propio sistema oficial, sin score de anomalía todavía. República
+        Dominicana: ~2.000 contratos en vivo desde la API DGCP (OCDS nativo disponible,
+        aunque se usa el endpoint tabular por simplicidad), con fecha real y monto en pesos
+        dominicanos (DOP) sin conversión verificable a USD, sin score de anomalía todavía.
+        Ver docs/architecture/PLANNING.md y los scripts ingest_*_live.py en el repo para el
         detalle metodológico de cada país.
       </div>
 
@@ -61,6 +64,7 @@ export default async function ContractsPage({
           <option value="PY">Paraguay</option>
           <option value="CO">Colombia</option>
           <option value="CR">Costa Rica</option>
+          <option value="DO">República Dominicana</option>
         </select>
         <input type="text" name="buyer" placeholder="Buscar comprador…" defaultValue={sp.buyer ?? ""} />
         <input type="text" name="category" placeholder="Categoría (ej. services)" defaultValue={sp.category ?? ""} />
