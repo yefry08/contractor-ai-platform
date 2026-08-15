@@ -17,6 +17,9 @@ out/
 Data/zips/
 Data/records.csv
 *.db
+*.db-journal
+*.db-wal
+*.db-shm
 *.sqlite3
 
 # OS
