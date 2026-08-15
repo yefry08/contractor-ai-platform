@@ -1,0 +1,26 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# Deploy: connect this repo on Render's dashboard ("New +" -> "Blueprint"),
+# point it at this file. Free instance type needs no payment method.
+# DATABASE_URL is provisioned automatically from the databases block below
+# and injected into the web service — nothing to configure by hand.
+
+databases:
+  - name: contractor-ai-db
+    plan: free
+    databaseName: contractor
+    user: contractor
+
+services:
+  - type: web
+    name: contractor-ai-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: contractor-ai-db
+          property: connectionString
+      - key: CORS_ALLOW_ORIGINS
+        value: '["https://contractor-ai.vercel.app"]'
