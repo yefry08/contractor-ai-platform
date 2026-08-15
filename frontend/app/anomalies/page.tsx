@@ -38,9 +38,12 @@ export default async function AnomaliesPage({
 
       <div className="note">
         Esto NO es una acusación de corrupción — es una desviación estadística respecto al
-        valor de referencia predicho por un solo modelo (capa NLP). La Fase 5 del roadmap
-        agrega una segunda capa estadística independiente para validación cruzada antes de
-        confiar en un umbral formal. Ver docs/adr/0003 en el repo.
+        valor de referencia predicho por un solo modelo (capa NLP). Se muestran solo
+        contratos donde el valor real es al menos el doble o menos de la mitad del valor
+        predicho (corte grueso y provisional, no un umbral estadísticamente validado). La
+        Fase 5 del roadmap agrega una segunda capa estadística independiente para
+        validación cruzada antes de confiar en un umbral formal. Ver docs/adr/0003 en el
+        repo.
       </div>
 
       <form className="filters" method="get">

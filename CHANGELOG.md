@@ -30,6 +30,12 @@ Formato libre, orden cronológico inverso (más reciente arriba). Referencia a
   (no lo había en este entorno de desarrollo — ver `PROGRESS.md`); el esquema de
   `backend/app/models.py` es agnóstico del motor (SQLite en dev, Postgres en
   producción vía `DATABASE_URL`).
+- Verificado el frontend en navegador contra el backend real (no solo `curl` a
+  la API) y encontrado ahí un bug que la prueba de API sola no mostraba: la
+  migración marcaba el 100% de los contratos como "anomalía" porque no aplicaba
+  ningún corte a `perc_error`. Corregido con un umbral provisional y documentado
+  (`ABS_PERC_ERROR_THRESHOLD = 1.0` en `migrate_dataset.py`) — de 5,282 pasó a
+  696 contratos marcados. Ver `PROGRESS.md` para el detalle.
 
 ## 2026-08-14 — Fase 0: Planificación de la plataforma pública
 

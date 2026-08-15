@@ -27,7 +27,19 @@ no asumido):
     anomalía. En su lugar se expone `perc_error` (fórmula verificada:
     perc_error == (valor_real - predicho) / predicho) como score continuo, y se
     deja la curación de un umbral formal para la Fase 5 (ver ADR 0003).
+
+Umbral provisional para crear una fila de `Anomaly` (no confundir con un umbral
+estadísticamente validado — eso es exactamente lo que falta y es el objetivo de
+Fase 5): la desviación mediana de este mismo modelo sobre este dataset ya es
+~31% (ruido normal del propio modelo), así que crear una anomalía por cualquier
+perc_error distinto de cero marcaría prácticamente el 100% de los contratos como
+"anómalos" — se comprobó en vivo (ver PROGRESS.md) y no sirve para nada. Se usa
+ABS_PERC_ERROR_THRESHOLD = 1.0 (el valor real es al menos el doble o menos de la
+mitad del valor predicho) como corte grueso y fácil de explicar, que deja ~13%
+de los contratos (696 de 5282) como dignos de revisión en vez de todos.
 """
+
+ABS_PERC_ERROR_THRESHOLD = 1.0
 
 import hashlib
 import sys
@@ -190,7 +202,7 @@ def main():
                         )
                     )
 
-                if perc_error is not None and predict is not None:
+                if perc_error is not None and predict is not None and abs(perc_error) >= ABS_PERC_ERROR_THRESHOLD:
                     db.add(
                         models.Anomaly(
                             contract_id=contract.id,

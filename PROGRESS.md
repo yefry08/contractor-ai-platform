@@ -34,10 +34,24 @@ de arquitectura.
     relevante porque un error de escala de 1000x en montos es exactamente el tipo
     de cosa que una herramienta anti-corrupción no puede darse el lujo de mostrar
     mal.
-- **Fase 1 — frontend**: Next.js mínimo (`frontend/`) con listado de contratos,
-  explorador de anomalías y detalle de contrato, consumiendo la API. Instalación
-  de dependencias en curso/verificación pendiente — ver siguiente sección si sigue
-  bloqueado al leer esto.
+- **Fase 1 — frontend** (2026-08-15): Next.js mínimo (`frontend/`) con listado de
+  contratos, explorador de anomalías y detalle de contrato, consumiendo la API.
+  Verificado en navegador contra el backend real (sin datos hardcodeados),
+  incluida navegación a detalle de contrato.
+  - **Bug encontrado y corregido probando la app, no solo la API**: la primera
+    versión del script de migración creaba una fila de `Anomaly` para
+    *cualquier* contrato con `perc_error` distinto de cero. Como la desviación
+    mediana del propio modelo en este dataset ya es ~31% (ruido normal), esto
+    marcaba el 100% de los contratos (5,282 de 5,282) como "anomalía" en la
+    página `/anomalies` — inútil y engañoso. Se corrigió aplicando un corte
+    provisional (`ABS_PERC_ERROR_THRESHOLD = 1.0` en
+    `backend/scripts/migrate_dataset.py`: solo se marca cuando el valor real es
+    al menos el doble o menos de la mitad del predicho), documentado en el
+    script como grueso/no validado estadísticamente — la validación formal
+    sigue siendo trabajo de Fase 5. Con el corte, quedan 696 contratos
+    marcados (~13%), un número que sí sirve para algo. Esto solo se detectó
+    abriendo la app en el navegador, no habría aparecido probando la API sola
+    con curl.
 
 ## Bloqueado — pendiente de credencial/decisión humana
 
@@ -62,11 +76,14 @@ de arquitectura.
 
 ## Siguiente paso concreto
 
-Verificar que el frontend (`frontend/`) levanta y muestra datos reales del
-backend (`npm run dev`, backend corriendo en :8000). Si ya funciona al leer esto:
-pasar a Fase 2 (ingesta multi-país en vivo, ver roadmap en PLANNING.md) — el
-primer paso ahí es relevar qué países más allá de Paraguay/Colombia tienen API
-OCDS limpia (bloqueo de alcance de arriba).
+Fase 1 está funcionalmente completa y verificada en navegador (backend + frontend
++ migración, ver arriba). Pasar a **Fase 2** (ingesta multi-país en vivo, ver
+roadmap en PLANNING.md) — el primer paso ahí es relevar qué países más allá de
+Paraguay/Colombia tienen API OCDS limpia (bloqueo de alcance arriba). Antes de
+eso, sigue pendiente sin bloquear Fase 2: instalar Postgres real (vía
+`docker-compose.yml`) y validar que la migración corre igual contra él, ya que
+todo lo probado hasta ahora fue sobre SQLite por falta de Docker en este
+entorno.
 
 ## Notas de operación
 
