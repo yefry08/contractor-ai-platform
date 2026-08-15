@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+sqlalchemy>=2
+openpyxl
+pydantic
+pydantic-settings
+python-dotenv

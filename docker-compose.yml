@@ -1,0 +1,24 @@
+# Postgres local para desarrollo/staging, per docs/architecture/PLANNING.md.
+# No se pudo probar en este entorno (sin Docker disponible, ver PROGRESS.md) —
+# se deja listo para cuando exista Docker o para producción.
+#
+# Uso:
+#   docker compose up -d
+#   export DATABASE_URL=postgresql+psycopg2://contractor:contractor@localhost:5432/contractor
+#   (backend/.venv) pip install psycopg2-binary
+#   python backend/scripts/migrate_dataset.py
+#   uvicorn app.main:app --app-dir backend
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: contractor
+      POSTGRES_PASSWORD: contractor
+      POSTGRES_DB: contractor
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

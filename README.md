@@ -1,4 +1,12 @@
-DEMO: https://hack-corruption-contractor.streamlit.app/
+DEMO (prototipo original, Streamlit): https://hack-corruption-contractor.streamlit.app/
+
+> **Evolucionando a plataforma pública multi-país.** Ver
+> [`docs/architecture/PLANNING.md`](docs/architecture/PLANNING.md) para la
+> arquitectura y el roadmap, [`docs/adr/`](docs/adr/) para las decisiones clave,
+> y [`PROGRESS.md`](PROGRESS.md) / [`CHANGELOG.md`](CHANGELOG.md) para el estado
+> vivo del desarrollo. El nuevo backend (`backend/`, FastAPI) y frontend
+> (`frontend/`, Next.js) de Fase 1 conviven con el prototipo original sin
+> reemplazarlo todavía.
 
 Transparency Above All – Contractor AI
 We have developed a solution to reduce corruption and fraud in public procurement by increasing transparency, ensuring the proper delivery of essential public goods and services to citizens.
