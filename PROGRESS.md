@@ -80,11 +80,29 @@ de arquitectura.
 
 ## Siguiente paso concreto
 
-Fase 1 está funcionalmente completa y verificada en navegador (backend + frontend
-+ migración, ver arriba). Pasar a **Fase 2** (ingesta multi-país en vivo, ver
-roadmap en PLANNING.md) — el primer paso ahí es relevar qué países más allá de
-Paraguay/Colombia tienen API OCDS limpia (bloqueo de alcance arriba). Antes de
-eso, sigue pendiente sin bloquear Fase 2: instalar Postgres real (vía
+Fase 1 está funcionalmente completa y verificada en navegador (backend +
+frontend + migración, ver arriba). El relevamiento de países para Fase 2 ya
+está hecho (`docs/architecture/fase2-relevamiento-paises.md`), con Colombia
+como primer candidato sugerido.
+
+**Intento de verificar el endpoint real de Colombia (2026-08-15): sin
+resolver.** La página oficial de Colombia Compra Eficiente
+(operaciones.colombiacompra.gov.co/transparencia/estandar-ocds) confirma que
+existe una API OCDS pero no publica la URL del endpoint, ni límites de tasa,
+ni términos de uso específicos para acceso programático — y el pie de página
+dice "© 2020", lo que no permite confirmar si sigue mantenida. No se debe
+adivinar ni construir un conector contra una URL no verificada de un sistema
+de gobierno real. Alternativa a evaluar antes de escribir código de Fase 2:
+Colombia también publica en datos.gov.co sobre la plataforma Socrata (ej.
+dataset "Contratos Secop II", resource id `tb27-zmix`), que sí tiene API
+pública documentada (Socrata SODA API) aunque no sea nativamente OCDS —
+requeriría mapeo de campos en vez de reutilizar el parser OCDS existente.
+
+Próximo paso concreto: (a) contactar a Colombia Compra Eficiente para pedir la
+documentación técnica del endpoint OCDS (datos de contacto en la página
+oficial), o (b) evaluar directamente la API de datos.gov.co/Socrata como
+alternativa más verificable, antes de escribir el primer conector de Fase 2.
+Mientras tanto, sin bloquear lo anterior: instalar Postgres real (vía
 `docker-compose.yml`) y validar que la migración corre igual contra él, ya que
 todo lo probado hasta ahora fue sobre SQLite por falta de Docker en este
 entorno.
