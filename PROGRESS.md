@@ -229,26 +229,28 @@ de arquitectura.
 
 ## Siguiente paso concreto
 
-Fase 1 (Paraguay) y la primera ingesta en vivo de Fase 2 (Colombia, vía
-datos.gov.co) están funcionalmente completas y verificadas en navegador.
+Cinco países integrados (Paraguay, Colombia, Chile*, Costa Rica, República
+Dominicana — *Chile bloqueado por throttling, ver arriba), 15,473 contratos
+totales. El hueco más grande ahora no es "más países", es que **más de la
+mitad de los contratos (Colombia en vivo, Costa Rica, Rep. Dominicana —
+~8,600 de 15,473) no tienen score de anomalía**, porque no hay un pipeline
+de inferencia corriendo sobre datos en vivo — solo los datasets ya
+procesados (Paraguay, el bulk de Colombia) lo traen.
 
-Candidatos concretos para seguir, en orden de impacto:
+Candidatos concretos, en orden de impacto:
 
-1. **Resolver el throttling de Chile** (ver bloqueo arriba) — sin esto,
-   `ingest_chile_live.py` sigue sin poder traer contratos de verdad.
-2. **Ampliar la ingesta en vivo de Colombia más allá de los 5,000 registros
-   más recientes** — el dataset tiene ~5.95M filas; `ingest_colombia_live.py`
-   ya pagina y es idempotente, así que subir `MAX_RECORDS` o correrlo
-   periódicamente (cron/Prefect en producción) es incremental, no requiere
-   rediseño. A diferencia de Chile, Colombia no mostró ningún problema de
-   throttling con el mismo patrón de pausa entre pedidos.
-3. **Correr un modelo de predicción sobre los contratos en vivo de Colombia**
-   para que tengan score de anomalía como los demás — requiere decidir si se
-   reentrena/reusa el modelo BERT+XGBoost existente o se documenta como
-   bloqueado por falta de pesos entrenados accesibles en este entorno.
-4. Instalar Postgres real (vía `docker-compose.yml`) y validar que ambas
-   migraciones corren igual contra él — todo lo probado hasta ahora fue sobre
-   SQLite por falta de Docker en este entorno.
+1. **Capa estadística (Fase 5 / ADR 0003), aplicada a los 5 países.** El
+   esquema ya tiene `statistical_flags` sin usar. Un detector de outliers por
+   IQR/z-score agrupado por categoría+entidad+país (sin depender de pesos de
+   BERT/XGBoost que no tenemos) le daría score de anomalía a los ~8,600
+   contratos que hoy no tienen ninguno — el hueco funcional más grande del
+   sistema hoy. Autocontenido, no depende de nada externo bloqueado.
+2. **Chile**: contactar a ChileCompra por el umbral real, o aceptar un ritmo
+   mucho más lento y conservador — no hay más avance posible sin eso.
+3. Ampliar volumen de Colombia/Costa Rica/Rep. Dominicana más allá de la
+   muestra inicial — mecánico, ya paginan e idempotentes.
+4. Instalar Postgres real y validar las migraciones contra él — bloqueado
+   por falta de Docker en este entorno de desarrollo.
 
 ## Notas de operación
 
