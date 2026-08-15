@@ -3,6 +3,31 @@
 Formato libre, orden cronológico inverso (más reciente arriba). Referencia a
 `docs/adr/` para el razonamiento detrás de decisiones de arquitectura.
 
+## 2026-08-15 — Primera ingesta en vivo real: Colombia vía datos.gov.co
+
+- El endpoint OCDS "oficial" de Colombia Compra Eficiente seguía sin poder
+  verificarse (ver entrada anterior). Se buscó una alternativa y se encontró
+  y verificó en vivo: **datos.gov.co** (portal oficial de datos abiertos del
+  gobierno de Colombia) publica "SECOP II - Contratos Electrónicos"
+  (`jbjy-vk9h`) sobre una API pública Socrata/SODA sin token, actualizada el
+  mismo día que se escribió esto (~5.95M contratos totales).
+- Añadido `backend/scripts/ingest_colombia_live.py`: ingesta en vivo real
+  (no carga en bloque de un dataset ajustado por terceros) de los 5,000
+  contratos más recientes, paginado, idempotente vía `id_contrato` (probado
+  corriendo el script dos veces seguidas: la segunda vez, 0 nuevos, 5,000
+  duplicados detectados correctamente). Trae fecha real de firma, a
+  diferencia del dataset de terceros usado antes.
+- Estos contratos no tienen predicción del modelo NLP ni score de anomalía
+  (no hay pesos de BERT/XGBoost para inferencia en vivo en este entorno) —
+  documentado como limitación real, no simulado.
+- Colombia pasa de 1,548 a 6,548 contratos totales. Verificado en navegador:
+  el contrato más reciente en el sistema tiene fecha 2026-08-14.
+- Actualizado `docs/architecture/fase2-relevamiento-paises.md`: ya no hace
+  falta perseguir el endpoint OCDS no verificado de Colombia Compra
+  Eficiente, datos.gov.co es una fuente en vivo confirmada y en uso.
+- Frontend: nota actualizada explicando las dos fuentes de Colombia (en vivo
+  sin anomalía vs. dataset de terceros con anomalía pero sin fecha).
+
 ## 2026-08-15 — Colombia agregada como segundo país (dataset de terceros)
 
 - A pedido explícito del usuario, se sacaron los datos de Colombia de

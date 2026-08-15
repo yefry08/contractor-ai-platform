@@ -37,17 +37,21 @@ export default async function ContractsPage({
       <h1>Contratos públicos</h1>
       <p className="subtitle">
         {data.total.toLocaleString("es")} contratos — Paraguay (DNCP, Fase 1) y Colombia
-        (dataset de terceros, ver nota abajo).
+        (dos fuentes, ver nota abajo).
       </p>
 
       <div className="note">
         Paraguay: montos en USD ajustados por inflación (CPI) al año de referencia del
-        modelo, no el monto nominal al momento del contrato. Colombia: los datos vienen de
-        un dataset ya procesado por un tercero (mismo autor del prototipo original) sin
-        fecha por contrato, así que no hay forma responsable de convertir a USD — se
-        muestra el monto original en pesos colombianos (COP). Ver
-        docs/architecture/PLANNING.md y backend/scripts/migrate_colombia.py en el repo
-        para el detalle metodológico de cada país.
+        modelo, no el monto nominal al momento del contrato. Colombia combina dos fuentes:
+        ~5.000 contratos en vivo desde la API oficial de datos.gov.co (SECOP II, con fecha
+        real, sin score de anomalía todavía — no hay modelo de predicción corriendo en
+        vivo) y ~1.548 de un dataset ya procesado por un tercero (mismo autor del
+        prototipo original, con predicción y anomalía pero sin fecha). Ninguna de las dos
+        fuentes de Colombia tiene una tasa de cambio verificable por fecha, así que se
+        muestra el monto original en pesos colombianos (COP) en vez de forzar una
+        conversión a USD. Ver docs/architecture/PLANNING.md,
+        backend/scripts/migrate_colombia.py y backend/scripts/ingest_colombia_live.py en
+        el repo para el detalle metodológico.
       </div>
 
       <form className="filters" method="get">

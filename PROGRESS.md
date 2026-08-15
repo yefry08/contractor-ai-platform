@@ -90,6 +90,32 @@ de arquitectura.
     procesados — queda como oportunidad futura para completar `award_date` de
     Colombia, no se intentó ese cruce ahora.
 
+- **Ingesta en vivo de Colombia — primera conexión real de Fase 2** (2026-08-15).
+  El intento anterior de verificar el endpoint OCDS "oficial" de Colombia
+  Compra Eficiente seguía sin resolver, así que se buscó una alternativa
+  verificable: **datos.gov.co** (portal oficial de datos abiertos del
+  gobierno colombiano) publica el dataset "SECOP II - Contratos Electrónicos"
+  (`jbjy-vk9h`) sobre una API pública Socrata/SODA, sin token. Verificado en
+  vivo antes de escribir código: `rowsUpdatedAt` = 2026-08-15 08:17 UTC (el
+  mismo día), ~5.95M contratos totales.
+  - [`backend/scripts/ingest_colombia_live.py`](backend/scripts/ingest_colombia_live.py):
+    trae los 5,000 contratos más recientes (paginado, con pausa entre
+    páginas), idempotente vía `id_contrato` (correrlo dos veces no duplica —
+    verificado). A diferencia de `migrate_colombia.py` (carga en bloque de un
+    dataset de terceros), esto SÍ trae fecha real de firma por contrato.
+  - **Limitación honesta**: estos contratos no tienen predicción del modelo
+    NLP ni score de anomalía — no hay pesos entrenados de BERT/XGBoost
+    disponibles para correr inferencia en vivo en este entorno. Quedan
+    igual de navegables/buscables, simplemente sin `Anomaly`. Completar esto
+    requiere un pipeline de inferencia real, no algo para simular.
+  - Total Colombia ahora: 6,548 contratos (1,548 del dataset de terceros +
+    5,000 en vivo). Verificado en navegador: el contrato más reciente tiene
+    fecha 2026-08-14 (ayer).
+  - Actualizado `docs/architecture/fase2-relevamiento-paises.md` con este
+    hallazgo — cambia la recomendación: no hace falta seguir insistiendo con
+    el endpoint OCDS no verificado de Colombia Compra Eficiente, datos.gov.co
+    ya es una fuente en vivo verificada y funcionando.
+
 ## Bloqueado — pendiente de credencial/decisión humana
 
 - **Clave de API de OpenRouter** (o proveedor LLM equivalente) — necesaria para
@@ -117,32 +143,28 @@ de arquitectura.
 
 ## Siguiente paso concreto
 
-Fase 1 está funcionalmente completa y verificada en navegador (backend +
-frontend + migración, ver arriba). El relevamiento de países para Fase 2 ya
-está hecho (`docs/architecture/fase2-relevamiento-paises.md`), con Colombia
-como primer candidato sugerido.
+Fase 1 (Paraguay) y la primera ingesta en vivo de Fase 2 (Colombia, vía
+datos.gov.co) están funcionalmente completas y verificadas en navegador.
 
-**Intento de verificar el endpoint real de Colombia (2026-08-15): sin
-resolver.** La página oficial de Colombia Compra Eficiente
-(operaciones.colombiacompra.gov.co/transparencia/estandar-ocds) confirma que
-existe una API OCDS pero no publica la URL del endpoint, ni límites de tasa,
-ni términos de uso específicos para acceso programático — y el pie de página
-dice "© 2020", lo que no permite confirmar si sigue mantenida. No se debe
-adivinar ni construir un conector contra una URL no verificada de un sistema
-de gobierno real. Alternativa a evaluar antes de escribir código de Fase 2:
-Colombia también publica en datos.gov.co sobre la plataforma Socrata (ej.
-dataset "Contratos Secop II", resource id `tb27-zmix`), que sí tiene API
-pública documentada (Socrata SODA API) aunque no sea nativamente OCDS —
-requeriría mapeo de campos en vez de reutilizar el parser OCDS existente.
+Candidatos concretos para seguir, en orden de impacto:
 
-Próximo paso concreto: (a) contactar a Colombia Compra Eficiente para pedir la
-documentación técnica del endpoint OCDS (datos de contacto en la página
-oficial), o (b) evaluar directamente la API de datos.gov.co/Socrata como
-alternativa más verificable, antes de escribir el primer conector de Fase 2.
-Mientras tanto, sin bloquear lo anterior: instalar Postgres real (vía
-`docker-compose.yml`) y validar que la migración corre igual contra él, ya que
-todo lo probado hasta ahora fue sobre SQLite por falta de Docker en este
-entorno.
+1. **Ampliar la ingesta en vivo de Colombia más allá de los 5,000 registros
+   más recientes** — el dataset tiene ~5.95M filas; `ingest_colombia_live.py`
+   ya pagina y es idempotente, así que subir `MAX_RECORDS` o correrlo
+   periódicamente (cron/Prefect en producción) es incremental, no requiere
+   rediseño.
+2. **Correr un modelo de predicción sobre los contratos en vivo de Colombia**
+   para que tengan score de anomalía como los demás — requiere decidir si se
+   reentrena/reusa el modelo BERT+XGBoost existente o se documenta como
+   bloqueado por falta de pesos entrenados accesibles en este entorno.
+3. **Chile** (siguiente candidato del relevamiento, API en tiempo real según
+   fuentes oficiales) — repetir el mismo proceso de verificación en vivo
+   antes de escribir el conector (no asumir que la documentación pública
+   describe correctamente el estado actual, como pasó con el endpoint OCDS
+   "oficial" de Colombia que resultó no verificable).
+4. Instalar Postgres real (vía `docker-compose.yml`) y validar que ambas
+   migraciones corren igual contra él — todo lo probado hasta ahora fue sobre
+   SQLite por falta de Docker en este entorno.
 
 ## Notas de operación
 

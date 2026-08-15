@@ -12,7 +12,7 @@
 | País | Organismo | Estado | Notas |
 |---|---|---|---|
 | Paraguay | DNCP | ✅ Ya integrado (Fase 1) | Actualización horaria, datos desde 2011. Portal: contrataciones.gov.py |
-| Colombia | Agencia Nacional de Contratación Pública (SECOP II / TVEC) | API disponible | **Ojo:** el registro de OCP muestra el dataset sin actualizar desde abril 2022 — verificar si el organismo sigue publicando OCDS activamente o si cambió de canal antes de construir el conector. |
+| Colombia | Agencia Nacional de Contratación Pública (SECOP II / TVEC) | ⚠️ API OCDS "oficial" sin verificar — **pero hay alternativa verificada y ya integrada** | El endpoint OCDS de Colombia Compra Eficiente nunca se pudo confirmar (la página oficial no publica la URL, ver PROGRESS.md 2026-08-15). En su lugar se usó **datos.gov.co** (portal oficial de datos abiertos del gobierno, dataset "SECOP II - Contratos Electrónicos", API pública Socrata/SODA, id `jbjy-vk9h`) — verificado en vivo el 2026-08-15 (actualizado el mismo día, ~5.95M contratos totales). No es OCDS nativo (es tabular), se mapea campo a campo. Ya integrado como ingesta en vivo en `backend/scripts/ingest_colombia_live.py` (5,000 contratos más recientes, idempotente vía `id_contrato`). Sin modelo de predicción corriendo en vivo todavía — esos contratos no tienen score de anomalía. |
 | Chile | ChileCompra (Dirección de Compras y Contratación Pública) | API disponible, tiempo real | Cobertura completa desde 2022 en el dataset OCDS (implementación empezó en 2018, fue creciendo en alcance). Buen candidato para ir después de Colombia. |
 | Perú | OECE (ex-OSCE), vía SEACE | API disponible (`contratacionesabiertas.osce.gob.pe/api`) | Dataset con mayor profundidad histórica (desde 2003). Fuente reporta problemas de calidad conocidos (IDs de organización duplicados, estados de contrato faltantes) — reforzar la validación de esquema por país (§5 riesgo #1 de PLANNING.md) especialmente aquí. |
 | Ecuador | SERCOP | API disponible | Empezó publicando compras de emergencia COVID-19 en OCDS, ahora cubre contratación general. |
@@ -32,7 +32,7 @@
 
 ## Recomendación de orden para Fase 2
 
-1. **Colombia** — ya hay trabajo previo del equipo (`Code/main_colombia.ipynb`, datos en `Data/resultados finales/resultadoscol.xlsx`), aunque hay que confirmar primero si el organismo sigue publicando OCDS activamente (ver tabla).
+1. ~~**Colombia**~~ — ✅ hecho (2026-08-15). Ingesta en vivo funcionando contra datos.gov.co (ver tabla arriba y `backend/scripts/ingest_colombia_live.py`), más un dataset ya procesado de un tercero como complemento (`backend/scripts/migrate_colombia.py`). Pendiente: correr un modelo de predicción sobre los contratos que entran en vivo (hoy no tienen score de anomalía), y decidir si vale la pena seguir insistiendo con el endpoint OCDS oficial o quedarse con datos.gov.co como fuente definitiva para Colombia.
 2. **Chile** — API en tiempo real, buena documentación pública, sin señales de discontinuación.
 3. **Perú** — mayor volumen histórico, pero exige más trabajo de limpieza por los problemas de calidad ya reportados por terceros.
 4. **Ecuador** — API disponible, menos verificado en esta pasada; confirmar estabilidad del endpoint antes de comprometerse.
