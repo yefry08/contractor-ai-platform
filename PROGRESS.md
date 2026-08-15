@@ -7,6 +7,35 @@ de arquitectura.
 
 ## Completado
 
+- **Plataforma desplegada en producción** (2026-08-15). Backend en Render
+  (https://contractor-ai-api.onrender.com, plan free, Postgres gestionado vía
+  `render.yaml`), frontend en Vercel (https://contractor-ai-one.vercel.app).
+  Fly.io se descartó a mitad de camino por un fallo de verificación de medio
+  de pago que el usuario no pudo resolver — la decisión fue migrar a
+  Render+Vercel (ninguno de los dos pide tarjeta en el tier gratuito) en vez
+  de insistir. Repo en GitHub: `yefry08/contractor-ai-platform` (privado —
+  el repo ya tenía en su historial archivos con datos sensibles reales:
+  lista de usuarios, base de proveedores, comprobantes financieros, notas de
+  reunión internas; no se reescribió el historial para hacerlo público sin
+  confirmación explícita).
+  - Las 5 fuentes de datos (Paraguay, Colombia bulk, Colombia en vivo, Costa
+    Rica en vivo, Rep. Dominicana en vivo) y la capa estadística se corrieron
+    contra la base de Postgres real de producción, no solo contra SQLite
+    local — verificado con `curl` directo a la API desplegada:
+    `/contracts` devuelve `total: 15473`, `/countries` devuelve los 4 países
+    con datos (Chile sigue sin datos, ver bloqueo de throttling abajo).
+  - **Bug real encontrado corriendo contra la base remota, no en local**: los
+    5 scripts de ingesta hacían `db.flush()` por cada fila para leer el ID
+    autogenerado antes de usarlo como FK en Prediction/Anomaly/Provenance.
+    Contra SQLite eso es casi gratis; contra Postgres remoto cada flush es un
+    round-trip de red real — la migración de Paraguay se quedó pegada en la
+    fila ~500 con el proceso vivo pero sin avanzar. Como todos los modelos ya
+    usan un default de UUID del lado de Python (no una secuencia de
+    Postgres), el ID se conoce apenas se construye el objeto — no hacía
+    falta el flush en absoluto. Se corrigió generando el UUID explícitamente
+    antes de construir cada fila en los 5 scripts; la migración de Paraguay
+    pasó de quedarse pegada a terminar en menos de 2 minutos.
+
 - **Fase 5 — capa estadística independiente (ADR 0003)** (2026-08-15). El
   hueco funcional más grande de la plataforma era que más de la mitad de
   los contratos (Colombia en vivo, Costa Rica, Rep. Dominicana — ~8.600 de

@@ -3,6 +3,31 @@
 Formato libre, orden cronológico inverso (más reciente arriba). Referencia a
 `docs/adr/` para el razonamiento detrás de decisiones de arquitectura.
 
+## 2026-08-15 — Primer despliegue a producción: Render + Vercel
+
+A pedido del usuario ("docker is ready and please deploy with a free .dev
+domain", luego "Vercel+Render" tras un fallo de pago en Fly.io).
+
+- Backend desplegado en Render (`contractor-ai-api.onrender.com`) vía
+  `render.yaml` (Blueprint: web service Docker + Postgres gestionado, free
+  tier, sin tarjeta). Frontend en Vercel
+  (`contractor-ai-one.vercel.app`), con `NEXT_PUBLIC_API_URL` apuntando al
+  backend de Render.
+- Repo publicado en GitHub como `yefry08/contractor-ai-platform`, **privado**
+  — el historial ya tenía archivos con datos sensibles reales (lista de
+  usuarios, base de proveedores, comprobantes) desde el commit inicial de
+  Fase 0; no se hizo público sin decidir primero qué hacer con eso.
+- Corridas las 5 fuentes de datos y la capa estadística contra la Postgres
+  real de producción (no solo SQLite local). En el camino, la migración de
+  Paraguay se quedó pegada en la fila ~500 contra la base remota — los 5
+  scripts de ingesta hacían un `db.flush()` innecesario por fila (todos los
+  modelos ya generan su UUID del lado de Python, no hacía falta leer el ID
+  de vuelta del servidor). Corregido generando los UUIDs explícitamente
+  antes de insertar; la migración completa de Paraguay pasó de trabarse a
+  terminar en menos de 2 minutos. Verificado con los 5 scripts corridos de
+  nuevo de punta a punta contra producción: 15,473 contratos totales,
+  confirmado con `curl` directo a la API ya desplegada, no solo localmente.
+
 ## 2026-08-15 — Capa estadística independiente (Fase 5 / ADR 0003)
 
 A pedido del usuario, tras preguntar "¿cuál es el siguiente paso?" y aceptar
