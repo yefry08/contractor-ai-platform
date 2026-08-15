@@ -81,13 +81,28 @@ export default async function ContractDetailPage({
             </span>
           </h2>
           <p>
-            Desviación respecto al valor predicho:{" "}
-            <strong>{anomaly.nlp_component !== null ? `${(anomaly.nlp_component * 100).toFixed(1)}%` : "—"}</strong>
+            {anomaly.nlp_component !== null && (
+              <>
+                Desviación del modelo NLP respecto al valor predicho:{" "}
+                <strong>{(anomaly.nlp_component * 100).toFixed(1)}%</strong>
+                <br />
+              </>
+            )}
+            {anomaly.stat_component !== null && (
+              <>
+                Desviación estadística (z-score modificado, robusto, contra contratos
+                similares del mismo comprador/categoría/país):{" "}
+                <strong>{anomaly.stat_component.toFixed(2)}</strong>
+              </>
+            )}
           </p>
           <div className="note">
-            Este score viene únicamente del modelo NLP. Todavía no hay una segunda capa
-            estadística independiente que lo corrobore (Fase 5 del roadmap) — tratar como
-            una señal a investigar, no como una conclusión.
+            {anomaly.nlp_component !== null && anomaly.stat_component !== null
+              ? "Ambas señales coinciden en marcar este contrato — el modelo NLP y el método estadístico son completamente independientes entre sí."
+              : anomaly.nlp_component !== null
+                ? "Este score viene únicamente del modelo NLP. Todavía no hay una segunda capa estadística que lo corrobore para este contrato en particular."
+                : "Este score viene únicamente del método estadístico (mediana + MAD, sin ningún modelo de IA de por medio) — no hay predicción del modelo NLP para este contrato."}{" "}
+            Tratar como una señal a investigar, no como una conclusión.
           </div>
         </div>
       )}

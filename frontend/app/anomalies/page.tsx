@@ -18,6 +18,19 @@ function fmtPct(n: number | null) {
   return `${(n * 100).toFixed(0)}%`;
 }
 
+function fmtDeviation(nlpComponent: number | null, statComponent: number | null) {
+  if (nlpComponent !== null) return fmtPct(nlpComponent);
+  if (statComponent !== null) return `z=${statComponent.toFixed(1)}`;
+  return "—";
+}
+
+function signalLabel(nlpComponent: number | null, statComponent: number | null) {
+  if (nlpComponent !== null && statComponent !== null) return "NLP + estadística";
+  if (nlpComponent !== null) return "NLP";
+  if (statComponent !== null) return "estadística";
+  return "—";
+}
+
 export default async function AnomaliesPage({
   searchParams,
 }: {
@@ -41,18 +54,22 @@ export default async function AnomaliesPage({
     <>
       <h1>Anomalías detectadas</h1>
       <p className="subtitle">
-        Ordenadas por score de desviación entre el valor real y el valor predicho por el
-        modelo NLP (BERT + XGBoost). {data.total.toLocaleString("es")} contratos marcados.
+        Dos señales independientes: desviación del modelo NLP (BERT + XGBoost, solo
+        Paraguay y el bulk de Colombia) y desviación estadística robusta contra
+        contratos similares (todos los países, Fase 5 / ADR 0003).{" "}
+        {data.total.toLocaleString("es")} contratos marcados.
       </p>
 
       <div className="note">
-        Esto NO es una acusación de corrupción — es una desviación estadística respecto al
-        valor de referencia predicho por un solo modelo (capa NLP). Se muestran solo
-        contratos donde el valor real es al menos el doble o menos de la mitad del valor
-        predicho (corte grueso y provisional, no un umbral estadísticamente validado). La
-        Fase 5 del roadmap agrega una segunda capa estadística independiente para
-        validación cruzada antes de confiar en un umbral formal. Ver docs/adr/0003 en el
-        repo.
+        Esto NO es una acusación de corrupción. Señal NLP: desviación respecto al valor
+        de referencia predicho por el modelo (solo se muestra cuando el valor real es al
+        menos el doble o menos de la mitad del predicho). Señal estadística: z-score
+        modificado (mediana + MAD, sobre el logaritmo del monto para no distorsionar por
+        la asimetría típica del gasto público) comparado contra el mismo comprador,
+        categoría o país — independiente de cualquier modelo de IA, calculado localmente
+        a partir de los datos ya ingeridos. Cuando un contrato tiene las dos señales,
+        ambas se muestran por separado, no se combinan en un solo número. Ver
+        docs/adr/0003 y backend/scripts/compute_statistical_anomalies.py en el repo.
       </div>
 
       <form className="filters" method="get">
@@ -79,6 +96,7 @@ export default async function AnomaliesPage({
             <th>País</th>
             <th>Comprador</th>
             <th>Tipo</th>
+            <th>Señal</th>
             <th>Desviación</th>
             <th>Monto</th>
           </tr>
@@ -96,7 +114,8 @@ export default async function AnomaliesPage({
                   {a.anomaly_type === "overcost" ? "Sobrecosto" : "Subcosto"}
                 </span>
               </td>
-              <td>{fmtPct(a.nlp_component)}</td>
+              <td>{signalLabel(a.nlp_component, a.stat_component)}</td>
+              <td>{fmtDeviation(a.nlp_component, a.stat_component)}</td>
               <td>{fmtAmount(a.contract)}</td>
             </tr>
           ))}
