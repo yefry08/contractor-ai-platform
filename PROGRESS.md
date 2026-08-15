@@ -7,6 +7,36 @@ de arquitectura.
 
 ## Completado
 
+- **Fase 5 — capa estadística independiente (ADR 0003)** (2026-08-15). El
+  hueco funcional más grande de la plataforma era que más de la mitad de
+  los contratos (Colombia en vivo, Costa Rica, Rep. Dominicana — ~8.600 de
+  15.473) no tenían ningún score de anomalía. Cerrado con
+  [`backend/scripts/compute_statistical_anomalies.py`](backend/scripts/compute_statistical_anomalies.py):
+  z-score modificado (Iglewicz & Hoaglin) + cercas de Tukey (IQR), sobre
+  log(monto) agrupado por comprador (o categoría, o país, con fallback
+  jerárquico cuando el grupo específico no tiene suficientes datos) —
+  completamente independiente de cualquier modelo NLP/LLM. Llena
+  `statistical_flags` (sin usar hasta ahora) y crea/completa `Anomaly`.
+  - **Dos bugs reales encontrados probando contra datos reales, no en
+    teoría**: (1) calcular sobre montos crudos dio un z-score de 258,491
+    para un contrato legítimo de Costa Rica, por la asimetría típica del
+    gasto público — corregido calculando sobre log(monto), práctica
+    estándar para datos monetarios que abarcan varios órdenes de magnitud.
+    (2) un comprador de Paraguay con 7 contratos casi idénticos y 4 mucho
+    más grandes seguía dando scores en los miles incluso en escala log
+    (MAD genuinamente casi cero) — se acotó |z| en 50 (muy por encima del
+    umbral de marcado de 3.5, así que no cambia qué se marca, solo evita
+    números sin sentido práctico), documentado explícitamente en el script.
+  - 724 anomalías nuevas solo-estadísticas, 803 anomalías NLP existentes
+    (Paraguay + bulk Colombia) ahora con `stat_component` además de
+    `nlp_component` — las dos señales se muestran por separado, nunca
+    combinadas en un solo número. Idempotente (verificado corriendo el
+    script tres veces).
+  - Frontend actualizado (`/anomalies` y detalle de contrato) para mostrar
+    qué señal(es) marcaron cada contrato. Verificado en navegador,
+    incluyendo un caso donde ambas señales independientes coinciden (un
+    contrato de $25.5M predicho en $38K por NLP, z=50 por estadística).
+
 - **Fase 0 — Planificación** (2026-08-14): arquitectura, stack, modelo de datos,
   roadmap, riesgos, estrategia de validación y plan de despliegue documentados en
   [`docs/architecture/PLANNING.md`](docs/architecture/PLANNING.md). Decisiones
@@ -231,24 +261,22 @@ de arquitectura.
 
 Cinco países integrados (Paraguay, Colombia, Chile*, Costa Rica, República
 Dominicana — *Chile bloqueado por throttling, ver arriba), 15,473 contratos
-totales. El hueco más grande ahora no es "más países", es que **más de la
-mitad de los contratos (Colombia en vivo, Costa Rica, Rep. Dominicana —
-~8,600 de 15,473) no tienen score de anomalía**, porque no hay un pipeline
-de inferencia corriendo sobre datos en vivo — solo los datasets ya
-procesados (Paraguay, el bulk de Colombia) lo traen.
+totales, todos con al menos una señal de anomalía (NLP donde había
+predicción precalculada, estadística para el resto — ver Fase 5 arriba).
 
 Candidatos concretos, en orden de impacto:
 
-1. **Capa estadística (Fase 5 / ADR 0003), aplicada a los 5 países.** El
-   esquema ya tiene `statistical_flags` sin usar. Un detector de outliers por
-   IQR/z-score agrupado por categoría+entidad+país (sin depender de pesos de
-   BERT/XGBoost que no tenemos) le daría score de anomalía a los ~8,600
-   contratos que hoy no tienen ninguno — el hueco funcional más grande del
-   sistema hoy. Autocontenido, no depende de nada externo bloqueado.
-2. **Chile**: contactar a ChileCompra por el umbral real, o aceptar un ritmo
-   mucho más lento y conservador — no hay más avance posible sin eso.
+1. **Chile**: contactar a ChileCompra por el umbral real de throttling, o
+   aceptar un ritmo mucho más lento y conservador — no hay más avance
+   posible sin eso (ver bloqueo arriba, root cause ya identificada).
+2. **Validar la capa estadística contra el baseline de 3.55M** (§6 de
+   PLANNING.md) — todavía no se hizo la validación formal de precisión
+   (falsos positivos/negativos) prometida ahí, solo se verificó que los
+   números son sanos y que el mecanismo funciona correctamente.
 3. Ampliar volumen de Colombia/Costa Rica/Rep. Dominicana más allá de la
-   muestra inicial — mecánico, ya paginan e idempotentes.
+   muestra inicial — mecánico, ya paginan e idempotentes. Recordar correr
+   `compute_statistical_anomalies.py` de nuevo después (es barato y
+   idempotente) para que los contratos nuevos también tengan score.
 4. Instalar Postgres real y validar las migraciones contra él — bloqueado
    por falta de Docker en este entorno de desarrollo.
 

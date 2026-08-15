@@ -3,6 +3,32 @@
 Formato libre, orden cronológico inverso (más reciente arriba). Referencia a
 `docs/adr/` para el razonamiento detrás de decisiones de arquitectura.
 
+## 2026-08-15 — Capa estadística independiente (Fase 5 / ADR 0003)
+
+A pedido del usuario, tras preguntar "¿cuál es el siguiente paso?" y aceptar
+la recomendación: más de la mitad de los contratos (Colombia en vivo, Costa
+Rica, Rep. Dominicana — ~8.600 de 15.473) no tenían ningún score de
+anomalía, porque solo los datasets ya procesados (Paraguay, bulk de
+Colombia) traían predicciones del modelo NLP.
+
+Añadido `backend/scripts/compute_statistical_anomalies.py`: z-score
+modificado (Iglewicz & Hoaglin) + cercas de Tukey (IQR) sobre log(monto),
+agrupado por comprador/categoría/país con fallback jerárquico, totalmente
+independiente de cualquier modelo de IA. Llena `statistical_flags` (sin
+usar hasta ahora) y crea o completa filas de `Anomaly`.
+
+Dos bugs reales corregidos probando contra los datos reales (no en teoría):
+un z-score de 258,491 en un contrato legítimo de Costa Rica por calcular
+sobre montos crudos en vez de log(monto) -- corregido; y un comprador de
+Paraguay con un grupo de referencia casi sin varianza que seguía dando
+scores en los miles incluso en escala log -- corregido acotando |z| en 50
+(muy por encima del umbral de marcado, no cambia qué se marca).
+
+724 anomalías nuevas solo-estadísticas, 803 anomalías NLP existentes ahora
+con las dos señales visibles por separado. Idempotente. Frontend actualizado
+para mostrar qué señal(es) marcaron cada contrato, verificado en navegador
+incluyendo un caso donde ambas señales independientes coinciden.
+
 ## 2026-08-15 — República Dominicana en vivo (corrección del hallazgo anterior)
 
 El usuario preguntó puntualmente por Rep. Dominicana después de que se
