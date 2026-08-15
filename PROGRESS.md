@@ -116,6 +116,46 @@ de arquitectura.
     el endpoint OCDS no verificado de Colombia Compra Eficiente, datos.gov.co
     ya es una fuente en vivo verificada y funcionando.
 
+- **Costa Rica — ingesta en vivo funcionando (2026-08-15)**, a pedido
+  explícito del usuario ("panama y costa rica, terminar con Rep. Dominicana").
+  SICOP no tiene API/OCDS (confirmado); el Observatorio de Compra Pública
+  publica en cambio un ZIP mensual con CSVs relacionales de SICOP,
+  actualizado diariamente para el mes en curso, en una URL documentada y
+  predecible — verificado en vivo (`Last-Modified` del día anterior antes de
+  escribir código). `backend/scripts/ingest_costa_rica_live.py`: 1,643
+  contratos migrados, 0 fallidos, verificado en navegador. A diferencia de
+  Colombia, este dataset trae un monto ya convertido a USD por el propio
+  SICOP (`MONTO_ADJU_LINEA_USD`), así que `amount_usd` se pobló directamente
+  sin necesidad de inventar una tasa de cambio.
+
+- **Panamá — investigado a fondo, conector NO construido (2026-08-15)**. No
+  estaba en el relevamiento original; se agregó a pedido del usuario. Se
+  encontró una API OCDS real y bien documentada
+  (`ocds.panamacompraencifras.gob.pa`, tras descartar dos subdominios que
+  resultaron ser señuelos de desarrollo/versión anterior sin datos útiles).
+  Pero al inspeccionar el contenido real de varios `Release`/`Record` (2023 y
+  2024, no solo una muestra), **el campo `compiledRelease` nunca trae
+  tender/award/value/description/proveedor — solo `buyer` + `ocid` + fecha**.
+  No es un problema de acceso: la API responde perfecto y rápido. Es que el
+  pipeline de publicación de Panamá no llena los campos sustantivos del
+  release. Sumado a que no hay datos después de agosto 2024, se decidió NO
+  construir el conector — importaría contratos sin título, sin monto y sin
+  descripción, que no sirven para nada en una herramienta de detección de
+  anomalías. Documentado en `docs/architecture/fase2-relevamiento-paises.md`.
+
+- **República Dominicana — bloqueada por protección anti-bot, no por falta de
+  API (2026-08-15)**. `datos.gob.do` (portal CKAN oficial) funciona bien vía
+  `curl` para consultar metadata de los 6 datasets de la DGCP — confirmado.
+  Pero ninguno de esos datasets está en el datastore consultable de CKAN
+  (`datastore_active=false` en los 6); todos son archivos estáticos alojados
+  en `dgcp.gob.do`, que está detrás de Cloudflare con protección anti-bot:
+  `curl` recibe 403 inmediato y consistente, mientras que el mismo archivo se
+  descarga sin problema desde un navegador real (verificado con el propio
+  navegador de la sesión). No se intentó eludir la protección con headers
+  falsos ni nada similar — es una decisión de anti-abuso deliberada del lado
+  de DGCP, respetarla es lo correcto. Documentado como bloqueo real, no como
+  "no se pudo por falta de tiempo".
+
 - **Chile — conector escrito, NO verificado como funcional (2026-08-15)**.
   Se encontró y verificó en vivo la API OCDS pública de ChileCompra
   (`api.mercadopublico.cl/APISOCDS`, sin ticket, licencia CC0 — distinta de
@@ -146,6 +186,19 @@ de arquitectura.
 
 ## Bloqueado — pendiente de credencial/decisión humana
 
+- **República Dominicana — Cloudflare bloquea clientes automatizados.** Ver
+  arriba. La API de metadata (CKAN, datos.gob.do) funciona, pero los 6
+  datasets de la DGCP son archivos estáticos en `dgcp.gob.do`, protegidos por
+  Cloudflare anti-bot (403 a `curl`, funciona en navegador real). No se
+  intentó eludirlo. Pendiente de decisión: ¿pedir acceso/whitelist
+  directamente a la DGCP, o aceptar que este país queda fuera de la ingesta
+  automatizada por ahora?
+- **Panamá — no bloqueado técnicamente, descartado por calidad de datos.**
+  Ver arriba. A diferencia de los demás bloqueos, este no tiene un camino
+  claro de desbloqueo — el problema está en cómo Panamá publica sus propios
+  datos (`compiledRelease` vacío de contenido sustantivo), no en algo que se
+  pueda resolver desde este lado. Si en el futuro Panamá corrige su pipeline
+  de publicación OCDS, revisar `ocds.panamacompraencifras.gob.pa` de nuevo.
 - **Chile — throttling del lado del servidor sin umbral documentado.** Ver
   arriba. `ingest_chile_live.py` está escrito pero no logró traer contratos
   en esta sesión por conexiones cortadas del lado de ChileCompra, reproducido

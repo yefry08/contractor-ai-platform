@@ -3,6 +3,40 @@
 Formato libre, orden cronológico inverso (más reciente arriba). Referencia a
 `docs/adr/` para el razonamiento detrás de decisiones de arquitectura.
 
+## 2026-08-15 — Costa Rica en vivo; Panamá y República Dominicana investigados y descartados por ahora
+
+A pedido explícito del usuario: Panamá, Costa Rica, y República Dominicana.
+
+- **Costa Rica: integrado.** SICOP no tiene API/OCDS (confirmado). El
+  Observatorio de Compra Pública publica en cambio un ZIP mensual de CSVs de
+  SICOP, actualizado a diario, en una URL documentada y predecible —
+  verificado en vivo (`Last-Modified` del día anterior) antes de escribir
+  código. `backend/scripts/ingest_costa_rica_live.py`: 1,643 contratos, 0
+  fallidos, verificado en navegador. Trae un monto ya convertido a USD por el
+  propio SICOP, sin necesidad de inventar una tasa de cambio como en
+  Colombia. País agregado al selector del frontend.
+- **Panamá: investigado a fondo, conector NO construido.** No estaba en el
+  relevamiento original. Se encontró una API OCDS real, bien documentada
+  (`ocds.panamacompraencifras.gob.pa`, tras descartar dos subdominios señuelo
+  de desarrollo/versión anterior). Pero inspeccionando el contenido real de
+  varios releases (2023 y 2024, no una sola muestra), `compiledRelease` nunca
+  trae tender/award/value/description/proveedor — solo comprador y fecha. No
+  es un problema de acceso, la API responde perfecto; es que el pipeline de
+  publicación de Panamá no llena los campos sustantivos. Sumado a que no hay
+  datos después de agosto 2024, se decidió no construir un conector que
+  importaría contratos vacíos de contenido útil.
+- **República Dominicana: bloqueada por Cloudflare, no por falta de API.**
+  El portal CKAN oficial (`datos.gob.do`) funciona bien vía `curl` para
+  metadata — confirmado contra los 6 datasets de la DGCP. Pero ninguno está
+  en el datastore consultable de CKAN; todos son archivos estáticos en
+  `dgcp.gob.do`, protegido por Cloudflare anti-bot (403 inmediato a `curl`,
+  funciona en navegador real, verificado). No se intentó eludir la
+  protección — es una decisión de anti-abuso deliberada del lado de DGCP.
+- Los tres hallazgos quedan documentados con el mismo nivel de detalle que
+  Chile en `PROGRESS.md` y `docs/architecture/fase2-relevamiento-paises.md` —
+  ninguno se reporta como "no probado", cada uno tiene una causa raíz
+  identificada.
+
 ## 2026-08-15 — Chile: conector escrito, bloqueado por throttling del servidor
 
 - Se verificó en vivo la API OCDS pública de ChileCompra
