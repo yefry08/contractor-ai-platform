@@ -116,8 +116,45 @@ de arquitectura.
     el endpoint OCDS no verificado de Colombia Compra Eficiente, datos.gov.co
     ya es una fuente en vivo verificada y funcionando.
 
+- **Chile — conector escrito, NO verificado como funcional (2026-08-15)**.
+  Se encontró y verificó en vivo la API OCDS pública de ChileCompra
+  (`api.mercadopublico.cl/APISOCDS`, sin ticket, licencia CC0 — distinta de
+  la API "clásica" que sí exige ticket vía Clave Única). Un pedido aislado a
+  `listaOCDSAgnoMesTratoDirecto/2026/07/...` y a `.../award/{id}` funciona
+  perfecto y rápido.
+  - **Pero en loop, falla casi siempre.** Se investigó a fondo (no se asumió
+    "hay que esperar más" sin evidencia): se probó Python `urllib` con
+    reintentos, `requests` con `HTTPAdapter`/`Retry` y `Connection: close`,
+    y como último descarte, reemplazar todo el cliente HTTP por `curl` vía
+    subprocess — **los tres fallan igual** en loop, incluso con pausas de
+    1.5–3s entre pedidos. Esto descarta que sea un problema del stack HTTP de
+    Python; es throttling real del lado del servidor por frecuencia de
+    conexión, con un umbral no documentado y bastante bajo.
+  - [`backend/scripts/ingest_chile_live.py`](backend/scripts/ingest_chile_live.py)
+    queda escrito, idempotente (vía `ocid`), y con este hallazgo documentado
+    en su propio docstring — pero **no se logró traer un volumen útil de
+    contratos en esta sesión**. No se debe asumir que "ya funciona" solo
+    porque el código no tiene errores.
+  - Se decidió NO seguir probando distintos delays por prueba y error contra
+    un servicio público de otro país — ya mostró con hechos que hay que
+    bajar mucho el ritmo, seguir insistiendo sería irrespetuoso con un
+    servicio gratuito ajeno.
+  - **Bloqueado — pendiente de decisión humana**: ¿vale la pena seguir
+    ajustando el delay a ciegas, o conviene contactar a ChileCompra para
+    pedir el umbral real (o un token/ticket con límites más altos, si
+    existe esa opción para la ruta OCDS)? Registrado abajo también.
+
 ## Bloqueado — pendiente de credencial/decisión humana
 
+- **Chile — throttling del lado del servidor sin umbral documentado.** Ver
+  arriba. `ingest_chile_live.py` está escrito pero no logró traer contratos
+  en esta sesión por conexiones cortadas del lado de ChileCompra, reproducido
+  con tres clientes HTTP distintos (así que no es un problema de nuestro
+  código). Se necesita, en orden de preferencia: (a) contactar a ChileCompra
+  para pedir el umbral real o un ticket/token con límites más altos para la
+  ruta OCDS, o (b) decidir experimentalmente un delay mucho más conservador
+  (varios segundos por pedido) y aceptar que traer un volumen útil de
+  contratos va a ser lento.
 - **Clave de API de OpenRouter** (o proveedor LLM equivalente) — necesaria para
   cualquier tarea de extracción/resumen vía LLM (ADR 0002). No simular respuestas
   de LLM sin esta clave.
@@ -148,20 +185,18 @@ datos.gov.co) están funcionalmente completas y verificadas en navegador.
 
 Candidatos concretos para seguir, en orden de impacto:
 
-1. **Ampliar la ingesta en vivo de Colombia más allá de los 5,000 registros
+1. **Resolver el throttling de Chile** (ver bloqueo arriba) — sin esto,
+   `ingest_chile_live.py` sigue sin poder traer contratos de verdad.
+2. **Ampliar la ingesta en vivo de Colombia más allá de los 5,000 registros
    más recientes** — el dataset tiene ~5.95M filas; `ingest_colombia_live.py`
    ya pagina y es idempotente, así que subir `MAX_RECORDS` o correrlo
    periódicamente (cron/Prefect en producción) es incremental, no requiere
-   rediseño.
-2. **Correr un modelo de predicción sobre los contratos en vivo de Colombia**
+   rediseño. A diferencia de Chile, Colombia no mostró ningún problema de
+   throttling con el mismo patrón de pausa entre pedidos.
+3. **Correr un modelo de predicción sobre los contratos en vivo de Colombia**
    para que tengan score de anomalía como los demás — requiere decidir si se
    reentrena/reusa el modelo BERT+XGBoost existente o se documenta como
    bloqueado por falta de pesos entrenados accesibles en este entorno.
-3. **Chile** (siguiente candidato del relevamiento, API en tiempo real según
-   fuentes oficiales) — repetir el mismo proceso de verificación en vivo
-   antes de escribir el conector (no asumir que la documentación pública
-   describe correctamente el estado actual, como pasó con el endpoint OCDS
-   "oficial" de Colombia que resultó no verificable).
 4. Instalar Postgres real (vía `docker-compose.yml`) y validar que ambas
    migraciones corren igual contra él — todo lo probado hasta ahora fue sobre
    SQLite por falta de Docker en este entorno.

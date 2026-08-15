@@ -36,12 +36,38 @@ Dado el patrón en dos pasos (una llamada extra por contrato), se limita a
 público gratuito de otro país.
 
 Nota de comportamiento real observada (2026-08-15, no documentada por
-ChileCompra): con `REQUEST_DELAY_SECONDS` bajo (0.2s) el servidor empezó a
-cortar la conexión ("Remote end closed connection" / reset) a partir de
-varias decenas de pedidos seguidos -- rate limiting por IP, no explicitado en
-la documentación pública. Se subió el delay y se bajó `MAX_RECORDS` en
-consecuencia, en vez de reintentar agresivamente contra un servicio público
-que claramente está pidiendo que se baje el ritmo.
+ChileCompra) -- IMPORTANTE, leer antes de correr este script de nuevo:
+
+Con pedidos seguidos a `/APISOCDS/OCDS/award/{id}` (el endpoint de detalle),
+el servidor corta la conexión ("Remote end closed connection" / reset) casi
+de inmediato. Se investigó a fondo antes de asumir que alcanzaba con "esperar
+un poco más":
+
+  - Un pedido aislado (curl o Python urllib) siempre funciona, rápido
+    (<0.5s), sin importar el cliente usado.
+  - Con Python urllib + reintentos y backoff en loop: fallaron ~100% de los
+    pedidos, incluso con 1.5-2s de pausa entre cada uno.
+  - Con `requests` + `HTTPAdapter`/`Retry`, pool_maxsize=1 y
+    `Connection: close` explícito: mismo resultado, ~100% de fallos en loop.
+  - Reemplazando el cliente HTTP por `curl` vía subprocess (para descartar
+    que fuera un problema del stack TLS/HTTP de Python en particular): en un
+    loop con apenas 0.5s de pausa, TAMBIÉN falló ~100% de las veces (curl
+    error 52/56, respuesta vacía/conexión cortada).
+  - Conclusión: no es un problema del cliente (urllib vs requests vs curl da
+    igual) -- es throttling real por frecuencia de conexión del lado del
+    servidor, que se dispara con cualquier ráfaga de pedidos seguidos al
+    mismo host sin importar qué librería HTTP se use. El umbral exacto no
+    está documentado públicamente.
+
+No se siguió ajustando el delay a fuerza de prueba y error contra un
+servicio público de otro país -- eso sería seguir abusando de un sistema que
+ya mostró, con hechos, que hay que bajar mucho el ritmo. Este script queda
+escrito y correcto pero **no verificado como funcional a un volumen útil**:
+probablemente necesita un delay bastante mayor al configurado en
+`REQUEST_DELAY_SECONDS`, a determinar con más cuidado (idealmente
+consultando a ChileCompra en vez de adivinar por prueba y error). Ver
+PROGRESS.md para el estado real -- no asumir que "está listo" solo porque el
+código compila y no tiene errores de sintaxis.
 """
 
 import json

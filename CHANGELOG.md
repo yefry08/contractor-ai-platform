@@ -3,6 +3,28 @@
 Formato libre, orden cronológico inverso (más reciente arriba). Referencia a
 `docs/adr/` para el razonamiento detrás de decisiones de arquitectura.
 
+## 2026-08-15 — Chile: conector escrito, bloqueado por throttling del servidor
+
+- Se verificó en vivo la API OCDS pública de ChileCompra
+  (`api.mercadopublico.cl/APISOCDS`, sin ticket, licencia CC0) y se escribió
+  `backend/scripts/ingest_chile_live.py` siguiendo el mismo patrón que
+  Colombia (idempotente vía `ocid`, sin conversión a USD, sin predicción del
+  modelo NLP).
+- El primer intento con poca pausa entre pedidos falló casi al 100%
+  (conexiones cortadas por el servidor). En vez de asumir "hay que esperar
+  más" sin evidencia, se investigó a fondo: se probó Python `urllib` con
+  reintentos, `requests` con `HTTPAdapter`/`Retry` + `Connection: close`, y
+  como descarte final, reemplazar todo el cliente HTTP por `curl` vía
+  subprocess. **Los tres fallaron igual** en loop (incluso con 1.5–3s de
+  pausa), lo que descarta un problema del stack HTTP de Python específico —
+  es throttling real del servidor por frecuencia de conexión, con un umbral
+  no documentado.
+- Se decidió NO seguir ajustando el delay por prueba y error contra un
+  servicio público de otro país — quedó registrado como bloqueado en
+  `PROGRESS.md`, con las opciones concretas (contactar a ChileCompra por el
+  umbral real, o aceptar un ritmo mucho más lento). El código queda listo
+  para retomar apenas se resuelva esto, no hace falta reescribirlo.
+
 ## 2026-08-15 — Primera ingesta en vivo real: Colombia vía datos.gov.co
 
 - El endpoint OCDS "oficial" de Colombia Compra Eficiente seguía sin poder
