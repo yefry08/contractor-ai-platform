@@ -5,6 +5,11 @@ function fmtUsd(n: number | null) {
   return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 }
 
+function fmtOriginal(n: number | null, currency: string | null) {
+  if (n === null) return "—";
+  return `${n.toLocaleString("es")} ${currency ?? ""}`.trim();
+}
+
 export default async function ContractDetailPage({
   params,
 }: {
@@ -29,9 +34,22 @@ export default async function ContractDetailPage({
         <p>
           <strong>Método de contratación:</strong> {c.procurement_method ?? "—"} <br />
           <strong>Categoría:</strong> {c.category_code ?? "—"} <br />
-          <strong>Monto original:</strong> {c.amount_original?.toLocaleString("es")} {c.currency} <br />
-          <strong>Monto ajustado (USD, CPI):</strong> {fmtUsd(c.amount_usd)} <br />
-          <strong>OCID:</strong> <code>{c.ocid}</code>
+          <strong>Monto original:</strong> {fmtOriginal(c.amount_original, c.currency)} <br />
+          {c.amount_usd !== null && (
+            <>
+              <strong>Monto ajustado (USD, CPI):</strong> {fmtUsd(c.amount_usd)} <br />
+            </>
+          )}
+          {c.ocid && (
+            <>
+              <strong>OCID:</strong> <code>{c.ocid}</code> <br />
+            </>
+          )}
+          {c.source_url && (
+            <>
+              <strong>Fuente:</strong> <a href={c.source_url} target="_blank" rel="noreferrer">ver proceso original</a>
+            </>
+          )}
         </p>
       </div>
 
@@ -39,8 +57,16 @@ export default async function ContractDetailPage({
         <div className="card">
           <h2 style={{ marginTop: 0 }}>Predicción del modelo (NLP)</h2>
           <p>
-            <strong>Valor predicho:</strong> {fmtUsd(prediction.predicted_value_usd)} <br />
-            <strong>Rango de referencia:</strong> {fmtUsd(prediction.range_low)} – {fmtUsd(prediction.range_high)} <br />
+            <strong>Valor predicho:</strong>{" "}
+            {prediction.predicted_value_usd !== null
+              ? fmtUsd(prediction.predicted_value_usd)
+              : fmtOriginal(prediction.predicted_value_original, c.currency)}
+            <br />
+            {prediction.range_low !== null && (
+              <>
+                <strong>Rango de referencia:</strong> {fmtUsd(prediction.range_low)} – {fmtUsd(prediction.range_high)} <br />
+              </>
+            )}
             <strong>Score de similitud:</strong> {prediction.likelihood_score?.toFixed(4) ?? "—"} <br />
             <strong>Modelo:</strong> {prediction.model_name} ({prediction.model_version})
           </p>

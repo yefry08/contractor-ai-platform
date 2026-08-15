@@ -3,6 +3,34 @@
 Formato libre, orden cronológico inverso (más reciente arriba). Referencia a
 `docs/adr/` para el razonamiento detrás de decisiones de arquitectura.
 
+## 2026-08-15 — Colombia agregada como segundo país (dataset de terceros)
+
+- A pedido explícito del usuario, se sacaron los datos de Colombia de
+  https://contfrontdon.streamlit.app/ (app dormida de Streamlit Cloud del
+  mismo autor del prototipo original). Su contenido real vive en un iframe
+  interno; ahí estaba el link a
+  [github.com/Daniel-Duque/cont_front_don](https://github.com/Daniel-Duque/cont_front_don)
+  con el dataset completo ya procesado.
+- Añadido `backend/scripts/migrate_colombia.py`: descarga los 40 CSV de ese
+  repo (`data/cleaned0.csv`...`cleaned39.csv`, 1,548 filas en total) y los
+  migra al mismo esquema que Paraguay. 1,548 contratos, 0 fallidos, 107
+  marcados como anomalía.
+- Extendido `predictions.predicted_value_original` en el esquema (backend/app/models.py,
+  schemas.py) para poder guardar el valor predicho en la moneda original
+  cuando no hay una conversión a USD verificable — es el caso de Colombia,
+  cuyo dataset no trae fecha por contrato y por lo tanto no permite elegir una
+  tasa de cambio histórica correcta. `amount_usd` y `predicted_value_usd`
+  quedan NULL para Colombia por esa misma razón, documentado en el script, no
+  fabricados.
+- Frontend: selector de país en `/` y `/anomalies`, fallback de monto a
+  "original + moneda" cuando no hay USD, link a la fuente original en SECOP
+  en el detalle de contrato (Colombia sí trae `URLProceso` por fila).
+  Verificado en navegador para ambos países (Paraguay y Colombia).
+- Nota para el futuro, no resuelta ahora: el mismo repo de Colombia tiene
+  `data/particular/`, datos crudos por municipio con fecha de firma real, pero
+  sin clave de unión confiable hacia los CSVs ya procesados — path posible
+  para completar `award_date` de Colombia más adelante.
+
 ## 2026-08-15 — Relevamiento de países para Fase 2
 
 - Añadido `docs/architecture/fase2-relevamiento-paises.md`: de los 8 países

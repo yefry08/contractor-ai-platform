@@ -1,8 +1,16 @@
-import { listContracts } from "@/lib/api";
+import { listContracts, ContractSummary } from "@/lib/api";
 
 function fmtUsd(n: number | null) {
   if (n === null) return "—";
   return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+}
+
+function fmtAmount(c: ContractSummary) {
+  if (c.amount_usd !== null) return fmtUsd(c.amount_usd);
+  if (c.amount_original !== null && c.currency) {
+    return `${c.amount_original.toLocaleString("es")} ${c.currency}`;
+  }
+  return "—";
 }
 
 export default async function ContractsPage({
@@ -14,8 +22,9 @@ export default async function ContractsPage({
   const limit = 25;
   const offset = Number(sp.offset ?? 0);
 
+  const country = sp.country ?? "";
   const data = await listContracts({
-    country: sp.country ?? "PY",
+    country: country || undefined,
     buyer: sp.buyer,
     category: sp.category,
     only_anomalous: sp.only_anomalous === "1",
@@ -27,17 +36,26 @@ export default async function ContractsPage({
     <>
       <h1>Contratos públicos</h1>
       <p className="subtitle">
-        {data.total.toLocaleString("es")} contratos — Fase 1: dataset histórico de Paraguay (DNCP).
+        {data.total.toLocaleString("es")} contratos — Paraguay (DNCP, Fase 1) y Colombia
+        (dataset de terceros, ver nota abajo).
       </p>
 
       <div className="note">
-        Los montos en USD están ajustados por inflación (CPI) al año de referencia usado
-        por el modelo original, no son el monto nominal al momento del contrato — se usan
-        así para que sean comparables contra el valor predicho. Ver
-        docs/architecture/PLANNING.md en el repo para el detalle metodológico.
+        Paraguay: montos en USD ajustados por inflación (CPI) al año de referencia del
+        modelo, no el monto nominal al momento del contrato. Colombia: los datos vienen de
+        un dataset ya procesado por un tercero (mismo autor del prototipo original) sin
+        fecha por contrato, así que no hay forma responsable de convertir a USD — se
+        muestra el monto original en pesos colombianos (COP). Ver
+        docs/architecture/PLANNING.md y backend/scripts/migrate_colombia.py en el repo
+        para el detalle metodológico de cada país.
       </div>
 
       <form className="filters" method="get">
+        <select name="country" defaultValue={country}>
+          <option value="">Todos los países</option>
+          <option value="PY">Paraguay</option>
+          <option value="CO">Colombia</option>
+        </select>
         <input type="text" name="buyer" placeholder="Buscar comprador…" defaultValue={sp.buyer ?? ""} />
         <input type="text" name="category" placeholder="Categoría (ej. services)" defaultValue={sp.category ?? ""} />
         <label style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--muted)" }}>
@@ -51,9 +69,10 @@ export default async function ContractsPage({
         <thead>
           <tr>
             <th>Título</th>
+            <th>País</th>
             <th>Comprador</th>
             <th>Categoría</th>
-            <th>Monto (USD, ajustado)</th>
+            <th>Monto</th>
             <th>Fecha</th>
           </tr>
         </thead>
@@ -63,9 +82,10 @@ export default async function ContractsPage({
               <td>
                 <a href={`/contracts/${c.id}`}>{c.title ?? "(sin título)"}</a>
               </td>
+              <td>{c.country_code}</td>
               <td>{c.buyer?.name ?? "—"}</td>
               <td>{c.category_code ?? "—"}</td>
-              <td>{fmtUsd(c.amount_usd)}</td>
+              <td>{fmtAmount(c)}</td>
               <td>{c.award_date ?? "—"}</td>
             </tr>
           ))}

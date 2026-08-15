@@ -9,6 +9,7 @@ class PredictionOut(BaseModel):
     model_name: str
     model_version: str
     predicted_value_usd: float | None
+    predicted_value_original: float | None
     range_low: float | None
     range_high: float | None
     likelihood_score: float | None

@@ -98,6 +98,11 @@ class Prediction(Base):
     model_name: Mapped[str] = mapped_column(String(100))
     model_version: Mapped[str] = mapped_column(String(50))
     predicted_value_usd: Mapped[float | None] = mapped_column(Float, nullable=True)
+    # Valor predicho en la moneda original del contrato (contracts.currency), sin
+    # convertir. Se usa cuando no hay una tasa de cambio verificable por fecha de
+    # contrato para ese país (ver backend/scripts/migrate_colombia.py) — el score
+    # de anomalía se calcula como ratio real/predicho, que no depende de la moneda.
+    predicted_value_original: Mapped[float | None] = mapped_column(Float, nullable=True)
     range_low: Mapped[float | None] = mapped_column(Float, nullable=True)
     range_high: Mapped[float | None] = mapped_column(Float, nullable=True)
     likelihood_score: Mapped[float | None] = mapped_column(Float, nullable=True)

@@ -53,6 +53,43 @@ de arquitectura.
     abriendo la app en el navegador, no habría aparecido probando la API sola
     con curl.
 
+- **Colombia agregada como segundo país** (2026-08-15, a pedido explícito del
+  usuario: "los de Colombia sacalos de aquí https://contfrontdon.streamlit.app/").
+  Esa app estaba dormida (Streamlit Cloud free tier) — se despertó, y su
+  contenido real vive en un iframe (`/~/+/`) que hubo que navegar directamente
+  para leer. Ahí apareció un link a
+  [github.com/Daniel-Duque/cont_front_don](https://github.com/Daniel-Duque/cont_front_don)
+  (mismo autor del prototipo original, "para descargar los datasets
+  completos"), con 1,548 contratos ya procesados (predicción + similitud) en
+  `data/cleaned{0..39}.csv`. Migrados con
+  [`backend/scripts/migrate_colombia.py`](backend/scripts/migrate_colombia.py):
+  1,548 contratos, 0 fallidos, 107 marcados como anomalía (~7%).
+  - **Esto NO es la ingesta en vivo de Fase 2** (la de
+    `docs/architecture/fase2-relevamiento-paises.md`, vía API OCDS de
+    Colombia) — es una carga en bloque de un dataset ya procesado por otro
+    tercero, igual en naturaleza a como Paraguay entró en Fase 1. La ingesta
+    en vivo contra SECOP/Colombia Compra Eficiente sigue pendiente.
+  - **Limitaciones explícitas, no ocultas**: el dataset de Colombia no trae
+    fecha por contrato (`award_date` queda NULL) ni tasa de cambio verificable
+    por fecha, así que `amount_usd` también queda NULL — se muestra el monto
+    original en COP en vez de forzar una conversión a USD sin base. El
+    detalle completo, incluida la verificación numérica de las fórmulas
+    usadas, está en el docstring de `migrate_colombia.py`.
+  - Se agregó `predictions.predicted_value_original` al esquema (monto
+    predicho en la moneda original del contrato) porque el campo existente
+    `predicted_value_usd` no aplica sin conversión verificable — no rompe los
+    datos de Paraguay, que siguen poblando `predicted_value_usd` como antes.
+  - Frontend actualizado: selector de país (Paraguay/Colombia/todos), montos
+    que caen a "monto original + moneda" cuando no hay USD, link a la fuente
+    original en SECOP cuando existe (`contract.source_url` — Colombia sí trae
+    esto, Paraguay no). Verificado en navegador para ambos países.
+  - Dato curioso encontrado en el camino, no verificado más a fondo: el mismo
+    repo tiene una carpeta `data/particular/` con datos crudos de SECOP por
+    municipio (con fecha de firma real) mucho más granular pero partida en
+    cientos de archivos sin una clave de unión confiable hacia los CSVs ya
+    procesados — queda como oportunidad futura para completar `award_date` de
+    Colombia, no se intentó ese cruce ahora.
+
 ## Bloqueado — pendiente de credencial/decisión humana
 
 - **Clave de API de OpenRouter** (o proveedor LLM equivalente) — necesaria para

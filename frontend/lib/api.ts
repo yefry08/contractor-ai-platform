@@ -19,10 +19,17 @@ export type Prediction = {
   model_name: string;
   model_version: string;
   predicted_value_usd: number | null;
+  predicted_value_original: number | null;
   range_low: number | null;
   range_high: number | null;
   likelihood_score: number | null;
 };
+
+export type Country = { code: string; name: string; active: boolean };
+
+export function listCountries(): Promise<Country[]> {
+  return apiFetch<Country[]>("/countries");
+}
 
 export type Anomaly = {
   id: string;

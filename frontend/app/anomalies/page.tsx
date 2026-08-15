@@ -1,8 +1,16 @@
-import { listAnomalies } from "@/lib/api";
+import { listAnomalies, ContractSummary } from "@/lib/api";
 
 function fmtUsd(n: number | null) {
   if (n === null) return "—";
   return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+}
+
+function fmtAmount(c: ContractSummary) {
+  if (c.amount_usd !== null) return fmtUsd(c.amount_usd);
+  if (c.amount_original !== null && c.currency) {
+    return `${c.amount_original.toLocaleString("es")} ${c.currency}`;
+  }
+  return "—";
 }
 
 function fmtPct(n: number | null) {
@@ -19,8 +27,9 @@ export default async function AnomaliesPage({
   const limit = 25;
   const offset = Number(sp.offset ?? 0);
 
+  const country = sp.country ?? "";
   const data = await listAnomalies({
-    country: sp.country ?? "PY",
+    country: country || undefined,
     anomaly_type: sp.anomaly_type,
     min_score: sp.min_score,
     status: "open",
@@ -47,6 +56,11 @@ export default async function AnomaliesPage({
       </div>
 
       <form className="filters" method="get">
+        <select name="country" defaultValue={country}>
+          <option value="">Todos los países</option>
+          <option value="PY">Paraguay</option>
+          <option value="CO">Colombia</option>
+        </select>
         <select name="anomaly_type" defaultValue={sp.anomaly_type ?? ""}>
           <option value="">Todos los tipos</option>
           <option value="overcost">Sobrecosto</option>
@@ -60,10 +74,11 @@ export default async function AnomaliesPage({
         <thead>
           <tr>
             <th>Contrato</th>
+            <th>País</th>
             <th>Comprador</th>
             <th>Tipo</th>
             <th>Desviación</th>
-            <th>Monto (USD, ajustado)</th>
+            <th>Monto</th>
           </tr>
         </thead>
         <tbody>
@@ -72,6 +87,7 @@ export default async function AnomaliesPage({
               <td>
                 <a href={`/contracts/${a.contract.id}`}>{a.contract.title ?? "(sin título)"}</a>
               </td>
+              <td>{a.contract.country_code}</td>
               <td>{a.contract.buyer?.name ?? "—"}</td>
               <td>
                 <span className={`badge ${a.anomaly_type}`}>
@@ -79,7 +95,7 @@ export default async function AnomaliesPage({
                 </span>
               </td>
               <td>{fmtPct(a.nlp_component)}</td>
-              <td>{fmtUsd(a.contract.amount_usd)}</td>
+              <td>{fmtAmount(a.contract)}</td>
             </tr>
           ))}
         </tbody>
