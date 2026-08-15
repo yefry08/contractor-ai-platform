@@ -60,6 +60,7 @@ export default async function AnomaliesPage({
           <option value="">Todos los países</option>
           <option value="PY">Paraguay</option>
           <option value="CO">Colombia</option>
+          <option value="CR">Costa Rica</option>
         </select>
         <select name="anomaly_type" defaultValue={sp.anomaly_type ?? ""}>
           <option value="">Todos los tipos</option>

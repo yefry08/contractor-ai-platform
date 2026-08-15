@@ -36,8 +36,8 @@ export default async function ContractsPage({
     <>
       <h1>Contratos públicos</h1>
       <p className="subtitle">
-        {data.total.toLocaleString("es")} contratos — Paraguay (DNCP, Fase 1) y Colombia
-        (dos fuentes, ver nota abajo).
+        {data.total.toLocaleString("es")} contratos — Paraguay, Colombia y Costa Rica
+        (fuentes distintas por país, ver nota abajo).
       </p>
 
       <div className="note">
@@ -45,13 +45,14 @@ export default async function ContractsPage({
         modelo, no el monto nominal al momento del contrato. Colombia combina dos fuentes:
         ~5.000 contratos en vivo desde la API oficial de datos.gov.co (SECOP II, con fecha
         real, sin score de anomalía todavía — no hay modelo de predicción corriendo en
-        vivo) y ~1.548 de un dataset ya procesado por un tercero (mismo autor del
-        prototipo original, con predicción y anomalía pero sin fecha). Ninguna de las dos
-        fuentes de Colombia tiene una tasa de cambio verificable por fecha, así que se
-        muestra el monto original en pesos colombianos (COP) en vez de forzar una
-        conversión a USD. Ver docs/architecture/PLANNING.md,
-        backend/scripts/migrate_colombia.py y backend/scripts/ingest_colombia_live.py en
-        el repo para el detalle metodológico.
+        vivo) y ~1.548 de un dataset ya procesado por un tercero (con predicción y
+        anomalía pero sin fecha). Ninguna de las dos fuentes de Colombia tiene una tasa de
+        cambio verificable por fecha, así que se muestra el monto original en pesos
+        colombianos (COP). Costa Rica: ~1.600 contratos en vivo desde el Observatorio de
+        Compra Pública (SICOP), actualizado a diario — con fecha real y monto en USD ya
+        convertido por el propio sistema oficial, sin score de anomalía todavía. Ver
+        docs/architecture/PLANNING.md y los scripts ingest_*_live.py en el repo para el
+        detalle metodológico de cada país.
       </div>
 
       <form className="filters" method="get">
@@ -59,6 +60,7 @@ export default async function ContractsPage({
           <option value="">Todos los países</option>
           <option value="PY">Paraguay</option>
           <option value="CO">Colombia</option>
+          <option value="CR">Costa Rica</option>
         </select>
         <input type="text" name="buyer" placeholder="Buscar comprador…" defaultValue={sp.buyer ?? ""} />
         <input type="text" name="category" placeholder="Categoría (ej. services)" defaultValue={sp.category ?? ""} />
