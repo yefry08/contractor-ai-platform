@@ -3,6 +3,29 @@
 Formato libre, orden cronológico inverso (más reciente arriba). Referencia a
 `docs/adr/` para el razonamiento detrás de decisiones de arquitectura.
 
+## 2026-08-15 — República Dominicana en vivo (corrección del hallazgo anterior)
+
+El usuario preguntó puntualmente por Rep. Dominicana después de que se
+reportara como bloqueada. Se investigó más a fondo en vez de dar el bloqueo
+por definitivo: `dgcp.gob.do` (archivos estáticos) sigue bloqueado por
+Cloudflare para `curl`, pero `datosabiertos.dgcp.gob.do` es un dominio y
+producto distintos ("API DGCP") con REST completo, OCDS nativo incluido,
+documentado con OpenAPI, licencia Apache 2.0 — verificado en vivo
+(`totalResults=710144`, contrato más reciente de ayer). Estaba detrás de
+Cloudflare también, pero en modo básico: bloqueaba el User-Agent por defecto
+de `urllib`/`requests` específicamente, y pasaba limpio con un User-Agent de
+navegador real. Esto también motivó reprobar Chile con la misma técnica por
+las dudas — Chile siguió fallando 100% incluso con un User-Agent de
+navegador real, confirmando que su problema es distinto (throttling por
+frecuencia de conexión, no un filtro de User-Agent) y que el diagnóstico
+anterior seguía siendo correcto.
+
+Añadido `backend/scripts/ingest_dominican_republic_live.py`: 2,000
+contratos, 0 fallidos, idempotente (verificado corriendo el script dos
+veces). País agregado a los selectores del frontend, verificado en
+navegador. Actualizados `PROGRESS.md` y `docs/architecture/fase2-relevamiento-paises.md`
+para mover Rep. Dominicana de "bloqueada" a "integrada".
+
 ## 2026-08-15 — Costa Rica en vivo; Panamá y República Dominicana investigados y descartados por ahora
 
 A pedido explícito del usuario: Panamá, Costa Rica, y República Dominicana.

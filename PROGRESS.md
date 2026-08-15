@@ -143,18 +143,21 @@ de arquitectura.
   descripción, que no sirven para nada en una herramienta de detección de
   anomalías. Documentado en `docs/architecture/fase2-relevamiento-paises.md`.
 
-- **República Dominicana — bloqueada por protección anti-bot, no por falta de
-  API (2026-08-15)**. `datos.gob.do` (portal CKAN oficial) funciona bien vía
-  `curl` para consultar metadata de los 6 datasets de la DGCP — confirmado.
-  Pero ninguno de esos datasets está en el datastore consultable de CKAN
-  (`datastore_active=false` en los 6); todos son archivos estáticos alojados
-  en `dgcp.gob.do`, que está detrás de Cloudflare con protección anti-bot:
-  `curl` recibe 403 inmediato y consistente, mientras que el mismo archivo se
-  descarga sin problema desde un navegador real (verificado con el propio
-  navegador de la sesión). No se intentó eludir la protección con headers
-  falsos ni nada similar — es una decisión de anti-abuso deliberada del lado
-  de DGCP, respetarla es lo correcto. Documentado como bloqueo real, no como
-  "no se pudo por falta de tiempo".
+- ~~**República Dominicana — bloqueada por protección anti-bot**~~ —
+  **resuelto (2026-08-15).** El bloqueo de `dgcp.gob.do` (archivos estáticos
+  detrás de Cloudflare, 403 a `curl`) seguía siendo real, pero no era el
+  único camino: `datosabiertos.dgcp.gob.do` es un dominio y producto
+  distintos ("API DGCP") con una API REST completa, OCDS nativo incluido
+  (`/ocds/releases/all`), documentada con OpenAPI, licencia Apache 2.0.
+  Verificado en vivo: `totalResults=710144`, contrato más reciente de ayer.
+  Ese dominio también está detrás de Cloudflare pero solo en modo básico:
+  bloquea el User-Agent por defecto de `urllib`/`requests` específicamente
+  (403), y deja pasar sin problema con un User-Agent de navegador real — no
+  es evadir un desafío difícil, es simplemente no mandar la cadena que
+  Cloudflare tiene marcada como sospechosa por defecto. Sin throttling por
+  frecuencia (25 pedidos seguidos, 0 fallos). Integrado en
+  `backend/scripts/ingest_dominican_republic_live.py`: 2,000 contratos, 0
+  fallidos, idempotente (verificado corriendo el script dos veces).
 
 - **Chile — conector escrito, NO verificado como funcional (2026-08-15)**.
   Se encontró y verificó en vivo la API OCDS pública de ChileCompra
@@ -186,13 +189,6 @@ de arquitectura.
 
 ## Bloqueado — pendiente de credencial/decisión humana
 
-- **República Dominicana — Cloudflare bloquea clientes automatizados.** Ver
-  arriba. La API de metadata (CKAN, datos.gob.do) funciona, pero los 6
-  datasets de la DGCP son archivos estáticos en `dgcp.gob.do`, protegidos por
-  Cloudflare anti-bot (403 a `curl`, funciona en navegador real). No se
-  intentó eludirlo. Pendiente de decisión: ¿pedir acceso/whitelist
-  directamente a la DGCP, o aceptar que este país queda fuera de la ingesta
-  automatizada por ahora?
 - **Panamá — no bloqueado técnicamente, descartado por calidad de datos.**
   Ver arriba. A diferencia de los demás bloqueos, este no tiene un camino
   claro de desbloqueo — el problema está en cómo Panamá publica sus propios
