@@ -37,6 +37,7 @@ import csv
 import io
 import sys
 import urllib.request
+import uuid
 import zipfile
 from datetime import date, datetime
 from pathlib import Path
@@ -165,19 +166,21 @@ def main():
                     buyer = buyers_by_key.get(buyer_key)
                     if buyer is None:
                         buyer = models.Buyer(
+                            id=str(uuid.uuid4()),
                             country_code=COUNTRY_CODE,
                             external_id=row.get("CEDULA"),
                             name=buyer_name or "Desconocido",
                             normalized_name=buyer_key,
                         )
                         db.add(buyer)
-                        db.flush()
                         buyers_by_key[buyer_key] = buyer
 
                 title = clean_text(row.get("DESCR_PROCEDIMIENTO"))
                 description = clean_text(row.get("DESCR_BIEN_SERVICIO")) or title
 
+                contract_id = str(uuid.uuid4())
                 contract = models.Contract(
+                    id=contract_id,
                     ocid=None,
                     external_id=external_id,
                     country_code=COUNTRY_CODE,
@@ -195,12 +198,11 @@ def main():
                     source_url=None,
                 )
                 db.add(contract)
-                db.flush()
 
                 db.add(
                     models.Provenance(
                         entity_type="contract",
-                        entity_id=contract.id,
+                        entity_id=contract_id,
                         source_id=source.id,
                         fetched_at=datetime.utcnow(),
                         source_hash=None,

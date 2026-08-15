@@ -42,6 +42,7 @@ import sys
 import time
 import urllib.parse
 import urllib.request
+import uuid
 from datetime import datetime
 from pathlib import Path
 
@@ -173,20 +174,22 @@ def main():
                         buyer = buyers_by_key.get(buyer_key)
                         if buyer is None:
                             buyer = models.Buyer(
+                                id=str(uuid.uuid4()),
                                 country_code=COUNTRY_CODE,
                                 external_id=None,
                                 name=buyer_name or "Desconocido",
                                 normalized_name=buyer_key,
                             )
                             db.add(buyer)
-                            db.flush()
                             buyers_by_key[buyer_key] = buyer
 
                     descripcion = row.get("descripcion_del_proceso") or row.get("objeto_del_contrato")
                     url_info = row.get("urlproceso") or {}
                     source_url = url_info.get("url") if isinstance(url_info, dict) else None
 
+                    contract_id = str(uuid.uuid4())
                     contract = models.Contract(
+                        id=contract_id,
                         ocid=None,
                         external_id=id_contrato,
                         country_code=COUNTRY_CODE,
@@ -204,12 +207,11 @@ def main():
                         source_url=source_url,
                     )
                     db.add(contract)
-                    db.flush()
 
                     db.add(
                         models.Provenance(
                             entity_type="contract",
-                            entity_id=contract.id,
+                            entity_id=contract_id,
                             source_id=source.id,
                             fetched_at=datetime.utcnow(),
                             source_hash=None,

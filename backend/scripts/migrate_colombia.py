@@ -44,6 +44,7 @@ import csv
 import io
 import sys
 import urllib.request
+import uuid
 from datetime import datetime
 from pathlib import Path
 
@@ -144,13 +145,13 @@ def main():
                         buyer = buyers_by_key.get(buyer_key)
                         if buyer is None:
                             buyer = models.Buyer(
+                                id=str(uuid.uuid4()),
                                 country_code=COUNTRY_CODE,
                                 external_id=None,
                                 name=buyer_name or "Desconocido",
                                 normalized_name=buyer_key,
                             )
                             db.add(buyer)
-                            db.flush()
                             buyers_by_key[buyer_key] = buyer
 
                     valor_real = to_float(row.get("Valor real"))
@@ -160,7 +161,9 @@ def main():
                     descripcion = row.get("Descripcion del Proceso")
                     url_proceso = row.get("URLProceso") or None
 
+                    contract_id = str(uuid.uuid4())
                     contract = models.Contract(
+                        id=contract_id,
                         ocid=None,
                         external_id=None,
                         country_code=COUNTRY_CODE,
@@ -178,12 +181,11 @@ def main():
                         source_url=url_proceso,
                     )
                     db.add(contract)
-                    db.flush()
 
                     if valor_predicho is not None:
                         db.add(
                             models.Prediction(
-                                contract_id=contract.id,
+                                contract_id=contract_id,
                                 model_name="bert-multilingual-xgboost",
                                 model_version="cont_front_don-daniel-duque",
                                 predicted_value_usd=None,
@@ -198,7 +200,7 @@ def main():
                     if perc_error is not None and abs(perc_error) >= ABS_PERC_ERROR_THRESHOLD:
                         db.add(
                             models.Anomaly(
-                                contract_id=contract.id,
+                                contract_id=contract_id,
                                 anomaly_type="overcost" if perc_error >= 0 else "undercost",
                                 composite_score=abs(perc_error),
                                 nlp_component=perc_error,
@@ -212,7 +214,7 @@ def main():
                     db.add(
                         models.Provenance(
                             entity_type="contract",
-                            entity_id=contract.id,
+                            entity_id=contract_id,
                             source_id=source.id,
                             fetched_at=datetime.utcnow(),
                             source_hash=None,

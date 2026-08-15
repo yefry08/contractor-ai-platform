@@ -43,6 +43,7 @@ ABS_PERC_ERROR_THRESHOLD = 1.0
 
 import hashlib
 import sys
+import uuid
 from datetime import date, datetime
 from pathlib import Path
 
@@ -151,18 +152,20 @@ def main():
                     buyer = buyers_by_key.get(buyer_key)
                     if buyer is None:
                         buyer = models.Buyer(
+                            id=str(uuid.uuid4()),
                             country_code=COUNTRY_CODE,
                             external_id=str(buyer_id) if buyer_id else None,
                             name=buyer_name or "Desconocido",
                             normalized_name=normalize(buyer_name),
                         )
                         db.add(buyer)
-                        db.flush()
                         buyers_by_key[buyer_key] = buyer
 
                 raw = {str(k): v for k, v in zip(header, row) if v is not None}
 
+                contract_id = str(uuid.uuid4())
                 contract = models.Contract(
+                    id=contract_id,
                     ocid=row[col["compiledRelease/ocid"]],
                     external_id=str(row[col["compiledRelease/id"]]) if row[col["compiledRelease/id"]] else None,
                     country_code=COUNTRY_CODE,
@@ -181,7 +184,6 @@ def main():
                     source_url=None,
                 )
                 db.add(contract)
-                db.flush()
 
                 predict = row[col["predict"]]
                 range_low = row[col["range-"]]
@@ -192,7 +194,7 @@ def main():
                 if predict is not None:
                     db.add(
                         models.Prediction(
-                            contract_id=contract.id,
+                            contract_id=contract_id,
                             model_name="bert-multilingual-xgboost",
                             model_version="prototype-2024",
                             predicted_value_usd=predict * 1000,
@@ -205,7 +207,7 @@ def main():
                 if perc_error is not None and predict is not None and abs(perc_error) >= ABS_PERC_ERROR_THRESHOLD:
                     db.add(
                         models.Anomaly(
-                            contract_id=contract.id,
+                            contract_id=contract_id,
                             anomaly_type="overcost" if perc_error >= 0 else "undercost",
                             composite_score=abs(perc_error),
                             nlp_component=perc_error,
@@ -219,7 +221,7 @@ def main():
                 db.add(
                     models.Provenance(
                         entity_type="contract",
-                        entity_id=contract.id,
+                        entity_id=contract_id,
                         source_id=source.id,
                         fetched_at=datetime.utcnow(),
                         source_hash=source_hash,
