@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Node / frontend
+node_modules/
+.next/
+out/
+.env
+.env.local
+
+# Datos crudos pesados (no versionar, van a object storage / DB en Fase 1+)
+Data/zips/
+Data/records.csv
+*.db
+*.sqlite3
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/
+.idea/
