@@ -29,3 +29,6 @@ Thumbs.db
 # Editores
 .vscode/
 .idea/
+
+# Claude Code runtime state (session-specific, not project config)
+.claude/*.lock
