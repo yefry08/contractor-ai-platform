@@ -884,11 +884,24 @@ th { color: var(--muted); font-weight: 600; }
   align-items: center;
   justify-content: center;
   white-space: nowrap;
-  padding: 14px 28px;
+  padding: 12px 26px;
+  height: 64px;
   border: 1px solid var(--border);
   border-radius: 10px;
-  background: var(--panel);
-  color: var(--muted);
+  /* Logos come in every color/background combination -- a light chip
+     behind each one keeps all of them legible on the dark theme instead
+     of guessing which need special-casing. */
+  background: #f4f4f7;
+}
+
+.partner-badge-img {
+  max-height: 100%;
+  max-width: 150px;
+  object-fit: contain;
+}
+
+.partner-badge-text {
+  color: #4A4863;
   font-weight: 700;
   letter-spacing: 0.02em;
   font-size: 0.95rem;

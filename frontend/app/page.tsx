@@ -24,7 +24,7 @@ export default async function ContractsPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const sp = await searchParams;
-  const limit = 25;
+  const limit = 5;
   const offset = Number(sp.offset ?? 0);
 
   const country = sp.country ?? "";
