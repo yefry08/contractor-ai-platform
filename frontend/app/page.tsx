@@ -1,4 +1,7 @@
 import { listContracts, ContractSummary } from "@/lib/api";
+import { Hero } from "@/components/hero";
+import { Team } from "@/components/team";
+import { Partners } from "@/components/partners";
 
 function fmtUsd(n: number | null) {
   if (n === null) return "—";
@@ -34,6 +37,8 @@ export default async function ContractsPage({
 
   return (
     <>
+      <Hero />
+
       <h1>Contratos públicos</h1>
       <p className="subtitle">
         {data.total.toLocaleString("es")} contratos — Paraguay, Colombia, Costa Rica y
@@ -117,6 +122,9 @@ export default async function ContractsPage({
           </a>
         )}
       </div>
+
+      <Team />
+      <Partners />
     </>
   );
 }
