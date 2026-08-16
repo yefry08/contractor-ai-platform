@@ -1,5 +1,7 @@
 import { listContracts, ContractSummary } from "@/lib/api";
 import { Hero } from "@/components/hero";
+import { Metrics } from "@/components/metrics";
+import { HowItWorks } from "@/components/how-it-works";
 import { Team } from "@/components/team";
 import { Partners } from "@/components/partners";
 
@@ -38,6 +40,8 @@ export default async function ContractsPage({
   return (
     <>
       <Hero />
+      <Metrics totalContracts={data.total} />
+      <HowItWorks />
 
       <h1>Contratos públicos</h1>
       <p className="subtitle">

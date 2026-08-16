@@ -74,3 +74,41 @@ class AnomalyWithContract(AnomalyOut):
 
 class AnomalyPage(Page):
     items: list[AnomalyWithContract]
+
+
+class ExtractionOut(BaseModel):
+    ocr_available: bool
+    text_excerpt: str = ""
+    suggested_title: str | None = None
+    suggested_amount: float | None = None
+    candidate_amounts: list[float] = []
+    warning: str | None = None
+
+
+class CompareRequest(BaseModel):
+    country: str
+    currency: str
+    amount: float
+    category: str | None = None
+    buyer_name: str | None = None
+
+
+class ComparableOut(BaseModel):
+    id: str
+    title: str | None
+    buyer_name: str | None
+    amount_original: float
+    award_date: str | None
+
+
+class CompareOut(BaseModel):
+    reference_group: str
+    group_size: int
+    median_amount: float
+    submitted_amount: float
+    deviation_pct: float
+    zscore: float
+    zscore_flagged: bool
+    iqr_flagged: bool
+    verdict: str
+    comparables: list[ComparableOut]
