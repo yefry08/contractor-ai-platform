@@ -1,9 +1,9 @@
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
-from . import models, schemas
+from . import analysis, models, schemas
 from .config import settings
 from .db import get_db
 
@@ -20,7 +20,19 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_allow_origins,
-    allow_methods=["GET"],
+    # El proyecto de Vercel puede tener el dominio de producción cambiado
+    # (o desplegar previews con subdominios generados) sin que alguien
+    # actualice CORS_ALLOW_ORIGINS a mano -- se permite cualquier subdominio
+    # *.vercel.app de este proyecto además de la lista explícita, para que
+    # este descuido no vuelva a romper el frontend en producción. También se
+    # permite localhost/127.0.0.1 en cualquier puerto: `next dev` corre en
+    # 3000 por defecto, pero herramientas de preview reasignan el puerto si
+    # está ocupado -- exigir que CORS_ALLOW_ORIGINS coincida exacto con el
+    # puerto de cada corrida de desarrollo es frágil sin aportar seguridad
+    # real (Origin lo fija el navegador, no algo que un sitio remoto pueda
+    # falsificar como "localhost").
+    allow_origin_regex=r"^(https://contractor-ai(-[a-z0-9]+)*\.vercel\.app|http://(localhost|127\.0\.0\.1):\d+)$",
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
@@ -120,3 +132,95 @@ def list_anomalies(
     items = db.execute(stmt).unique().scalars().all()
 
     return schemas.AnomalyPage(total=total, limit=limit, offset=offset, items=items)
+
+
+MAX_UPLOAD_BYTES = 15 * 1024 * 1024
+
+
+@app.post("/analyze/extract", response_model=schemas.ExtractionOut)
+async def analyze_extract(
+    method: str = Form(..., description="pdf | link | photo"),
+    file: UploadFile | None = File(default=None),
+    link: str | None = Form(default=None),
+):
+    if method == "pdf":
+        if file is None:
+            raise HTTPException(status_code=400, detail="Falta el archivo PDF.")
+        data = await file.read(MAX_UPLOAD_BYTES + 1)
+        if len(data) > MAX_UPLOAD_BYTES:
+            raise HTTPException(status_code=413, detail="El PDF supera los 15 MB.")
+        result = analysis.extract_from_pdf(data)
+    elif method == "link":
+        if not link:
+            raise HTTPException(status_code=400, detail="Falta el link.")
+        result = analysis.extract_from_link(link)
+    elif method == "photo":
+        # Sin OCR instalado en este entorno (Tesseract no disponible) no hay
+        # forma honesta de extraer texto de una foto -- se lo decimos al
+        # cliente explícitamente en vez de simular un análisis.
+        result = analysis.ExtractionResult(
+            ocr_available=False,
+            warning=(
+                "El reconocimiento óptico de caracteres (OCR) no está disponible en "
+                "este entorno todavía. Completá los datos manualmente."
+            ),
+        )
+    else:
+        raise HTTPException(status_code=400, detail="method debe ser pdf, link o photo.")
+
+    return schemas.ExtractionOut(
+        ocr_available=result.ocr_available,
+        text_excerpt=result.text_excerpt,
+        suggested_title=result.suggested_title,
+        suggested_amount=result.suggested_amount,
+        candidate_amounts=result.candidate_amounts,
+        warning=result.warning,
+    )
+
+
+@app.post("/analyze/compare", response_model=schemas.CompareOut)
+def analyze_compare(payload: schemas.CompareRequest, db: Session = Depends(get_db)):
+    if payload.amount <= 0:
+        raise HTTPException(status_code=400, detail="El monto debe ser mayor a 0.")
+
+    country_code = payload.country.upper()
+    country = db.get(models.Country, country_code)
+    if country is None:
+        raise HTTPException(status_code=400, detail="País no reconocido.")
+
+    result = analysis.compare_amount(
+        db,
+        country_code=country_code,
+        currency=payload.currency.upper(),
+        amount=payload.amount,
+        category_code=payload.category or None,
+        buyer_name=payload.buyer_name or None,
+    )
+    if result is None:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                f"No hay suficientes contratos ingeridos en {country_code} con moneda "
+                f"{payload.currency.upper()} para armar una comparación confiable "
+                f"(mínimo {analysis.MIN_GROUP_SIZE})."
+            ),
+        )
+
+    return schemas.CompareOut(
+        reference_group=result.reference_group,
+        group_size=result.group_size,
+        median_amount=result.median_amount,
+        submitted_amount=result.submitted_amount,
+        deviation_pct=result.deviation_pct,
+        zscore=result.zscore,
+        zscore_flagged=result.zscore_flagged,
+        iqr_flagged=result.iqr_flagged,
+        verdict=result.verdict,
+        comparables=[
+            schemas.ComparableOut(
+                id=c.id, title=c.title, buyer_name=c.buyer_name,
+                amount_original=c.amount_original, award_date=c.award_date,
+            )
+            for c in result.comparables
+        ],
+    )

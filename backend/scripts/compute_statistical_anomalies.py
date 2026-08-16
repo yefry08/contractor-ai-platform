@@ -58,7 +58,6 @@ inventarles un valor.
 """
 
 import math
-import statistics
 import sys
 from pathlib import Path
 
@@ -68,36 +67,13 @@ from sqlalchemy import delete  # noqa: E402
 
 from app import models  # noqa: E402
 from app.db import SessionLocal  # noqa: E402
-
-MIN_GROUP_SIZE = 8
-ZSCORE_THRESHOLD = 3.5
-IQR_MULTIPLIER = 1.5
-# Un grupo de referencia puede tener casi todos sus valores prácticamente
-# idénticos (visto en datos reales: un comprador de Paraguay con 7 de 11
-# contratos a menos del 0.01% de diferencia entre sí) -- ahí la MAD es
-# genuinamente casi cero, no un error, y CUALQUIER desvío hace explotar el
-# z-score modificado a miles. Se acota la magnitud para que el número siga
-# siendo interpretable; el umbral de "marcado" (ZSCORE_THRESHOLD) se evalúa
-# ANTES de acotar, así que el corte no cambia qué se marca, solo evita
-# mostrar cifras sin sentido práctico como 19,239.
-ZSCORE_CAP = 50.0
-
-
-def modified_zscore(value: float, median: float, mad: float) -> float:
-    if mad == 0:
-        return 0.0
-    z = 0.6745 * (value - median) / mad
-    return max(-ZSCORE_CAP, min(ZSCORE_CAP, z))
-
-
-def compute_group_stats(values: list[float]) -> dict:
-    sorted_vals = sorted(values)
-    median = statistics.median(sorted_vals)
-    mad = statistics.median([abs(v - median) for v in sorted_vals])
-    quantiles = statistics.quantiles(sorted_vals, n=4, method="inclusive") if len(sorted_vals) >= 2 else [median, median, median]
-    q1, q3 = quantiles[0], quantiles[2]
-    iqr = q3 - q1
-    return {"median": median, "mad": mad, "q1": q1, "q3": q3, "iqr": iqr, "n": len(sorted_vals)}
+from app.stats import (  # noqa: E402
+    IQR_MULTIPLIER,
+    MIN_GROUP_SIZE,
+    ZSCORE_THRESHOLD,
+    compute_group_stats,
+    modified_zscore,
+)
 
 
 def main():

@@ -1,5 +1,7 @@
 import { listContracts, ContractSummary } from "@/lib/api";
 import { Hero } from "@/components/hero";
+import { Metrics } from "@/components/metrics";
+import { HowItWorks } from "@/components/how-it-works";
 import { Team } from "@/components/team";
 import { Partners } from "@/components/partners";
 
@@ -22,7 +24,7 @@ export default async function ContractsPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const sp = await searchParams;
-  const limit = 25;
+  const limit = 5;
   const offset = Number(sp.offset ?? 0);
 
   const country = sp.country ?? "";
@@ -38,6 +40,8 @@ export default async function ContractsPage({
   return (
     <>
       <Hero />
+      <Metrics totalContracts={data.total} />
+      <HowItWorks />
 
       <h1>Contratos públicos</h1>
       <p className="subtitle">

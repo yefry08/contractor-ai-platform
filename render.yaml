@@ -23,4 +23,4 @@ services:
           name: contractor-ai-db
           property: connectionString
       - key: CORS_ALLOW_ORIGINS
-        value: '["https://contractor-ai.vercel.app"]'
+        value: '["https://contractor-ai-one.vercel.app"]'

@@ -1,6 +1,6 @@
 import "./globals.css";
 import type { ReactNode } from "react";
-import { PartnerLogos } from "@/components/partners";
+import { Navbar } from "@/components/navbar";
 
 export const metadata = {
   title: "Contractor AI — Transparencia en contratación pública",
@@ -12,18 +12,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="es">
       <body>
-        <header className="site">
-          <div className="container" style={{ paddingBottom: 0, marginBottom: 0 }}>
-            <nav>
-              <a href="/">Contratos</a>
-              <a href="/anomalies">Anomalías</a>
-            </nav>
-          </div>
-        </header>
+        <Navbar />
         <main className="container">{children}</main>
 
         <footer className="site">
-          <PartnerLogos />
           <div className="footer-bottom">
             <span>Contractor AI — Desafío de Transparencia PIDA (OEA)</span>
             <nav className="footer-links">

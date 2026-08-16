@@ -81,3 +81,81 @@ export function listAnomalies(params: Record<string, string | number | boolean |
   }
   return apiFetch<Page<AnomalyWithContract>>(`/anomalies?${qs.toString()}`);
 }
+
+export type ExtractionMethod = "pdf" | "link" | "photo";
+
+export type Extraction = {
+  ocr_available: boolean;
+  text_excerpt: string;
+  suggested_title: string | null;
+  suggested_amount: number | null;
+  candidate_amounts: number[];
+  warning: string | null;
+};
+
+export type Comparable = {
+  id: string;
+  title: string | null;
+  buyer_name: string | null;
+  amount_original: number;
+  award_date: string | null;
+};
+
+export type Comparison = {
+  reference_group: string;
+  group_size: number;
+  median_amount: number;
+  submitted_amount: number;
+  deviation_pct: number;
+  zscore: number;
+  zscore_flagged: boolean;
+  iqr_flagged: boolean;
+  verdict: "alta" | "revisar" | "normal";
+  comparables: Comparable[];
+};
+
+export class ApiError extends Error {
+  constructor(message: string, public status: number) {
+    super(message);
+  }
+}
+
+async function apiFetchForm<T>(path: string, form: FormData): Promise<T> {
+  const res = await fetch(`${API_URL}${path}`, { method: "POST", body: form });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new ApiError(body?.detail || `API ${path} devolvió ${res.status}`, res.status);
+  }
+  return res.json();
+}
+
+async function apiFetchJson<T>(path: string, payload: unknown): Promise<T> {
+  const res = await fetch(`${API_URL}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new ApiError(body?.detail || `API ${path} devolvió ${res.status}`, res.status);
+  }
+  return res.json();
+}
+
+export function extractAnalysis(method: ExtractionMethod, opts: { file?: File; link?: string }) {
+  const form = new FormData();
+  form.set("method", method);
+  if (opts.file) form.set("file", opts.file);
+  if (opts.link) form.set("link", opts.link);
+  return apiFetchForm<Extraction>("/analyze/extract", form);
+}
+
+export function compareAnalysis(payload: {
+  country: string;
+  currency: string;
+  amount: number;
+  category?: string;
+  buyer_name?: string;
+}) {
+  return apiFetchJson<Comparison>("/analyze/compare", payload);
+}
