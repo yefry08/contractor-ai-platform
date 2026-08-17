@@ -212,3 +212,16 @@ export function exportCsvUrl(params: { country?: string; category?: string; only
   if (params.only_anomalous) qs.set("only_anomalous", "true");
   return `${API_URL}/export/contracts.csv?${qs.toString()}`;
 }
+
+export type CitizenReport = { id: string; comment: string; stance: "flag" | "context"; created_at: string };
+
+export function listCitizenReports(contractId: string) {
+  return apiFetch<CitizenReport[]>(`/contracts/${contractId}/reports`);
+}
+
+export function submitCitizenReport(
+  contractId: string,
+  payload: { comment: string; stance: "flag" | "context"; website?: string },
+) {
+  return apiFetchJson<CitizenReport>(`/contracts/${contractId}/reports`, payload);
+}

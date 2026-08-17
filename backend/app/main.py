@@ -1,7 +1,9 @@
 import csv
 import io
+import time
+from datetime import datetime
 
-from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, UploadFile
+from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select
@@ -104,6 +106,59 @@ def get_contract(contract_id: str, db: Session = Depends(get_db)):
     if contract is None:
         raise HTTPException(status_code=404, detail="Contrato no encontrado")
     return contract
+
+
+@app.get("/contracts/{contract_id}/reports", response_model=list[schemas.CitizenReportOut])
+def list_citizen_reports(contract_id: str, db: Session = Depends(get_db)):
+    if db.get(models.Contract, contract_id) is None:
+        raise HTTPException(status_code=404, detail="Contrato no encontrado")
+    stmt = (
+        select(models.CitizenReport)
+        .where(models.CitizenReport.contract_id == contract_id, models.CitizenReport.status == "visible")
+        .order_by(models.CitizenReport.created_at.desc())
+    )
+    return db.execute(stmt).scalars().all()
+
+
+# Best-effort in-memory rate limit: not a security guarantee (resets on
+# restart, keyed on request.client.host which a proxy can obscure), just a
+# soft deterrent against a script hammering the endpoint. Real abuse
+# resistance would need a shared store and proper proxy IP handling.
+_report_hits: dict[str, list[float]] = {}
+MAX_REPORTS_PER_WINDOW = 5
+REPORT_WINDOW_SECONDS = 600
+
+
+@app.post("/contracts/{contract_id}/reports", response_model=schemas.CitizenReportOut, status_code=201)
+def create_citizen_report(
+    contract_id: str,
+    payload: schemas.CitizenReportIn,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    if db.get(models.Contract, contract_id) is None:
+        raise HTTPException(status_code=404, detail="Contrato no encontrado")
+
+    if payload.website:
+        # Honeypot field a real user never sees or fills. Respond as if it
+        # worked (don't tip off the bot) but never persist anything.
+        return schemas.CitizenReportOut(
+            id="0", comment=payload.comment, stance=payload.stance, created_at=datetime.utcnow()
+        )
+
+    client_ip = request.client.host if request.client else "unknown"
+    now = time.time()
+    hits = [t for t in _report_hits.get(client_ip, []) if now - t < REPORT_WINDOW_SECONDS]
+    if len(hits) >= MAX_REPORTS_PER_WINDOW:
+        raise HTTPException(status_code=429, detail="Demasiados reportes. Probá de nuevo en unos minutos.")
+    hits.append(now)
+    _report_hits[client_ip] = hits
+
+    report = models.CitizenReport(contract_id=contract_id, comment=payload.comment.strip(), stance=payload.stance)
+    db.add(report)
+    db.commit()
+    db.refresh(report)
+    return report
 
 
 @app.get("/anomalies", response_model=schemas.AnomalyPage)

@@ -1,4 +1,5 @@
-import { getContract } from "@/lib/api";
+import { getContract, listCitizenReports } from "@/lib/api";
+import { CitizenReports } from "@/components/citizen-reports";
 
 function fmtUsd(n: number | null) {
   if (n === null) return "—";
@@ -16,7 +17,7 @@ export default async function ContractDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const c = await getContract(id);
+  const [c, reports] = await Promise.all([getContract(id), listCitizenReports(id)]);
   const prediction = c.predictions[0];
   const anomaly = c.anomalies[0];
 
@@ -106,6 +107,8 @@ export default async function ContractDetailPage({
           </div>
         </div>
       )}
+
+      <CitizenReports contractId={c.id} initialReports={reports} />
     </>
   );
 }

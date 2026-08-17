@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class PredictionOut(BaseModel):
@@ -160,3 +160,23 @@ class BuyerRankingOut(BaseModel):
 class BuyerRankingList(BaseModel):
     min_contracts: int
     items: list[BuyerRankingOut]
+
+
+class CitizenReportIn(BaseModel):
+    comment: str = Field(min_length=5, max_length=1000)
+    stance: str = "flag"
+    website: str = Field(default="", max_length=200)  # honeypot -- real users leave this blank
+
+    @field_validator("stance")
+    @classmethod
+    def _valid_stance(cls, v: str) -> str:
+        return v if v in ("flag", "context") else "flag"
+
+
+class CitizenReportOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    comment: str
+    stance: str
+    created_at: datetime

@@ -1000,6 +1000,47 @@ th { color: var(--muted); font-weight: 600; }
   text-overflow: ellipsis;
 }
 
+/* ---------- Citizen reports ---------- */
+
+.citizen-report-list {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.citizen-report-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.citizen-report-item p {
+  margin: 8px 0 4px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.citizen-report-date {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.citizen-report-textarea {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.citizen-report-honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
 /* ---------- Footer ---------- */
 
 footer.site {

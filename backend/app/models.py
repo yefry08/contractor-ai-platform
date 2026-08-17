@@ -72,6 +72,7 @@ class Contract(Base):
     statistical_flags: Mapped[list["StatisticalFlag"]] = relationship(back_populates="contract")
     anomalies: Mapped[list["Anomaly"]] = relationship(back_populates="contract")
     documents: Mapped[list["ContractDocument"]] = relationship(back_populates="contract")
+    citizen_reports: Mapped[list["CitizenReport"]] = relationship(back_populates="contract")
 
 
 class ContractDocument(Base):
@@ -141,6 +142,24 @@ class Anomaly(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     contract: Mapped[Contract] = relationship(back_populates="anomalies")
+
+
+class CitizenReport(Base):
+    """A public, unauthenticated comment from a citizen on a specific contract --
+    either flagging a concern or adding corroborating/disputing context. This is
+    intentionally separate from the model/statistical Anomaly pipeline: it's a
+    human signal, not a computed one."""
+
+    __tablename__ = "citizen_reports"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    contract_id: Mapped[str] = mapped_column(ForeignKey("contracts.id"), index=True)
+    comment: Mapped[str] = mapped_column(Text)
+    stance: Mapped[str] = mapped_column(String(20), default="flag")  # flag | context
+    status: Mapped[str] = mapped_column(String(20), default="visible")  # visible | hidden
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    contract: Mapped[Contract] = relationship(back_populates="citizen_reports")
 
 
 class Provenance(Base):
