@@ -719,8 +719,11 @@ th { color: var(--muted); font-weight: 600; }
 .hero-btn-primary:hover { background: #3a72e6; text-decoration: none; }
 
 .hero-btn-secondary {
-  border: 1px solid var(--border);
-  color: var(--text);
+  /* Fixed, not var(--border)/var(--text): .hero-card's background stays
+     dark in both themes by design, but --text flips to near-black in light
+     mode, which made this button's label invisible against the dark card. */
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #e6ecf5;
 }
 .hero-btn-secondary:hover { border-color: var(--accent); text-decoration: none; }
 
