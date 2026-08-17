@@ -8,9 +8,14 @@ export const metadata = {
     "Búsqueda y detección de anomalías en contratos públicos (Fase 1: Paraguay).",
 };
 
+const THEME_INIT_SCRIPT = `try{if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}`;
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="es">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body>
         <Navbar />
         <main className="container">{children}</main>

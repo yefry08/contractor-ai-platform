@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
@@ -44,10 +45,14 @@ export function Navbar() {
           <a href="/analyze" className="navbar-cta navbar-cta-mobile" onClick={() => setOpen(false)}>
             Analizar contrato
           </a>
+          <div className="navbar-theme-mobile">
+            <ThemeToggle />
+          </div>
         </nav>
 
         <div className="navbar-actions">
           <span className="navbar-tag">ES · datos abiertos OCDS</span>
+          <ThemeToggle />
           <a href="/analyze" className="navbar-cta">
             Analizar contrato
           </a>

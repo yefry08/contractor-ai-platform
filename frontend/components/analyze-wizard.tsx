@@ -8,6 +8,7 @@ import {
   compareAnalysis,
   extractAnalysis,
 } from "@/lib/api";
+import { EyeLoader } from "@/components/ui/eye-loader";
 
 const COUNTRIES = [
   { code: "PY", name: "Paraguay", currency: "PYG" },
@@ -143,7 +144,16 @@ export function AnalyzeWizard() {
         })}
       </div>
 
-      {step === 1 && (
+      {(extracting || comparing) && (
+        <div className="wizard-loader">
+          <EyeLoader />
+          <p className="wizard-note" style={{ marginTop: 16, textAlign: "center", width: "100%" }}>
+            {extracting ? "Procesando el documento…" : "Calculando la comparación…"}
+          </p>
+        </div>
+      )}
+
+      {!extracting && !comparing && step === 1 && (
         <div>
           <h2 className="wizard-title">1 · Elegí cómo cargarlo</h2>
           <div className="wizard-methods">
@@ -180,7 +190,7 @@ export function AnalyzeWizard() {
         </div>
       )}
 
-      {step === 2 && method && (
+      {!extracting && !comparing && step === 2 && method && (
         <div>
           <h2 className="wizard-title">2 · {METHODS.find((m) => m.key === method)?.title}</h2>
 
@@ -236,7 +246,7 @@ export function AnalyzeWizard() {
         </div>
       )}
 
-      {step === 3 && (
+      {!extracting && !comparing && step === 3 && (
         <div>
           <h2 className="wizard-title">3 · Confirmá los datos</h2>
 
@@ -309,7 +319,7 @@ export function AnalyzeWizard() {
         </div>
       )}
 
-      {step === 4 && result && (
+      {!extracting && !comparing && step === 4 && result && (
         <div>
           <div className="wizard-row" style={{ marginBottom: 18 }}>
             <span className={`badge wizard-verdict-${result.verdict}`}>{VERDICT_LABEL[result.verdict]}</span>

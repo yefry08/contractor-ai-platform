@@ -1,4 +1,20 @@
 :root {
+  --bg: #ffffff;
+  --panel: #f6f7fa;
+  --border: #e3e6ec;
+  --text: #14181f;
+  --muted: #5b6472;
+  --accent: #2f6feb;
+  --danger: #d64545;
+  --ok: #1f9d5c;
+  --navbar-bg: rgba(255, 255, 255, 0.85);
+  --warning-bg: rgba(214, 69, 69, 0.08);
+  --warning-border: rgba(214, 69, 69, 0.25);
+  --warning-text: #b3261e;
+  --amber: #a15c00;
+}
+
+[data-theme="dark"] {
   --bg: #0b1220;
   --panel: #121b2e;
   --border: #24314d;
@@ -7,6 +23,11 @@
   --accent: #4f8cff;
   --danger: #ff6b6b;
   --ok: #4fd18a;
+  --navbar-bg: rgba(11, 18, 32, 0.85);
+  --warning-bg: rgba(255, 107, 107, 0.1);
+  --warning-border: rgba(255, 107, 107, 0.3);
+  --warning-text: #ffb0b0;
+  --amber: #ffc107;
 }
 
 * { box-sizing: border-box; }
@@ -16,6 +37,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 a { color: var(--accent); text-decoration: none; }
@@ -128,7 +150,7 @@ th { color: var(--muted); font-weight: 600; }
   position: sticky;
   top: 0;
   z-index: 30;
-  background: rgba(11, 18, 32, 0.85);
+  background: var(--navbar-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
@@ -231,6 +253,7 @@ th { color: var(--muted); font-weight: 600; }
 }
 
 .navbar-cta-mobile { display: none; }
+.navbar-theme-mobile { display: none; }
 
 @media (max-width: 760px) {
   .navbar-inner { flex-wrap: nowrap; }
@@ -262,6 +285,12 @@ th { color: var(--muted); font-weight: 600; }
   .navbar-cta-mobile {
     display: block;
     text-align: center;
+    margin-top: 10px;
+  }
+
+  .navbar-theme-mobile {
+    display: flex;
+    justify-content: center;
     margin-top: 10px;
   }
 }
@@ -432,9 +461,9 @@ th { color: var(--muted); font-weight: 600; }
 .wizard-note { font-size: 0.8rem; color: var(--muted); }
 
 .wizard-warning {
-  background: rgba(255,107,107,0.1);
-  border: 1px solid rgba(255,107,107,0.3);
-  color: #ffb0b0;
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+  color: var(--warning-text);
   padding: 10px 13px;
   border-radius: 8px;
   font-size: 0.85rem;
@@ -514,7 +543,7 @@ th { color: var(--muted); font-weight: 600; }
 }
 
 .badge.wizard-verdict-alta { background: rgba(255,107,107,0.15); color: var(--danger); }
-.badge.wizard-verdict-revisar { background: rgba(255,193,7,0.15); color: #ffc107; }
+.badge.wizard-verdict-revisar { background: rgba(255,193,7,0.15); color: var(--amber); }
 .badge.wizard-verdict-normal { background: rgba(79,209,138,0.15); color: var(--ok); }
 
 @media (max-width: 760px) {
@@ -617,7 +646,7 @@ th { color: var(--muted); font-weight: 600; }
   position: relative;
   overflow: hidden;
   background: #050810;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   margin-bottom: 40px;
   min-height: 480px;
@@ -856,6 +885,7 @@ th { color: var(--muted); font-weight: 600; }
 
 .team-card-content ul {
   display: flex;
+  justify-content: center;
   gap: 10px;
   margin: 0;
   padding: 0;
@@ -936,4 +966,109 @@ footer.site .footer-bottom {
 footer.site .footer-links {
   display: flex;
   gap: 18px;
+}
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--text);
+}
+
+.theme-toggle:hover { border-color: var(--accent); }
+
+/* ---------- Eye-blink loader ---------- */
+/* From Uiverse.io by FWDJc */
+
+.wizard-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.eye-lid {
+  background-color: rgb(0, 0, 0);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 9px 0 2px rgba(0, 0, 0, 0.2);
+  width: 150px;
+  height: 150px;
+}
+
+.eye {
+  position: relative;
+  background-color: #fffcf4;
+  border-radius: 50%;
+  transform: translate3d(0, 0, 0) rotate(90deg);
+  width: 120px;
+  height: 120px;
+  animation: eye 5s infinite;
+}
+
+@keyframes eye {
+  12%,
+  25% {
+    width: 100px;
+    height: 110px;
+  }
+
+  37%,
+  50% {
+    width: 60px;
+    height: 130px;
+  }
+
+  63%,
+  75% {
+    width: 100px;
+    height: 103px;
+  }
+
+  87% {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+.cornea {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgb(0, 0, 0);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: eye-color 5s infinite;
+}
+
+@keyframes eye-color {
+  63%,
+  75% {
+    background-color: rgb(137, 1, 1);
+  }
+}
+
+.white-pupil {
+  position: absolute;
+  top: 70%;
+  left: 10%;
+  border-radius: 50%;
+  background-color: #fffcf4;
+  width: 20px;
+  height: 20px;
 }
