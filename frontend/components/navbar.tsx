@@ -30,18 +30,12 @@ export function Navbar() {
           <a href="/" onClick={() => setOpen(false)}>
             Explorar contratos
           </a>
-          <a href="/analyze" onClick={() => setOpen(false)}>
-            Analizar un contrato
-          </a>
           <a href="/anomalies" onClick={() => setOpen(false)}>
             Anomalías detectadas
           </a>
-          <span className="navbar-link-muted" title="Próximamente">
-            Panel institucional
-          </span>
-          <span className="navbar-link-muted" title="Próximamente">
-            API
-          </span>
+          <a href="/dashboard" onClick={() => setOpen(false)}>
+            Panel
+          </a>
           <a href="/analyze" className="navbar-cta navbar-cta-mobile" onClick={() => setOpen(false)}>
             Analizar contrato
           </a>

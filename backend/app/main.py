@@ -1,9 +1,13 @@
+import csv
+import io
+
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
-from . import analysis, models, schemas
+from . import analysis, dashboard, models, schemas
 from .config import settings
 from .db import get_db
 
@@ -132,6 +136,76 @@ def list_anomalies(
     items = db.execute(stmt).unique().scalars().all()
 
     return schemas.AnomalyPage(total=total, limit=limit, offset=offset, items=items)
+
+
+@app.get("/dashboard/summary", response_model=schemas.DashboardSummaryOut)
+def dashboard_summary(
+    db: Session = Depends(get_db),
+    country: str | None = Query(default=None, description="Código de país, ej. PY. Si se omite, agrega los 4 países."),
+):
+    result = dashboard.get_summary(db, country.upper() if country else None)
+    return schemas.DashboardSummaryOut(
+        country_code=result.country_code,
+        total_contracts=result.total_contracts,
+        total_amount_usd=result.total_amount_usd,
+        total_anomalies=result.total_anomalies,
+        anomaly_rate=result.anomaly_rate,
+        by_year=[schemas.YearPointOut(**vars(p)) for p in result.by_year],
+        by_category=[schemas.CategoryBreakdownOut(**vars(c)) for c in result.by_category],
+        by_country=[schemas.CountryBreakdownOut(**vars(c)) for c in result.by_country],
+    )
+
+
+@app.get("/rankings/buyers", response_model=schemas.BuyerRankingList)
+def rankings_buyers(
+    db: Session = Depends(get_db),
+    country: str | None = Query(default=None, description="Código de país, ej. PY. Si se omite, agrega los 4 países."),
+    limit: int = Query(default=20, le=100),
+):
+    items = dashboard.get_best_buyers(db, country.upper() if country else None, limit)
+    return schemas.BuyerRankingList(
+        min_contracts=dashboard.MIN_BUYER_CONTRACTS,
+        items=[schemas.BuyerRankingOut(**vars(r)) for r in items],
+    )
+
+
+@app.get("/export/contracts.csv")
+def export_contracts_csv(
+    db: Session = Depends(get_db),
+    country: str | None = Query(default=None),
+    category: str | None = Query(default=None),
+    only_anomalous: bool = Query(default=False),
+    limit: int = Query(default=5000, le=20000),
+):
+    stmt = select(models.Contract).options(joinedload(models.Contract.buyer))
+    if country:
+        stmt = stmt.where(models.Contract.country_code == country.upper())
+    if category:
+        stmt = stmt.where(models.Contract.category_code == category)
+    if only_anomalous:
+        stmt = stmt.join(models.Anomaly).where(models.Anomaly.status == "open")
+    stmt = stmt.order_by(models.Contract.award_date.desc().nullslast()).limit(limit)
+    rows = db.execute(stmt).unique().scalars().all()
+
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+    writer.writerow([
+        "id", "ocid", "country_code", "title", "category_code", "buyer_name",
+        "currency", "amount_original", "amount_usd", "award_date", "source_url",
+    ])
+    for c in rows:
+        writer.writerow([
+            c.id, c.ocid or "", c.country_code, c.title or "", c.category_code or "",
+            c.buyer.name if c.buyer else "", c.currency or "", c.amount_original or "",
+            c.amount_usd or "", c.award_date or "", c.source_url or "",
+        ])
+    buffer.seek(0)
+
+    return StreamingResponse(
+        iter([buffer.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=contractor-ai-contracts.csv"},
+    )
 
 
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024

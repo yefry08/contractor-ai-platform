@@ -159,3 +159,56 @@ export function compareAnalysis(payload: {
 }) {
   return apiFetchJson<Comparison>("/analyze/compare", payload);
 }
+
+export type YearPoint = { year: number; contracts: number; total_amount_usd: number; anomalies: number };
+export type CategoryBreakdown = { category_code: string; contracts: number; total_amount_usd: number; anomalies: number };
+export type CountryBreakdown = {
+  country_code: string;
+  contracts: number;
+  total_amount_usd: number;
+  anomalies: number;
+  anomaly_rate: number;
+};
+
+export type DashboardSummary = {
+  country_code: string | null;
+  total_contracts: number;
+  total_amount_usd: number;
+  total_anomalies: number;
+  anomaly_rate: number;
+  by_year: YearPoint[];
+  by_category: CategoryBreakdown[];
+  by_country: CountryBreakdown[];
+};
+
+export function getDashboardSummary(country?: string) {
+  const qs = country ? `?country=${country}` : "";
+  return apiFetch<DashboardSummary>(`/dashboard/summary${qs}`);
+}
+
+export type BuyerRanking = {
+  buyer_id: string;
+  name: string;
+  country_code: string;
+  total_contracts: number;
+  total_amount_usd: number;
+  anomalies: number;
+  anomaly_rate: number;
+};
+
+export type BuyerRankingList = { min_contracts: number; items: BuyerRanking[] };
+
+export function getBestBuyers(country?: string, limit = 15) {
+  const qs = new URLSearchParams();
+  if (country) qs.set("country", country);
+  qs.set("limit", String(limit));
+  return apiFetch<BuyerRankingList>(`/rankings/buyers?${qs.toString()}`);
+}
+
+export function exportCsvUrl(params: { country?: string; category?: string; only_anomalous?: boolean }) {
+  const qs = new URLSearchParams();
+  if (params.country) qs.set("country", params.country);
+  if (params.category) qs.set("category", params.category);
+  if (params.only_anomalous) qs.set("only_anomalous", "true");
+  return `${API_URL}/export/contracts.csv?${qs.toString()}`;
+}

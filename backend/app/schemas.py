@@ -112,3 +112,51 @@ class CompareOut(BaseModel):
     iqr_flagged: bool
     verdict: str
     comparables: list[ComparableOut]
+
+
+class YearPointOut(BaseModel):
+    year: int
+    contracts: int
+    total_amount_usd: float
+    anomalies: int
+
+
+class CategoryBreakdownOut(BaseModel):
+    category_code: str
+    contracts: int
+    total_amount_usd: float
+    anomalies: int
+
+
+class CountryBreakdownOut(BaseModel):
+    country_code: str
+    contracts: int
+    total_amount_usd: float
+    anomalies: int
+    anomaly_rate: float
+
+
+class DashboardSummaryOut(BaseModel):
+    country_code: str | None
+    total_contracts: int
+    total_amount_usd: float
+    total_anomalies: int
+    anomaly_rate: float
+    by_year: list[YearPointOut]
+    by_category: list[CategoryBreakdownOut]
+    by_country: list[CountryBreakdownOut]
+
+
+class BuyerRankingOut(BaseModel):
+    buyer_id: str
+    name: str
+    country_code: str
+    total_contracts: int
+    total_amount_usd: float
+    anomalies: int
+    anomaly_rate: float
+
+
+class BuyerRankingList(BaseModel):
+    min_contracts: int
+    items: list[BuyerRankingOut]
