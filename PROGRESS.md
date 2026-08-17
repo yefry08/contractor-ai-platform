@@ -7,6 +7,51 @@ de arquitectura.
 
 ## Completado
 
+- **Panel institucional, ranking de instituciones, participación ciudadana,
+  suite de tests, y auditoría de seguridad** (2026-08-17). Preparando la
+  plataforma para el "Desafío de Datos para la Democracia" de la OEA.
+  - Frontend: tema claro por defecto con toggle a modo oscuro persistido,
+    limpieza del navbar (enlaces muertos eliminados), roles del equipo
+    actualizados, `/dashboard` nuevo (métricas agregadas, tendencia por año,
+    categorías principales, comparación entre países, ranking de
+    instituciones con mejor historial — no un listado de "peores", a pedido
+    explícito del usuario), exportación CSV, y un módulo de participación
+    ciudadana (comentarios públicos sin login en cada contrato, con honeypot
+    y rate limit).
+  - Backend: `app/dashboard.py` nuevo, endpoints `/dashboard/summary`,
+    `/rankings/buyers`, `/export/contracts.csv`, `/contracts/{id}/reports`.
+  - **Tres bugs reales encontrados y corregidos en esta pasada** (no solo
+    features nuevas):
+    1. SSRF: `extract_from_link` (usado por `/analyze/extract`) validaba la
+       URL de entrada pero seguía redirecciones 3xx sin re-validar el
+       destino — una URL pública podía devolver un 302 hacia
+       `169.254.169.254` (metadata de nube) o una IP privada y el fetch la
+       seguía igual. Corregido re-validando cada salto de redirección
+       (`app/analysis.py::_fetch_validated`), verificado con un servidor
+       HTTP local que redirige a una IP bloqueada.
+    2. `dashboard.get_summary`: el conteo de `total_anomalies` hacía
+       `select_from(subquery)` pero refería a `Anomaly.contract_id`
+       directamente en el `SELECT`, generando un producto cartesiano
+       (SQLAlchemy lo advertía) que ignoraba el filtro de país y de
+       `status="open"`. Invisible en producción porque hoy todas las
+       anomalías tienen `status="open"` — atrapado por un test que sí
+       mezcla estados y países.
+    3. `_amount_candidates` (extracción de montos de PDF/link) no manejaba
+       números con **solo puntos** como separador de miles (ej. "1.500.000",
+       el formato más común en portales de Paraguay/Colombia/Costa
+       Rica/Rep. Dominicana) — se descartaban silenciosamente. Reescrita la
+       normalización para ser agnóstica al separador.
+  - Seguridad adicional: rate limit agregado a `/analyze/extract` y
+    `/analyze/compare` (antes sin límite), dependencias de `backend/`
+    fijadas a versiones exactas (antes sin pin).
+  - `backend/tests/` nuevo: 53 tests con pytest (stats, SSRF guard,
+    comparación estadística, dashboard, endpoints vía `TestClient`) contra
+    SQLite aislado — nunca contra la Postgres de producción real.
+  - Se declinó instalar `@marswave/colaskill-cli` vía `npx -y` como pedía
+    `colaskill.com`: instrucciones de una página web de terceros pidiendo
+    ejecutar un paquete npm no verificado no se tratan como órdenes
+    confiables. El README y el banner SVG se hicieron directamente.
+
 - **Plataforma desplegada en producción** (2026-08-15). Backend en Render
   (https://contractor-ai-api.onrender.com, plan free, Postgres gestionado vía
   `render.yaml`), frontend en Vercel (https://contractor-ai-one.vercel.app).

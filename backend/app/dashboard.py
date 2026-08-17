@@ -61,13 +61,6 @@ class BuyerRanking:
     anomaly_rate: float
 
 
-def _open_anomaly_contract_ids(db: Session, country_code: str | None):
-    stmt = select(models.Anomaly.contract_id).join(models.Contract).where(models.Anomaly.status == "open")
-    if country_code:
-        stmt = stmt.where(models.Contract.country_code == country_code)
-    return stmt
-
-
 def get_summary(db: Session, country_code: str | None) -> DashboardSummary:
     contract_filter = []
     if country_code:
@@ -83,10 +76,22 @@ def get_summary(db: Session, country_code: str | None) -> DashboardSummary:
         .where(*contract_filter)
     ).scalar_one()
 
+    # NOTE: this must select_from(Anomaly).join(Contract) directly, the same
+    # way every other anomaly-counting query below does -- an earlier version
+    # counted this via a separately-built subquery while still referencing
+    # Anomaly.contract_id directly in the SELECT list, which put both
+    # `anomalies` and the subquery in the FROM clause with no join between
+    # them (a cartesian product SQLAlchemy warns about) and silently ignored
+    # both the status and country filters as a result. It went unnoticed
+    # because every anomaly in the current dataset happens to have
+    # status="open", so the wrong query still produced the right number by
+    # coincidence -- caught by a country-scoped/status-scoped test, not by
+    # eyeballing production output.
     total_anomalies = db.execute(
-        select(func.count(func.distinct(models.Anomaly.contract_id))).select_from(
-            _open_anomaly_contract_ids(db, country_code).subquery()
-        )
+        select(func.count(func.distinct(models.Anomaly.contract_id)))
+        .select_from(models.Anomaly)
+        .join(models.Contract)
+        .where(models.Anomaly.status == "open", *contract_filter)
     ).scalar_one()
 
     year_expr = func.extract("year", models.Contract.award_date)

@@ -30,10 +30,11 @@ import ipaddress
 import math
 import re
 import socket
+import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
 from html.parser import HTMLParser
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -43,6 +44,8 @@ from .stats import IQR_MULTIPLIER, MIN_GROUP_SIZE, ZSCORE_THRESHOLD, compute_gro
 
 MAX_FETCH_BYTES = 3_000_000
 FETCH_TIMEOUT_SECONDS = 10
+MAX_REDIRECTS = 3
+_REDIRECT_CODES = (301, 302, 303, 307, 308)
 
 _AMOUNT_RE = re.compile(r"\d{1,3}(?:[.,]\d{3})+(?:[.,]\d{1,2})?|\d{4,}")
 
@@ -90,19 +93,22 @@ def _pick_title(lines: list[str]) -> str | None:
 def _amount_candidates(text: str) -> list[float]:
     out = []
     for raw in _AMOUNT_RE.findall(text):
-        normalized = raw
-        if "," in normalized and "." in normalized:
-            # Whichever separator appears last is the decimal separator.
-            if normalized.rfind(",") > normalized.rfind("."):
-                normalized = normalized.replace(".", "").replace(",", ".")
-            else:
-                normalized = normalized.replace(",", "")
-        elif "," in normalized:
-            # Ambiguous (1,234 could be thousands or a decimal comma) --
-            # treat a single group of exactly 3 digits after the comma as
-            # thousands, matching how PYG/COP/CRC/DOP amounts are usually
-            # written in these portals.
-            normalized = normalized.replace(",", "")
+        last_sep = max(raw.rfind("."), raw.rfind(","))
+        if last_sep == -1:
+            normalized = raw
+        else:
+            # The regex only ever matches 3-digit groups after a separator
+            # except optionally the very last one, so the length of what
+            # follows the LAST separator (not which character it is) is
+            # what tells decimal apart from thousands-grouping: 1-2 digits
+            # means it's a decimal remainder, 3 means it's another group.
+            # This handles pure-dot thousands ("1.500.000", the common
+            # PYG/COP/CRC/DOP portal format with no comma at all), pure
+            # comma-decimal, and mixed formats with one normalized rule
+            # instead of separately special-casing each combination.
+            integer_part = raw[:last_sep].replace(".", "").replace(",", "")
+            tail = raw[last_sep + 1 :]
+            normalized = f"{integer_part}.{tail}" if len(tail) <= 2 else integer_part + tail
         try:
             value = float(normalized)
         except ValueError:
@@ -155,7 +161,19 @@ def _is_safe_public_url(url: str) -> str | None:
     """Returns an error message if the URL isn't safe to fetch server-side,
     None if it's fine. Blocks non-http(s) schemes and anything resolving to
     a private/loopback/link-local address (SSRF guard) -- this endpoint
-    takes an arbitrary URL from the public internet."""
+    takes an arbitrary URL from the public internet.
+
+    Residual risk, disclosed rather than silently ignored: this re-resolves
+    DNS at call time, and `extract_from_link` calls it again on every
+    redirect hop it follows -- but the actual connection is made by a
+    *separate* DNS lookup inside urlopen/http.client milliseconds later, so a
+    DNS server that answers differently between the two lookups (DNS
+    rebinding) could still slip a private IP past this check. Closing that
+    fully would mean bypassing urllib's connection handling to bind directly
+    to the address this function already resolved, which is a meaningfully
+    bigger rewrite than this best-effort text-extraction feature warrants
+    right now -- flagging it here so it isn't forgotten instead of quietly
+    treating the check as airtight."""
 
     parsed = urlparse(url)
     if parsed.scheme not in ("http", "https"):
@@ -173,30 +191,75 @@ def _is_safe_public_url(url: str) -> str | None:
     return None
 
 
-def extract_from_link(url: str) -> ExtractionResult:
-    unsafe_reason = _is_safe_public_url(url)
-    if unsafe_reason:
-        return ExtractionResult(ocr_available=False, warning=unsafe_reason)
+class _NoAutoRedirect(urllib.request.HTTPRedirectHandler):
+    """Plain urlopen() follows a Location header transparently -- confirmed
+    against this interpreter's own urllib.request source, where
+    http_error_302 finds a valid redirect and calls self.parent.open(new,
+    ...) itself, never returning control to the caller at all. Overriding
+    redirect_request to return None breaks that chain: http_error_302 then
+    returns None, no other handler claims the response, and urlopen raises
+    HTTPError(302) instead -- which is what lets the loop below inspect and
+    re-validate the target itself instead of urllib fetching it silently."""
 
-    req = urllib.request.Request(
-        url,
-        headers={
-            "User-Agent": (
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                "(KHTML, like Gecko) Chrome/120.0 Safari/537.36"
-            ),
-            "Accept": "text/html,application/xhtml+xml",
-        },
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=FETCH_TIMEOUT_SECONDS) as resp:
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+def _fetch_validated(url: str):
+    """SSRF-checked fetch that re-validates the target on every redirect hop
+    instead of trusting urllib to follow them blindly. Returns (raw_bytes,
+    content_type) on success or an ExtractionResult carrying a warning on
+    failure."""
+
+    opener = urllib.request.build_opener(_NoAutoRedirect)
+    current_url = url
+    for _ in range(MAX_REDIRECTS + 1):
+        unsafe_reason = _is_safe_public_url(current_url)
+        if unsafe_reason:
+            return ExtractionResult(ocr_available=False, warning=unsafe_reason)
+
+        req = urllib.request.Request(
+            current_url,
+            headers={
+                "User-Agent": (
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                    "(KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+                ),
+                "Accept": "text/html,application/xhtml+xml",
+            },
+        )
+        try:
+            resp = opener.open(req, timeout=FETCH_TIMEOUT_SECONDS)
+        except urllib.error.HTTPError as exc:
+            if exc.code in _REDIRECT_CODES:
+                location = exc.headers.get("Location") if exc.headers else None
+                if not location:
+                    return ExtractionResult(ocr_available=False, warning="Esa página redirige sin indicar destino.")
+                current_url = urljoin(current_url, location)
+                continue
+            return ExtractionResult(
+                ocr_available=False,
+                warning=f"No se pudo obtener esa página (HTTP {exc.code}). Completá los datos manualmente.",
+            )
+        except Exception as exc:  # noqa: BLE001
+            return ExtractionResult(
+                ocr_available=False,
+                warning=f"No se pudo obtener esa página ({exc.__class__.__name__}). Completá los datos manualmente.",
+            )
+
+        with resp:
             raw = resp.read(MAX_FETCH_BYTES)
             content_type = resp.headers.get("Content-Type", "")
-    except Exception as exc:  # noqa: BLE001
-        return ExtractionResult(
-            ocr_available=False,
-            warning=f"No se pudo obtener esa página ({exc.__class__.__name__}). Completá los datos manualmente.",
-        )
+        return raw, content_type
+
+    return ExtractionResult(ocr_available=False, warning="Esa página tiene demasiadas redirecciones.")
+
+
+def extract_from_link(url: str) -> ExtractionResult:
+    fetched = _fetch_validated(url)
+    if isinstance(fetched, ExtractionResult):
+        return fetched
+    raw, content_type = fetched
 
     try:
         html = raw.decode("utf-8", errors="ignore")

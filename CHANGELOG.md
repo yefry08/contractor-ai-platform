@@ -3,6 +3,58 @@
 Formato libre, orden cronológico inverso (más reciente arriba). Referencia a
 `docs/adr/` para el razonamiento detrás de decisiones de arquitectura.
 
+## 2026-08-17 — Panel, ranking, participación ciudadana, tests, seguridad
+
+Preparando la plataforma para el "Desafío de Datos para la Democracia: 25
+años de la Carta Democrática Interamericana" (OEA) — convocatoria que evalúa
+relevancia democrática, innovación, uso de datos abiertos, factibilidad,
+escalabilidad e impacto potencial, y nombra explícitamente tableros,
+visualizaciones y acceso a datos abiertos como cualidades buscadas.
+
+- **`/dashboard`**: métricas agregadas, contratos y tasa de anomalías por
+  año, categorías principales, comparación entre los 4 países, y un ranking
+  de las **instituciones con mejor historial de contratación** (menor tasa
+  de anomalías, mínimo 5 contratos para evitar ruido de muestra chica) — a
+  pedido explícito del usuario, en vez de un listado de peores infractores.
+  Gráficos de barras en CSS puro, sin dependencia nueva. Exportación CSV.
+- **Participación ciudadana**: cualquier visitante puede dejar un comentario
+  público en un contrato (señalar un problema o aportar contexto), sin
+  login, con honeypot y rate limit por IP — cierra el único de los 7 temas
+  de la convocatoria de la OEA que la plataforma no tocaba todavía.
+- **Navbar**: enlaces muertos ("Panel institucional", "API") eliminados,
+  enlace duplicado a `/analyze` eliminado, alineación consistente. Roles del
+  equipo actualizados. Tema claro por defecto con toggle a modo oscuro
+  persistido en `localStorage`.
+- **Auditoría de seguridad + 3 bugs reales corregidos**, no solo nuevas
+  features:
+  - SSRF: `/analyze/extract` validaba la URL de entrada pero seguía
+    redirecciones 3xx sin re-validar el destino — un link público podía
+    devolver un 302 hacia una IP privada o el endpoint de metadata de nube
+    (`169.254.169.254`) y el fetch lo seguía igual. Corregido re-validando
+    cada salto de redirección; verificado con un servidor HTTP local que
+    redirige a una dirección bloqueada.
+  - `dashboard.get_summary`: el conteo de `total_anomalies` mezclaba una
+    subquery con una columna referida directamente desde `Anomaly`,
+    generando un producto cartesiano que ignoraba en silencio el filtro de
+    país y de `status="open"`. Invisible en producción porque hoy todas las
+    anomalías ingeridas tienen `status="open"` — solo lo atrapó un test que
+    mezcla estados y países a propósito.
+  - Extracción de montos de PDF/link no reconocía números con **solo
+    puntos** como separador de miles ("1.500.000", el formato más común en
+    los portales de los 4 países) — se descartaban en silencio. Reescrita la
+    normalización para ser agnóstica al separador.
+  - Rate limit agregado a `/analyze/extract` y `/analyze/compare` (antes sin
+    límite); dependencias de `backend/requirements.txt` fijadas a versiones
+    exactas (antes sin pin, build no reproducible).
+- **`backend/tests/`**: 53 tests con pytest contra SQLite aislado (nunca
+  contra la Postgres de producción real, aunque el entorno de desarrollo
+  local apunta ahí por conveniencia — ver `backend/tests/conftest.py` para
+  cómo se garantiza el aislamiento).
+- README raíz rediseñado con banner SVG propio. Se declinó instalar
+  `@marswave/colaskill-cli` vía `npx -y` a pedido de `colaskill.com`:
+  instrucciones de ejecución de una página de terceros no se tratan como
+  órdenes confiables.
+
 ## 2026-08-15 — Primer despliegue a producción: Render + Vercel
 
 A pedido del usuario ("docker is ready and please deploy with a free .dev

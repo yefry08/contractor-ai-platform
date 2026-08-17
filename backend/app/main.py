@@ -120,11 +120,26 @@ def list_citizen_reports(contract_id: str, db: Session = Depends(get_db)):
     return db.execute(stmt).scalars().all()
 
 
-# Best-effort in-memory rate limit: not a security guarantee (resets on
-# restart, keyed on request.client.host which a proxy can obscure), just a
-# soft deterrent against a script hammering the endpoint. Real abuse
-# resistance would need a shared store and proper proxy IP handling.
-_report_hits: dict[str, list[float]] = {}
+# Best-effort in-memory rate limit shared by every write/expensive endpoint
+# below: not a security guarantee (resets on restart, keyed on
+# request.client.host which a proxy can obscure), just a soft deterrent
+# against a script hammering an endpoint. Real abuse resistance would need a
+# shared store (Redis, etc.) and proper proxy IP handling (X-Forwarded-For).
+_rate_hits: dict[str, list[float]] = {}
+
+
+def _rate_limited(request: Request, bucket: str, max_hits: int, window_seconds: int) -> bool:
+    client_ip = request.client.host if request.client else "unknown"
+    key = f"{bucket}:{client_ip}"
+    now = time.time()
+    hits = [t for t in _rate_hits.get(key, []) if now - t < window_seconds]
+    exceeded = len(hits) >= max_hits
+    if not exceeded:
+        hits.append(now)
+        _rate_hits[key] = hits
+    return exceeded
+
+
 MAX_REPORTS_PER_WINDOW = 5
 REPORT_WINDOW_SECONDS = 600
 
@@ -146,13 +161,8 @@ def create_citizen_report(
             id="0", comment=payload.comment, stance=payload.stance, created_at=datetime.utcnow()
         )
 
-    client_ip = request.client.host if request.client else "unknown"
-    now = time.time()
-    hits = [t for t in _report_hits.get(client_ip, []) if now - t < REPORT_WINDOW_SECONDS]
-    if len(hits) >= MAX_REPORTS_PER_WINDOW:
+    if _rate_limited(request, "reports", MAX_REPORTS_PER_WINDOW, REPORT_WINDOW_SECONDS):
         raise HTTPException(status_code=429, detail="Demasiados reportes. Probá de nuevo en unos minutos.")
-    hits.append(now)
-    _report_hits[client_ip] = hits
 
     report = models.CitizenReport(contract_id=contract_id, comment=payload.comment.strip(), stance=payload.stance)
     db.add(report)
@@ -264,14 +274,21 @@ def export_contracts_csv(
 
 
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
+MAX_EXTRACT_PER_WINDOW = 10
+MAX_COMPARE_PER_WINDOW = 20
+ANALYZE_WINDOW_SECONDS = 300
 
 
 @app.post("/analyze/extract", response_model=schemas.ExtractionOut)
 async def analyze_extract(
+    request: Request,
     method: str = Form(..., description="pdf | link | photo"),
     file: UploadFile | None = File(default=None),
     link: str | None = Form(default=None),
 ):
+    if _rate_limited(request, "extract", MAX_EXTRACT_PER_WINDOW, ANALYZE_WINDOW_SECONDS):
+        raise HTTPException(status_code=429, detail="Demasiados análisis. Probá de nuevo en unos minutos.")
+
     if method == "pdf":
         if file is None:
             raise HTTPException(status_code=400, detail="Falta el archivo PDF.")
@@ -308,7 +325,9 @@ async def analyze_extract(
 
 
 @app.post("/analyze/compare", response_model=schemas.CompareOut)
-def analyze_compare(payload: schemas.CompareRequest, db: Session = Depends(get_db)):
+def analyze_compare(payload: schemas.CompareRequest, request: Request, db: Session = Depends(get_db)):
+    if _rate_limited(request, "compare", MAX_COMPARE_PER_WINDOW, ANALYZE_WINDOW_SECONDS):
+        raise HTTPException(status_code=429, detail="Demasiadas comparaciones. Probá de nuevo en unos minutos.")
     if payload.amount <= 0:
         raise HTTPException(status_code=400, detail="El monto debe ser mayor a 0.")
 
