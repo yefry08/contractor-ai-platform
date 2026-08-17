@@ -31,7 +31,7 @@ const MEMBERS: Member[] = [
   },
   {
     name: "Daniel Duque",
-    role: "IA Engineer",
+    role: "Former IA Researcher",
     photo: "https://hackcorruption.org/wp-content/uploads/2023/08/11.-Daniel-Duque-Lozano-min.jpeg",
     initials: "DD",
     x: "#",
@@ -46,14 +46,14 @@ const MEMBERS: Member[] = [
   },
   {
     name: "Yefry Nunez",
-    role: "Full-Stack Developer",
+    role: "CEO and Forward Deploy Engineer",
     photo: "https://hackcorruption.org/wp-content/uploads/2023/08/69.-Yefry-Nunez-e1691657328142.jpeg",
     initials: "YN",
     x: "#",
   },
   {
     name: "Natalia Ramírez Pérez",
-    role: "Analítica avanzada · IA",
+    role: "CTO and AI",
     photo:
       "https://media.licdn.com/dms/image/v2/D4E03AQHI4Vu3-_lhJA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1705888131569?e=1788393600&v=beta&t=waFNn0Uxt1pKD9xSQNkrkeEl0XzgKThtCa87gCWohQk",
     initials: "NR",
@@ -62,7 +62,7 @@ const MEMBERS: Member[] = [
   },
   {
     name: "Domingo Aybar Santos",
-    role: "Founder @Fligo",
+    role: "Chief of Information",
     photo:
       "https://media.licdn.com/dms/image/v2/D4E03AQFq3lOQgCc0EQ/profile-displayphoto-crop_800_800/B4EZ1y6gMTG4AM-/0/1775749434786?e=1788393600&v=beta&t=jrVhtSfnQdB_qkAzvBKUcV3yKBTbG9uxY2mRhUCcino",
     initials: "DA",
@@ -71,7 +71,7 @@ const MEMBERS: Member[] = [
   },
   {
     name: "Nicole Checo",
-    role: "Ciencias Políticas",
+    role: "Chief of Politics",
     photo:
       "https://media.licdn.com/dms/image/v2/D4D03AQEnnpNfubEZKQ/profile-displayphoto-scale_200_200/B4DZthZ9l4IYAc-/0/1766865759214?e=1788393600&v=beta&t=H9uaHkbHhYQo2XhYXNMeMKkkagf88dk9iCspQI_SIjs",
     initials: "NC",
@@ -80,7 +80,7 @@ const MEMBERS: Member[] = [
   },
   {
     name: "Jomayris Rosario Medina",
-    role: "Economista · Políticas públicas",
+    role: "Chief of Financial",
     photo:
       "https://media.licdn.com/dms/image/v2/D4E03AQF-tJtL6Gqa4w/profile-displayphoto-scale_200_200/B4EZwCZnhLGcAY-/0/1769566798483?e=1788393600&v=beta&t=P6ROHGDSjYiFWIJxudqSmm02YK1efi7Uj9jCAbpG0Qw",
     initials: "JR",

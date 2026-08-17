@@ -24,11 +24,11 @@ const PARTNERS = [
   },
   {
     name: "PeaceJam",
-    logo: "https://www.billionacts.org/assets/img/peacejam-footer-logo.png",
+    logo: "https://www.peacejam.org/img/logo-min-dark.876349ce.png",
   },
   {
     name: "Google",
-    logo: "https://www.billionacts.org/assets/img/google-footer-logo.png",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg",
   },
 ];
 
