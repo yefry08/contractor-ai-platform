@@ -1,0 +1,81 @@
+<svg width="1200" height="280" viewBox="0 0 1200 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Contractor AI — transparencia en contratación pública">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="280" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#070b16"/>
+      <stop offset="1" stop-color="#121b2e"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#4f8cff" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#4f8cff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="titleFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#c7d0e0"/>
+    </linearGradient>
+    <linearGradient id="docFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#182238"/>
+      <stop offset="1" stop-color="#141d30"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="280" fill="url(#bg)"/>
+  <circle cx="1000" cy="130" r="230" fill="url(#glow)"/>
+
+  <!-- Top-right pill: contest context -->
+  <g transform="translate(872,8)">
+    <rect width="300" height="28" rx="14" fill="#ffffff" fill-opacity="0.06" stroke="#4f8cff" stroke-opacity="0.4"/>
+    <circle cx="18" cy="14" r="4" fill="#4fd18a"/>
+    <text x="32" y="18" font-family="Segoe UI, Arial, Helvetica, sans-serif" font-size="12" font-weight="600" fill="#c7d0e0" letter-spacing="0.02em">OEA · Desafío de Datos para la Democracia</text>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="56" y="140" font-family="Segoe UI, Arial, Helvetica, sans-serif" font-size="66" font-weight="800" fill="url(#titleFill)">Contractor<tspan fill="#4f8cff">AI</tspan></text>
+
+  <!-- Subtitle -->
+  <text x="58" y="175" font-family="Segoe UI, Arial, Helvetica, sans-serif" font-size="20" fill="#93a1b8">Detección estadística de anomalías en contratación pública</text>
+  <text x="58" y="203" font-family="Segoe UI, Arial, Helvetica, sans-serif" font-size="20" fill="#93a1b8">a partir de datos abiertos, en cuatro países y contando</text>
+
+  <!-- Country chips -->
+  <g font-family="Segoe UI, Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="0.04em">
+    <g transform="translate(58,232)">
+      <circle cx="6" cy="-4" r="5" fill="#4f8cff"/>
+      <text x="18" y="0" fill="#7d8aa3">PARAGUAY</text>
+    </g>
+    <g transform="translate(198,232)">
+      <circle cx="6" cy="-4" r="5" fill="#4fd18a"/>
+      <text x="18" y="0" fill="#7d8aa3">COLOMBIA</text>
+    </g>
+    <g transform="translate(338,232)">
+      <circle cx="6" cy="-4" r="5" fill="#ffc107"/>
+      <text x="18" y="0" fill="#7d8aa3">COSTA RICA</text>
+    </g>
+    <g transform="translate(500,232)">
+      <circle cx="6" cy="-4" r="5" fill="#c792ea"/>
+      <text x="18" y="0" fill="#7d8aa3">REP. DOMINICANA</text>
+    </g>
+  </g>
+
+  <!-- Document + magnifier + mini bar-chart motif -->
+  <g transform="translate(120,0)">
+    <rect x="845" y="52" width="150" height="176" rx="16" fill="#0b1220" fill-opacity="0.6"/>
+    <rect x="860" y="40" width="150" height="176" rx="16" fill="url(#docFill)" stroke="#2a3550" stroke-width="1.5"/>
+
+    <rect x="882" y="66" width="90" height="8" rx="4" fill="#3a4666"/>
+    <rect x="882" y="84" width="106" height="8" rx="4" fill="#2a3550"/>
+    <rect x="882" y="102" width="70" height="8" rx="4" fill="#2a3550"/>
+
+    <!-- mini bar chart -->
+    <g>
+      <rect x="882" y="176" width="14" height="26" rx="2" fill="#4f8cff"/>
+      <rect x="903" y="160" width="14" height="42" rx="2" fill="#4fd18a"/>
+      <rect x="924" y="184" width="14" height="18" rx="2" fill="#ffc107"/>
+      <rect x="945" y="150" width="14" height="52" rx="2" fill="#4f8cff" fill-opacity="0.55"/>
+    </g>
+
+    <!-- magnifying glass highlighting an anomaly -->
+    <circle cx="1010" cy="120" r="46" fill="#101a30" fill-opacity="0.85" stroke="#4f8cff" stroke-width="7"/>
+    <line x1="1042" y1="152" x2="1068" y2="178" stroke="#4f8cff" stroke-width="11" stroke-linecap="round"/>
+    <polyline points="988,132 1000,118 1012,128 1026,98" fill="none" stroke="#ff6b6b" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="1026" cy="98" r="5" fill="#ff6b6b"/>
+  </g>
+</svg>

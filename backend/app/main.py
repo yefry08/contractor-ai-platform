@@ -1,9 +1,15 @@
-from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, UploadFile
+import csv
+import io
+import time
+from datetime import datetime
+
+from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
-from . import analysis, models, schemas
+from . import analysis, dashboard, models, schemas
 from .config import settings
 from .db import get_db
 
@@ -102,6 +108,69 @@ def get_contract(contract_id: str, db: Session = Depends(get_db)):
     return contract
 
 
+@app.get("/contracts/{contract_id}/reports", response_model=list[schemas.CitizenReportOut])
+def list_citizen_reports(contract_id: str, db: Session = Depends(get_db)):
+    if db.get(models.Contract, contract_id) is None:
+        raise HTTPException(status_code=404, detail="Contrato no encontrado")
+    stmt = (
+        select(models.CitizenReport)
+        .where(models.CitizenReport.contract_id == contract_id, models.CitizenReport.status == "visible")
+        .order_by(models.CitizenReport.created_at.desc())
+    )
+    return db.execute(stmt).scalars().all()
+
+
+# Best-effort in-memory rate limit shared by every write/expensive endpoint
+# below: not a security guarantee (resets on restart, keyed on
+# request.client.host which a proxy can obscure), just a soft deterrent
+# against a script hammering an endpoint. Real abuse resistance would need a
+# shared store (Redis, etc.) and proper proxy IP handling (X-Forwarded-For).
+_rate_hits: dict[str, list[float]] = {}
+
+
+def _rate_limited(request: Request, bucket: str, max_hits: int, window_seconds: int) -> bool:
+    client_ip = request.client.host if request.client else "unknown"
+    key = f"{bucket}:{client_ip}"
+    now = time.time()
+    hits = [t for t in _rate_hits.get(key, []) if now - t < window_seconds]
+    exceeded = len(hits) >= max_hits
+    if not exceeded:
+        hits.append(now)
+        _rate_hits[key] = hits
+    return exceeded
+
+
+MAX_REPORTS_PER_WINDOW = 5
+REPORT_WINDOW_SECONDS = 600
+
+
+@app.post("/contracts/{contract_id}/reports", response_model=schemas.CitizenReportOut, status_code=201)
+def create_citizen_report(
+    contract_id: str,
+    payload: schemas.CitizenReportIn,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    if db.get(models.Contract, contract_id) is None:
+        raise HTTPException(status_code=404, detail="Contrato no encontrado")
+
+    if payload.website:
+        # Honeypot field a real user never sees or fills. Respond as if it
+        # worked (don't tip off the bot) but never persist anything.
+        return schemas.CitizenReportOut(
+            id="0", comment=payload.comment, stance=payload.stance, created_at=datetime.utcnow()
+        )
+
+    if _rate_limited(request, "reports", MAX_REPORTS_PER_WINDOW, REPORT_WINDOW_SECONDS):
+        raise HTTPException(status_code=429, detail="Demasiados reportes. Probá de nuevo en unos minutos.")
+
+    report = models.CitizenReport(contract_id=contract_id, comment=payload.comment.strip(), stance=payload.stance)
+    db.add(report)
+    db.commit()
+    db.refresh(report)
+    return report
+
+
 @app.get("/anomalies", response_model=schemas.AnomalyPage)
 def list_anomalies(
     db: Session = Depends(get_db),
@@ -134,15 +203,92 @@ def list_anomalies(
     return schemas.AnomalyPage(total=total, limit=limit, offset=offset, items=items)
 
 
+@app.get("/dashboard/summary", response_model=schemas.DashboardSummaryOut)
+def dashboard_summary(
+    db: Session = Depends(get_db),
+    country: str | None = Query(default=None, description="Código de país, ej. PY. Si se omite, agrega los 4 países."),
+):
+    result = dashboard.get_summary(db, country.upper() if country else None)
+    return schemas.DashboardSummaryOut(
+        country_code=result.country_code,
+        total_contracts=result.total_contracts,
+        total_amount_usd=result.total_amount_usd,
+        total_anomalies=result.total_anomalies,
+        anomaly_rate=result.anomaly_rate,
+        by_year=[schemas.YearPointOut(**vars(p)) for p in result.by_year],
+        by_category=[schemas.CategoryBreakdownOut(**vars(c)) for c in result.by_category],
+        by_country=[schemas.CountryBreakdownOut(**vars(c)) for c in result.by_country],
+    )
+
+
+@app.get("/rankings/buyers", response_model=schemas.BuyerRankingList)
+def rankings_buyers(
+    db: Session = Depends(get_db),
+    country: str | None = Query(default=None, description="Código de país, ej. PY. Si se omite, agrega los 4 países."),
+    limit: int = Query(default=20, le=100),
+):
+    items = dashboard.get_best_buyers(db, country.upper() if country else None, limit)
+    return schemas.BuyerRankingList(
+        min_contracts=dashboard.MIN_BUYER_CONTRACTS,
+        items=[schemas.BuyerRankingOut(**vars(r)) for r in items],
+    )
+
+
+@app.get("/export/contracts.csv")
+def export_contracts_csv(
+    db: Session = Depends(get_db),
+    country: str | None = Query(default=None),
+    category: str | None = Query(default=None),
+    only_anomalous: bool = Query(default=False),
+    limit: int = Query(default=5000, le=20000),
+):
+    stmt = select(models.Contract).options(joinedload(models.Contract.buyer))
+    if country:
+        stmt = stmt.where(models.Contract.country_code == country.upper())
+    if category:
+        stmt = stmt.where(models.Contract.category_code == category)
+    if only_anomalous:
+        stmt = stmt.join(models.Anomaly).where(models.Anomaly.status == "open")
+    stmt = stmt.order_by(models.Contract.award_date.desc().nullslast()).limit(limit)
+    rows = db.execute(stmt).unique().scalars().all()
+
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+    writer.writerow([
+        "id", "ocid", "country_code", "title", "category_code", "buyer_name",
+        "currency", "amount_original", "amount_usd", "award_date", "source_url",
+    ])
+    for c in rows:
+        writer.writerow([
+            c.id, c.ocid or "", c.country_code, c.title or "", c.category_code or "",
+            c.buyer.name if c.buyer else "", c.currency or "", c.amount_original or "",
+            c.amount_usd or "", c.award_date or "", c.source_url or "",
+        ])
+    buffer.seek(0)
+
+    return StreamingResponse(
+        iter([buffer.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=contractor-ai-contracts.csv"},
+    )
+
+
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
+MAX_EXTRACT_PER_WINDOW = 10
+MAX_COMPARE_PER_WINDOW = 20
+ANALYZE_WINDOW_SECONDS = 300
 
 
 @app.post("/analyze/extract", response_model=schemas.ExtractionOut)
 async def analyze_extract(
+    request: Request,
     method: str = Form(..., description="pdf | link | photo"),
     file: UploadFile | None = File(default=None),
     link: str | None = Form(default=None),
 ):
+    if _rate_limited(request, "extract", MAX_EXTRACT_PER_WINDOW, ANALYZE_WINDOW_SECONDS):
+        raise HTTPException(status_code=429, detail="Demasiados análisis. Probá de nuevo en unos minutos.")
+
     if method == "pdf":
         if file is None:
             raise HTTPException(status_code=400, detail="Falta el archivo PDF.")
@@ -179,7 +325,9 @@ async def analyze_extract(
 
 
 @app.post("/analyze/compare", response_model=schemas.CompareOut)
-def analyze_compare(payload: schemas.CompareRequest, db: Session = Depends(get_db)):
+def analyze_compare(payload: schemas.CompareRequest, request: Request, db: Session = Depends(get_db)):
+    if _rate_limited(request, "compare", MAX_COMPARE_PER_WINDOW, ANALYZE_WINDOW_SECONDS):
+        raise HTTPException(status_code=429, detail="Demasiadas comparaciones. Probá de nuevo en unos minutos.")
     if payload.amount <= 0:
         raise HTTPException(status_code=400, detail="El monto debe ser mayor a 0.")
 

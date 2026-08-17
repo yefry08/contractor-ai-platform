@@ -53,7 +53,7 @@ const MEMBERS: Member[] = [
   },
   {
     name: "Natalia Ramírez Pérez",
-    role: "CTO and AI",
+    role: "CTO and AI Engineer",
     photo:
       "https://media.licdn.com/dms/image/v2/D4E03AQHI4Vu3-_lhJA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1705888131569?e=1788393600&v=beta&t=waFNn0Uxt1pKD9xSQNkrkeEl0XzgKThtCa87gCWohQk",
     initials: "NR",

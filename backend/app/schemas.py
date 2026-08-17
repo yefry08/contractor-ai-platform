@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class PredictionOut(BaseModel):
@@ -112,3 +112,71 @@ class CompareOut(BaseModel):
     iqr_flagged: bool
     verdict: str
     comparables: list[ComparableOut]
+
+
+class YearPointOut(BaseModel):
+    year: int
+    contracts: int
+    total_amount_usd: float
+    anomalies: int
+
+
+class CategoryBreakdownOut(BaseModel):
+    category_code: str
+    contracts: int
+    total_amount_usd: float
+    anomalies: int
+
+
+class CountryBreakdownOut(BaseModel):
+    country_code: str
+    contracts: int
+    total_amount_usd: float
+    anomalies: int
+    anomaly_rate: float
+
+
+class DashboardSummaryOut(BaseModel):
+    country_code: str | None
+    total_contracts: int
+    total_amount_usd: float
+    total_anomalies: int
+    anomaly_rate: float
+    by_year: list[YearPointOut]
+    by_category: list[CategoryBreakdownOut]
+    by_country: list[CountryBreakdownOut]
+
+
+class BuyerRankingOut(BaseModel):
+    buyer_id: str
+    name: str
+    country_code: str
+    total_contracts: int
+    total_amount_usd: float
+    anomalies: int
+    anomaly_rate: float
+
+
+class BuyerRankingList(BaseModel):
+    min_contracts: int
+    items: list[BuyerRankingOut]
+
+
+class CitizenReportIn(BaseModel):
+    comment: str = Field(min_length=5, max_length=1000)
+    stance: str = "flag"
+    website: str = Field(default="", max_length=200)  # honeypot -- real users leave this blank
+
+    @field_validator("stance")
+    @classmethod
+    def _valid_stance(cls, v: str) -> str:
+        return v if v in ("flag", "context") else "flag"
+
+
+class CitizenReportOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    comment: str
+    stance: str
+    created_at: datetime
