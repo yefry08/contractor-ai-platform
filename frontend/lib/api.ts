@@ -225,3 +225,34 @@ export function submitCitizenReport(
 ) {
   return apiFetchJson<CitizenReport>(`/contracts/${contractId}/reports`, payload);
 }
+
+export type TenderPortal = { country_code: string; country_name: string; portal_name: string; portal_url: string };
+export type TenderCategory = { category_code: string; contracts: number };
+export type TenderBenchmark = {
+  country_code: string;
+  category_code: string;
+  currency: string | null;
+  sample_size: number;
+  median_amount: number;
+  typical_low: number;
+  typical_high: number;
+};
+
+export function listTenderPortals() {
+  return apiFetch<TenderPortal[]>("/tenders/portals");
+}
+
+export function listTenderCategories(country: string) {
+  return apiFetch<TenderCategory[]>(`/tenders/categories?country=${country}`);
+}
+
+export async function getTenderBenchmark(country: string, category: string) {
+  const res = await fetch(
+    `${API_URL}/tenders/benchmark?country=${country}&category=${encodeURIComponent(category)}`,
+  );
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new ApiError(body?.detail || `API /tenders/benchmark devolvió ${res.status}`, res.status);
+  }
+  return res.json() as Promise<TenderBenchmark>;
+}

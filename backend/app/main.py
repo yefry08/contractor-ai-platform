@@ -9,7 +9,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
-from . import analysis, dashboard, models, schemas
+from . import analysis, dashboard, models, schemas, tenders
 from .config import settings
 from .db import get_db
 
@@ -231,6 +231,45 @@ def rankings_buyers(
     return schemas.BuyerRankingList(
         min_contracts=dashboard.MIN_BUYER_CONTRACTS,
         items=[schemas.BuyerRankingOut(**vars(r)) for r in items],
+    )
+
+
+@app.get("/tenders/portals", response_model=list[schemas.TenderPortalOut])
+def tenders_portals(db: Session = Depends(get_db)):
+    countries = {c.code: c.name for c in db.execute(select(models.Country)).scalars().all()}
+    return [
+        schemas.TenderPortalOut(
+            country_code=code,
+            country_name=countries.get(code, code),
+            portal_name=portal["name"],
+            portal_url=portal["url"],
+        )
+        for code, portal in tenders.OFFICIAL_PORTALS.items()
+    ]
+
+
+@app.get("/tenders/categories", response_model=list[schemas.TenderCategoryOut])
+def tenders_categories(country: str, db: Session = Depends(get_db)):
+    items = tenders.get_categories(db, country.upper())
+    return [schemas.TenderCategoryOut(category_code=c.category_code, contracts=c.contracts) for c in items]
+
+
+@app.get("/tenders/benchmark", response_model=schemas.TenderBenchmarkOut)
+def tenders_benchmark(country: str, category: str, db: Session = Depends(get_db)):
+    result = tenders.get_price_benchmark(db, country.upper(), category)
+    if result is None:
+        raise HTTPException(
+            status_code=422,
+            detail=f"No hay suficientes contratos en {country.upper()}/{category} para armar un benchmark confiable.",
+        )
+    return schemas.TenderBenchmarkOut(
+        country_code=result.country_code,
+        category_code=result.category_code,
+        currency=result.currency,
+        sample_size=result.sample_size,
+        median_amount=result.median_amount,
+        typical_low=result.typical_low,
+        typical_high=result.typical_high,
     )
 
 
