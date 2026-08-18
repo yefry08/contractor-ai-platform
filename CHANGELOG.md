@@ -3,6 +3,62 @@
 Formato libre, orden cronológico inverso (más reciente arriba). Referencia a
 `docs/adr/` para el razonamiento detrás de decisiones de arquitectura.
 
+## 2026-08-18 — Módulo de licitaciones + categorías reales para Rep. Dominicana
+
+A pedido del usuario: nuevo módulo `/tenders` ("Preparate para ofertar") --
+para cada uno de los 4 países, el usuario elige una categoría de contrato y
+ve la mediana + rango típico (IQR) de contratos similares ya adjudicados,
+para armar una oferta con un precio de referencia real en vez de adivinar.
+Reutiliza la misma capa de estadística (mediana + MAD) del resto de la app.
+No pretende listar licitaciones abiertas en vivo ni postular en nombre de
+nadie -- no hay scraper conectado en este entorno (se evaluó importar el
+MCP de ScraperGraph, requiere API key y setup interactivo no disponible
+aquí) y aunque lo hubiera, "postular por una empresa" es una superficie de
+confianza/legal mucho más grande de lo que esta herramienta debería asumir
+unilateralmente. En cambio: un link verificado y real al portal oficial de
+compras públicas de cada país (contrataciones.gov.py, colombiacompra.gov.co,
+sicop.go.cr, dgcp.gob.do -- cada uno confirmado con un request HTTP real
+antes de escribirlo en el código, no adivinado) para que el usuario postule
+de verdad ahí.
+
+Al construirlo se encontró que República Dominicana tenía category_code
+NULL en las 2000 contrataciones ingeridas (0%) -- el motivo por el que el
+observatorio y el propio módulo de licitaciones no podían mostrar nada útil
+para ese país. El usuario aportó el link a
+[datos.gob.do/dataset/datos-procesos-publicados](https://datos.gob.do/dataset/datos-procesos-publicados)
+(grupo PIDA, publicado por la DGCP, licencia ODbL), un CSV oficial de ~233MB
+con los procesos publicados en el SECP 2015-2026, con exactamente el campo
+de categoría que faltaba (`OBJETO_PROCESO`: "Bienes"/"Servicios") y la
+modalidad de contratación (`MODALIDAD`, incluyendo "Compras por Debajo del
+Umbral" -- el mecanismo de compras menores que el usuario mencionó,
+actualmente RD$268,111.38). Cruzado por `codigo_proceso`, ya guardado (pero
+nunca usado) en el `raw_ocds_json` de cada contrato desde la ingesta
+original.
+
+El snapshot CSV (actualización semestral, últimos datos a 2026-06-30) solo
+cerró 165 de 2000 -- nuestros contratos de Rep. Dominicana son todos de
+agosto 2026, fuera de su ventana. Se probó el endpoint **en vivo**
+`datosabiertos.dgcp.gob.do/api-dgcp/v1/procesos` (mismo dominio/API que ya
+usa la ingesta principal para `/contratos`, mismo hallazgo de Cloudflare:
+bloquea el User-Agent por defecto, no un User-Agent de navegador real) --
+tiene los mismos campos al día de hoy. Paginado hacia atrás (más reciente
+primero) hasta cubrir la fecha del contrato más antiguo sin dato, cerró
+1,320 más. Total: 1,485 / 2,000 (74%) con category_code y
+procurement_method reales, dejando 515 genuinamente sin proceso
+correspondiente encontrado en ninguna de las dos fuentes -- no forzado ni
+inventado. Script:
+[`backend/scripts/enrich_dominican_republic_categories.py`](backend/scripts/enrich_dominican_republic_categories.py),
+solo rellena campos NULL, nunca sobreescribe `amount_original`/`currency`
+existentes (`MONTO_ESTIMADO` del CSV es una *estimación* al momento de
+publicación, no el monto contratado real -- mezclarlos hubiera sido un
+error de integridad de datos, no un enriquecimiento).
+
+Bug encontrado y corregido durante las pruebas en navegador: el `<select>`
+de categoría arranca con la primera categoría pre-seleccionada, pero
+`onChange` solo dispara ante un cambio real -- un visitante que nunca toca
+el dropdown no veía nunca el benchmark. Corregido con un efecto que carga
+el benchmark de la categoría por defecto al montar el componente.
+
 ## 2026-08-17 — Panel, ranking, participación ciudadana, tests, seguridad
 
 Preparando la plataforma para el "Desafío de Datos para la Democracia: 25
