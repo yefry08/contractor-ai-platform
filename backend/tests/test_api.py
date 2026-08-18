@@ -136,6 +136,50 @@ def test_dashboard_summary_reflects_seeded_contracts(client, db_session):
     assert res.json()["total_contracts"] == 5
 
 
+def test_tenders_portals_covers_all_countries(client):
+    res = client.get("/tenders/portals")
+    assert res.status_code == 200
+    codes = {p["country_code"] for p in res.json()}
+    assert codes == {"PY", "CO", "CR", "DO"}
+    for p in res.json():
+        assert p["portal_url"].startswith("https://")
+
+
+def test_tenders_categories_reflects_seeded_data(client, db_session):
+    from app.stats import MIN_GROUP_SIZE
+
+    make_country(db_session)
+    for _ in range(MIN_GROUP_SIZE):
+        make_contract(db_session, category_code="servicios")
+    db_session.commit()
+
+    res = client.get("/tenders/categories?country=PY")
+    assert res.status_code == 200
+    assert res.json() == [{"category_code": "servicios", "contracts": MIN_GROUP_SIZE}]
+
+
+def test_tenders_benchmark_422_when_not_enough_data(client, db_session):
+    make_country(db_session)
+    db_session.commit()
+    res = client.get("/tenders/benchmark?country=PY&category=servicios")
+    assert res.status_code == 422
+
+
+def test_tenders_benchmark_200_with_enough_data(client, db_session):
+    from app.stats import MIN_GROUP_SIZE
+
+    make_country(db_session)
+    for _ in range(MIN_GROUP_SIZE):
+        make_contract(db_session, category_code="servicios", amount_original=1_000_000, currency="PYG")
+    db_session.commit()
+
+    res = client.get("/tenders/benchmark?country=PY&category=servicios")
+    assert res.status_code == 200
+    body = res.json()
+    assert body["sample_size"] == MIN_GROUP_SIZE
+    assert body["currency"] == "PYG"
+
+
 def test_export_csv_headers(client, db_session):
     make_country(db_session)
     make_contract(db_session)

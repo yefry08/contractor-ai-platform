@@ -36,6 +36,9 @@ export function Navbar() {
           <a href="/dashboard" onClick={() => setOpen(false)}>
             Panel
           </a>
+          <a href="/tenders" onClick={() => setOpen(false)}>
+            Licitaciones
+          </a>
           <a href="/analyze" className="navbar-cta navbar-cta-mobile" onClick={() => setOpen(false)}>
             Analizar contrato
           </a>

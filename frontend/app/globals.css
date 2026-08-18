@@ -719,8 +719,11 @@ th { color: var(--muted); font-weight: 600; }
 .hero-btn-primary:hover { background: #3a72e6; text-decoration: none; }
 
 .hero-btn-secondary {
-  border: 1px solid var(--border);
-  color: var(--text);
+  /* Fixed, not var(--border)/var(--text): .hero-card's background stays
+     dark in both themes by design, but --text flips to near-black in light
+     mode, which made this button's label invisible against the dark card. */
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #e6ecf5;
 }
 .hero-btn-secondary:hover { border-color: var(--accent); text-decoration: none; }
 
@@ -1039,6 +1042,79 @@ th { color: var(--muted); font-weight: 600; }
   width: 1px;
   height: 1px;
   opacity: 0;
+}
+
+/* ---------- Tenders ---------- */
+
+.tender-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 24px 0 40px;
+}
+
+@media (max-width: 760px) {
+  .tender-grid { grid-template-columns: 1fr; }
+}
+
+.tender-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tender-card-title {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.tender-select-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.tender-select-label select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 9px 11px;
+  border-radius: 7px;
+  font-size: 0.92rem;
+}
+
+.tender-benchmark {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.tender-benchmark-median {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8px;
+}
+
+.tender-benchmark-value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.tender-benchmark-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.tender-portal-link {
+  display: block;
+  text-align: center;
+  margin-top: auto;
+  text-decoration: none;
 }
 
 /* ---------- Footer ---------- */

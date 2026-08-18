@@ -180,3 +180,25 @@ class CitizenReportOut(BaseModel):
     comment: str
     stance: str
     created_at: datetime
+
+
+class TenderPortalOut(BaseModel):
+    country_code: str
+    country_name: str
+    portal_name: str
+    portal_url: str
+
+
+class TenderCategoryOut(BaseModel):
+    category_code: str
+    contracts: int
+
+
+class TenderBenchmarkOut(BaseModel):
+    country_code: str
+    category_code: str
+    currency: str | None
+    sample_size: int
+    median_amount: float
+    typical_low: float
+    typical_high: float
