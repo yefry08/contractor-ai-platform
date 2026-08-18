@@ -16,6 +16,7 @@ out/
 # Datos crudos pesados (no versionar, van a object storage / DB en Fase 1+)
 Data/zips/
 Data/records.csv
+backend/scripts/_pida_secp_processes.csv
 *.db
 *.db-journal
 *.db-wal
