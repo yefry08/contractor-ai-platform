@@ -27,8 +27,8 @@ export function Navbar() {
         </button>
 
         <nav className={`navbar-links ${open ? "navbar-links-open" : ""}`}>
-          <a href="/" onClick={() => setOpen(false)}>
-            Explorar contratos
+          <a href="/analyze" onClick={() => setOpen(false)}>
+            Analizar contratos
           </a>
           <a href="/anomalies" onClick={() => setOpen(false)}>
             Anomalías detectadas
@@ -39,8 +39,8 @@ export function Navbar() {
           <a href="/tenders" onClick={() => setOpen(false)}>
             Licitaciones
           </a>
-          <a href="/analyze" className="navbar-cta navbar-cta-mobile" onClick={() => setOpen(false)}>
-            Analizar contrato
+          <a href="mailto:yefrynunez45@gmail.com" className="navbar-cta navbar-cta-mobile" onClick={() => setOpen(false)}>
+            Contact us
           </a>
           <div className="navbar-theme-mobile">
             <ThemeToggle />
@@ -50,8 +50,8 @@ export function Navbar() {
         <div className="navbar-actions">
           <span className="navbar-tag">ES · datos abiertos OCDS</span>
           <ThemeToggle />
-          <a href="/analyze" className="navbar-cta">
-            Analizar contrato
+          <a href="mailto:yefrynunez45@gmail.com" className="navbar-cta">
+            Contact us
           </a>
         </div>
       </div>
