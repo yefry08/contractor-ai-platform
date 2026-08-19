@@ -16,11 +16,11 @@ export function Hero() {
             revisá la evidencia detrás de cada alerta, en cuatro países y contando.
           </p>
           <div className="hero-actions">
-            <a href="/" className="hero-btn hero-btn-primary">
-              Explorar contratos
+            <a href="/analyze" className="hero-btn hero-btn-primary">
+              Analizar contratos
             </a>
-            <a href="/anomalies" className="hero-btn hero-btn-secondary">
-              Ver anomalías detectadas
+            <a href="mailto:yefrynunez45@gmail.com" className="hero-btn hero-btn-secondary">
+              Contact us
             </a>
           </div>
         </div>
