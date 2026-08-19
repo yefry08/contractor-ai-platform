@@ -160,6 +160,12 @@ export function compareAnalysis(payload: {
   return apiFetchJson<Comparison>("/analyze/compare", payload);
 }
 
+export type Narrative = { available: boolean; narrative: string | null };
+
+export function generateNarrative(text: string, comparisonSummary: string) {
+  return apiFetchJson<Narrative>("/analyze/narrative", { text, comparison_summary: comparisonSummary });
+}
+
 export type YearPoint = { year: number; contracts: number; total_amount_usd: number; anomalies: number };
 export type CategoryBreakdown = { category_code: string; contracts: number; total_amount_usd: number; anomalies: number };
 export type CountryBreakdown = {

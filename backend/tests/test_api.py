@@ -136,6 +136,27 @@ def test_dashboard_summary_reflects_seeded_contracts(client, db_session):
     assert res.json()["total_contracts"] == 5
 
 
+def test_analyze_narrative_unavailable_without_key(client):
+    res = client.post("/analyze/narrative", json={"text": "algún texto", "comparison_summary": "verdict: normal"})
+    assert res.status_code == 200
+    assert res.json() == {"available": False, "narrative": None}
+
+
+def test_analyze_narrative_rate_limit(client, monkeypatch):
+    from app import ai, main
+
+    monkeypatch.setattr(ai.settings, "bazaarlink_api_key", "sk-bl-fake-test-key")
+    monkeypatch.setattr(ai, "generate_narrative", lambda *a, **k: "Resumen de prueba.")
+    monkeypatch.setattr(main, "MAX_NARRATIVE_PER_WINDOW", 2)
+
+    codes = []
+    for _ in range(3):
+        res = client.post("/analyze/narrative", json={"text": "algún texto", "comparison_summary": "verdict: normal"})
+        codes.append(res.status_code)
+
+    assert codes == [200, 200, 429]
+
+
 def test_tenders_portals_covers_all_countries(client):
     res = client.get("/tenders/portals")
     assert res.status_code == 200

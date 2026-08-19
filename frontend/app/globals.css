@@ -37,7 +37,16 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  /* No transition here on purpose: Chrome (and others) can throttle a
+     tab's rendering while it's in the background, and if the theme
+     changed color mid-transition before backgrounding, the tab can come
+     back to foreground stuck mid-transition -- painted with the *old*
+     background-color forever despite --bg, data-theme, and localStorage
+     all correctly holding the new theme. Confirmed live: switching tabs
+     right after toggling dark mode left body painted white while
+     getComputedStyle(body).backgroundColor still said dark's --bg;
+     forcing transition:none immediately repainted correctly. An instant
+     theme swap beats a client-visible stuck-color bug. */
 }
 
 a { color: var(--accent); text-decoration: none; }
@@ -540,6 +549,33 @@ th { color: var(--muted); font-weight: 600; }
 .badge.wizard-verdict-alta { background: rgba(255,107,107,0.15); color: var(--danger); }
 .badge.wizard-verdict-revisar { background: rgba(255,193,7,0.15); color: var(--amber); }
 .badge.wizard-verdict-normal { background: rgba(79,209,138,0.15); color: var(--ok); }
+
+.wizard-narrative {
+  margin: 4px 0 20px;
+}
+
+.wizard-narrative-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.wizard-narrative-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.wizard-narrative-card p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
 
 @media (max-width: 760px) {
   .wizard-methods { grid-template-columns: 1fr; }
