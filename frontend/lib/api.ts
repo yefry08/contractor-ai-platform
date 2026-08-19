@@ -82,7 +82,7 @@ export function listAnomalies(params: Record<string, string | number | boolean |
   return apiFetch<Page<AnomalyWithContract>>(`/anomalies?${qs.toString()}`);
 }
 
-export type ExtractionMethod = "pdf" | "link" | "photo";
+export type ExtractionMethod = "pdf" | "link";
 
 export type Extraction = {
   ocr_available: boolean;

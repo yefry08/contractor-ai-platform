@@ -24,11 +24,11 @@ const PARTNERS = [
   },
   {
     name: "PeaceJam",
-    logo: "https://www.peacejam.org/img/logo-min-dark.876349ce.png",
+    logo: "https://upload.wikimedia.org/wikipedia/en/4/4e/PeaceJam_logo.png",
   },
   {
-    name: "Google",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg",
+    name: "Pontificia Universidad Javeriana",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/5/5a/Logo_Javeriana_Actualizado.svg",
   },
 ];
 

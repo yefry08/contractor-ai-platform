@@ -321,7 +321,7 @@ ANALYZE_WINDOW_SECONDS = 300
 @app.post("/analyze/extract", response_model=schemas.ExtractionOut)
 async def analyze_extract(
     request: Request,
-    method: str = Form(..., description="pdf | link | photo"),
+    method: str = Form(..., description="pdf | link"),
     file: UploadFile | None = File(default=None),
     link: str | None = Form(default=None),
 ):
@@ -339,19 +339,8 @@ async def analyze_extract(
         if not link:
             raise HTTPException(status_code=400, detail="Falta el link.")
         result = analysis.extract_from_link(link)
-    elif method == "photo":
-        # Sin OCR instalado en este entorno (Tesseract no disponible) no hay
-        # forma honesta de extraer texto de una foto -- se lo decimos al
-        # cliente explícitamente en vez de simular un análisis.
-        result = analysis.ExtractionResult(
-            ocr_available=False,
-            warning=(
-                "El reconocimiento óptico de caracteres (OCR) no está disponible en "
-                "este entorno todavía. Completá los datos manualmente."
-            ),
-        )
     else:
-        raise HTTPException(status_code=400, detail="method debe ser pdf, link o photo.")
+        raise HTTPException(status_code=400, detail="method debe ser pdf o link.")
 
     return schemas.ExtractionOut(
         ocr_available=result.ocr_available,
