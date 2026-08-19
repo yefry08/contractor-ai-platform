@@ -7,6 +7,7 @@ import {
   ExtractionMethod,
   compareAnalysis,
   extractAnalysis,
+  generateNarrative,
 } from "@/lib/api";
 import { EyeLoader } from "@/components/ui/eye-loader";
 
@@ -55,6 +56,10 @@ export function AnalyzeWizard() {
   const [comparing, setComparing] = useState(false);
   const [compareError, setCompareError] = useState<string | null>(null);
   const [result, setResult] = useState<Comparison | null>(null);
+
+  const [narrative, setNarrative] = useState<string | null>(null);
+  const [narrativeLoading, setNarrativeLoading] = useState(false);
+  const [narrativeError, setNarrativeError] = useState<string | null>(null);
 
   function pickCountry(code: string) {
     setCountry(code);
@@ -110,6 +115,27 @@ export function AnalyzeWizard() {
     }
   }
 
+  async function runNarrative() {
+    if (!result) return;
+    setNarrativeLoading(true);
+    setNarrativeError(null);
+    try {
+      const summary =
+        `verdict: ${result.verdict}, deviation: ${result.deviation_pct.toFixed(1)}%, ` +
+        `zscore: ${result.zscore.toFixed(2)}, comparado contra ${result.group_size} contratos (${result.reference_group})`;
+      const res = await generateNarrative(textExcerpt || title || "(sin texto extraído)", summary);
+      if (res.available && res.narrative) {
+        setNarrative(res.narrative);
+      } else {
+        setNarrativeError("El resumen con IA no está disponible en este momento.");
+      }
+    } catch (err) {
+      setNarrativeError(err instanceof ApiError ? err.message : "No se pudo generar el resumen.");
+    } finally {
+      setNarrativeLoading(false);
+    }
+  }
+
   function reset() {
     setStep(1);
     setMethod(null);
@@ -124,6 +150,8 @@ export function AnalyzeWizard() {
     setCandidateAmounts([]);
     setCompareError(null);
     setResult(null);
+    setNarrative(null);
+    setNarrativeError(null);
   }
 
   const stepNames = ["Elegir método", "Cargar", "Confirmar", "Resultado"];
@@ -332,11 +360,27 @@ export function AnalyzeWizard() {
           </div>
 
           <div className="note">
-            Esto NO es una acusación de corrupción. Es una comparación estadística (mediana +
-            MAD sobre el logaritmo del monto, misma fórmula que usa el resto de la app — ver
-            /anomalies) contra contratos ya ingeridos del mismo país y moneda. No corre ningún
-            modelo de IA/NLP sobre este documento: no hay pesos de un modelo entrenado
-            disponibles para inferencia en vivo en este entorno.
+            Esto NO es una acusación de corrupción. El veredicto de arriba es puramente
+            estadístico (mediana + MAD sobre el logaritmo del monto, misma fórmula que usa el
+            resto de la app — ver /anomalies) contra contratos ya ingeridos del mismo país y
+            moneda — ningún modelo de IA participa en ese cálculo. El resumen en lenguaje
+            natural de abajo sí es opcional y generado por un modelo de IA externo (mejor
+            esfuerzo, puede no estar disponible); nunca es la fuente del veredicto.
+          </div>
+
+          <div className="wizard-narrative">
+            {!narrative && (
+              <button type="button" className="wizard-btn-secondary" disabled={narrativeLoading} onClick={runNarrative}>
+                {narrativeLoading ? "Generando…" : "✨ Generar resumen con IA (opcional)"}
+              </button>
+            )}
+            {narrativeError && <div className="wizard-warning">{narrativeError}</div>}
+            {narrative && (
+              <div className="wizard-narrative-card">
+                <span className="wizard-narrative-label">Resumen generado por IA</span>
+                <p>{narrative}</p>
+              </div>
+            )}
           </div>
 
           {result.comparables.length > 0 && (

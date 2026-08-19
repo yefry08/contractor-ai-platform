@@ -11,6 +11,11 @@ from pathlib import Path
 
 TEST_DB_PATH = Path(tempfile.gettempdir()) / "contractor_ai_test.db"
 os.environ["DATABASE_URL"] = f"sqlite:///{TEST_DB_PATH}"
+# Same reasoning as DATABASE_URL above: never let the test suite pick up a
+# real BazaarLink key from backend/.env and make real network calls against
+# a shared, global free-tier quota. Tests that need "available" behavior
+# monkeypatch app.ai.settings.bazaarlink_api_key explicitly instead.
+os.environ["BAZAARLINK_API_KEY"] = ""
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402

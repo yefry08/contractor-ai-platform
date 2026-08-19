@@ -114,6 +114,16 @@ class CompareOut(BaseModel):
     comparables: list[ComparableOut]
 
 
+class NarrativeRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=8000)
+    comparison_summary: str = Field(min_length=1, max_length=2000)
+
+
+class NarrativeOut(BaseModel):
+    available: bool
+    narrative: str | None = None
+
+
 class YearPointOut(BaseModel):
     year: int
     contracts: int

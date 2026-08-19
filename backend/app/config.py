@@ -19,5 +19,10 @@ class Settings(BaseSettings):
     api_key_header_name: str = "X-API-Key"
     cors_allow_origins: list[str] = ["http://localhost:3000"]
 
+    # Optional: BazaarLink (bazaarlink.ai), an OpenAI-compatible AI gateway --
+    # see ADR 0002 and app/ai.py. Narrative generation degrades to
+    # unavailable, never simulated, when this isn't set.
+    bazaarlink_api_key: str | None = None
+
 
 settings = Settings()

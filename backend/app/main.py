@@ -9,7 +9,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
-from . import analysis, dashboard, models, schemas, tenders
+from . import ai, analysis, dashboard, models, schemas, tenders
 from .config import settings
 from .db import get_db
 
@@ -400,3 +400,22 @@ def analyze_compare(payload: schemas.CompareRequest, request: Request, db: Sessi
             for c in result.comparables
         ],
     )
+
+
+# BazaarLink's free tier is a *global* allowance shared across every user of
+# their service, not a per-key quota -- kept far more conservative than the
+# app's other rate limits so this app alone doesn't eat a disproportionate
+# share of it.
+MAX_NARRATIVE_PER_WINDOW = 3
+NARRATIVE_WINDOW_SECONDS = 600
+
+
+@app.post("/analyze/narrative", response_model=schemas.NarrativeOut)
+def analyze_narrative(payload: schemas.NarrativeRequest, request: Request):
+    if not ai.is_available():
+        return schemas.NarrativeOut(available=False, narrative=None)
+    if _rate_limited(request, "narrative", MAX_NARRATIVE_PER_WINDOW, NARRATIVE_WINDOW_SECONDS):
+        raise HTTPException(status_code=429, detail="Demasiados resúmenes. Probá de nuevo en unos minutos.")
+
+    narrative = ai.generate_narrative(payload.text, payload.comparison_summary)
+    return schemas.NarrativeOut(available=narrative is not None, narrative=narrative)
