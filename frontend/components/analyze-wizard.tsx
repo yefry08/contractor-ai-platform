@@ -22,7 +22,6 @@ const CURRENCIES = ["PYG", "COP", "CRC", "USD", "DOP"];
 const METHODS: { key: ExtractionMethod; icon: string; title: string; sub: string }[] = [
   { key: "pdf", icon: "📄", title: "Subir PDF", sub: "Nativo o escaneado" },
   { key: "link", icon: "🔗", title: "Pegar link", sub: "Publicación oficial" },
-  { key: "photo", icon: "📷", title: "Tomar foto", sub: "Documento en papel" },
 ];
 
 const VERDICT_LABEL: Record<Comparison["verdict"], string> = {
@@ -213,20 +212,6 @@ export function AnalyzeWizard() {
               value={link}
               onChange={(e) => setLink(e.target.value)}
             />
-          )}
-
-          {method === "photo" && (
-            <div className="wizard-dropzone">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              />
-              <p className="wizard-note">
-                Este entorno no tiene OCR instalado todavía, así que la foto no se procesa
-                automáticamente — vas a completar los datos a mano en el siguiente paso.
-              </p>
-            </div>
           )}
 
           <div className="wizard-row">
