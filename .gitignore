@@ -33,3 +33,6 @@ Thumbs.db
 
 # Claude Code runtime state (session-specific, not project config)
 .claude/*.lock
+
+# Generated graphs and knowledge bases
+graphify-out/
