@@ -212,3 +212,49 @@ class TenderBenchmarkOut(BaseModel):
     median_amount: float
     typical_low: float
     typical_high: float
+
+
+# Provider Favoritism & Market Concentration
+
+class ProviderStatsOut(BaseModel):
+    total_providers: int
+    total_contracts: int
+    total_spending_usd: float
+    hhi_concentration: float
+    top_10_share: float
+
+
+class ProviderDetailOut(BaseModel):
+    provider_name: str
+    country_code: str
+    total_contracts: int
+    total_spending_usd: float
+    market_share: float
+    spending_share: float
+    avg_contract_value_usd: float
+    anomaly_rate: float
+    repeat_buyer_count: int
+
+
+class PriceFavoritismPointOut(BaseModel):
+    provider_name: str
+    year: int
+    avg_contract_value_usd: float
+    market_baseline_usd: float
+    markup_percent: float
+
+
+class GeographicPatternOut(BaseModel):
+    provider_name: str
+    country_code: str
+    contracts: int
+    total_spending_usd: float
+    market_share_in_country: float
+
+
+class TemporalClusterOut(BaseModel):
+    provider_name: str
+    award_date: date
+    buyer_name: str
+    contract_amount_usd: float
+    consecutive_awards: int

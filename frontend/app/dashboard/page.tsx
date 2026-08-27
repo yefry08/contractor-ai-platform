@@ -1,5 +1,6 @@
 import { getDashboardSummary, getBestBuyers, exportCsvUrl, CountryBreakdown } from "@/lib/api";
 import { BarChart } from "@/components/ui/bar-chart";
+import { ProviderFavoritismSection } from "@/components/provider-favoritism";
 
 const COUNTRY_NAMES: Record<string, string> = {
   PY: "Paraguay",
@@ -168,6 +169,10 @@ export default async function DashboardPage({
           </tbody>
         </table>
       )}
+
+      <hr style={{ margin: "40px 0", border: "none", borderTop: "1px solid var(--border)" }} />
+
+      <ProviderFavoritismSection initialCountry={country} initialYear={2023} />
     </>
   );
 }
