@@ -9,7 +9,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
-from . import ai, analysis, dashboard, models, schemas, tenders
+from . import ai, analysis, dashboard, models, schemas, tenders, providers
 from .config import settings
 from .db import get_db
 
@@ -232,6 +232,53 @@ def rankings_buyers(
         min_contracts=dashboard.MIN_BUYER_CONTRACTS,
         items=[schemas.BuyerRankingOut(**vars(r)) for r in items],
     )
+
+
+# Provider Favoritism & Market Concentration
+
+@app.get("/providers/stats", response_model=schemas.ProviderStatsOut)
+def provider_stats(
+    db: Session = Depends(get_db),
+    country: str | None = Query(default=None, description="Código de país, ej. PY"),
+):
+    result = providers.get_provider_stats(db, country.upper() if country else None)
+    return schemas.ProviderStatsOut(**vars(result))
+
+
+@app.get("/providers/top", response_model=list[schemas.ProviderDetailOut])
+def top_providers(
+    db: Session = Depends(get_db),
+    country: str | None = Query(default=None, description="Código de país, ej. PY"),
+    limit: int = Query(default=20, le=100),
+):
+    items = providers.get_top_providers(db, country.upper() if country else None, limit)
+    return [schemas.ProviderDetailOut(**vars(r)) for r in items]
+
+
+@app.get("/providers/price-favoritism", response_model=list[schemas.PriceFavoritismPointOut])
+def price_favoritism(
+    db: Session = Depends(get_db),
+    country: str | None = Query(default=None, description="Código de país, ej. PY"),
+    start_year: int = Query(default=2023),
+    end_year: int = Query(default=2025),
+):
+    items = providers.get_price_favoritism_trends(db, country.upper() if country else None, start_year, end_year)
+    return [schemas.PriceFavoritismPointOut(**vars(r)) for r in items]
+
+
+@app.get("/providers/geographic", response_model=list[schemas.GeographicPatternOut])
+def geographic_favoritism(db: Session = Depends(get_db)):
+    items = providers.get_geographic_favoritism(db)
+    return [schemas.GeographicPatternOut(**vars(r)) for r in items]
+
+
+@app.get("/providers/temporal-patterns", response_model=list[schemas.TemporalClusterOut])
+def temporal_patterns(
+    db: Session = Depends(get_db),
+    country: str | None = Query(default=None, description="Código de país, ej. PY"),
+):
+    items = providers.get_temporal_patterns(db, country.upper() if country else None)
+    return [schemas.TemporalClusterOut(**vars(r)) for r in items]
 
 
 @app.get("/tenders/portals", response_model=list[schemas.TenderPortalOut])
