@@ -1,4 +1,5 @@
 import { AnalyzeWizard } from "@/components/analyze-wizard";
+import { AnalyzeOnboarding } from "@/components/analyze-onboarding";
 
 export const metadata = {
   title: "Analizar un contrato — Contractor AI",
@@ -18,6 +19,9 @@ export default function AnalyzePage() {
         Un resumen en lenguaje natural generado por IA está disponible como paso
         opcional al final, ver el detalle en el resultado.
       </p>
+
+      <AnalyzeOnboarding />
+
       <AnalyzeWizard />
     </>
   );
