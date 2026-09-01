@@ -46,6 +46,7 @@ class ContractSummary(BaseModel):
     amount_original: float | None
     amount_usd: float | None
     award_date: date | None
+    source_url: str | None = None
     buyer: BuyerOut | None = None
 
 

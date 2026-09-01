@@ -105,7 +105,9 @@ export default async function AnomaliesPage({
           {data.items.map((a) => (
             <tr key={a.id}>
               <td>
-                <a href={`/contracts/${a.contract.id}`}>{a.contract.title ?? "(sin título)"}</a>
+                <a href={`/contracts/${a.contract.id}`}>
+                  {a.contract.title ?? "(sin título)"} 🔗
+                </a>
               </td>
               <td>{a.contract.country_code}</td>
               <td>{a.contract.buyer?.name ?? "—"}</td>
