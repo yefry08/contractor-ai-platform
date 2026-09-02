@@ -85,7 +85,7 @@ export function AnalyzeOnboarding() {
           <span style={{ fontSize: "20px" }}>💡</span>
           <div>
             <strong>¿Cómo analizar un contrato?</strong>
-            <p style={{ margin: 0, fontSize: "0.9em", color: "var(--text-muted)" }}>
+            <p style={{ margin: 0, fontSize: "0.9em", color: "var(--muted)" }}>
               Guía paso a paso + ejemplos de interpretación
             </p>
           </div>
@@ -106,7 +106,7 @@ export function AnalyzeOnboarding() {
                     padding: 16,
                     border: "1px solid var(--border)",
                     borderRadius: "6px",
-                    backgroundColor: "var(--card-background)",
+                    backgroundColor: "var(--panel)",
                   }}
                 >
                   <div style={{ fontSize: "24px", marginBottom: 8 }}>{step.icon}</div>

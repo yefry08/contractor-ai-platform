@@ -1,6 +1,7 @@
 import { getDashboardSummary, getBestBuyers, exportCsvUrl, CountryBreakdown } from "@/lib/api";
 import { BarChart } from "@/components/ui/bar-chart";
 import { ProviderFavoritismSection } from "@/components/provider-favoritism";
+import { KnowledgeGraph } from "@/components/knowledge-graph";
 
 const COUNTRY_NAMES: Record<string, string> = {
   PY: "Paraguay",
@@ -121,6 +122,10 @@ export default async function DashboardPage({
           </div>
         )}
       </div>
+
+      <hr style={{ margin: "40px 0", border: "none", borderTop: "1px solid var(--border)" }} />
+
+      <KnowledgeGraph />
 
       <h2 className="wizard-subtitle">
         Instituciones con mejor historial de contratación
