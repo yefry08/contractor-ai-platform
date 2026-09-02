@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { BarChart } from "@/components/ui/bar-chart";
+import {
+  getGeographicFavoritism,
+  getPriceFavoritism,
+  getProviderStats,
+  getTemporalPatterns,
+  getTopProviders,
+} from "@/lib/api";
 
 const COUNTRY_NAMES: Record<string, string> = {
   PY: "Paraguay",
@@ -80,25 +86,33 @@ export function ProviderFavoritismSection({
   const [geoData, setGeoData] = useState<GeographicPattern[]>([]);
   const [temporalData, setTemporalData] = useState<TemporalCluster[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function loadData() {
     setLoading(true);
+    setError(null);
     try {
-      const countryParam = country ? `?country=${country}` : "";
-
+      // These go through lib/api, which prefixes NEXT_PUBLIC_API_URL. A bare
+      // relative fetch resolves against the frontend origin instead of the API
+      // and comes back as a 404 HTML page.
       const [statsRes, providersRes, priceRes, geoRes, temporalRes] = await Promise.all([
-        fetch(`/providers/stats${countryParam}`),
-        fetch(`/providers/top${countryParam}${countryParam ? '&' : '?'}limit=20`),
-        fetch(`/providers/price-favoritism${countryParam}${countryParam ? '&' : '?'}start_year=${startYear}&end_year=${endYear}`),
-        fetch(`/providers/geographic`),
-        fetch(`/providers/temporal-patterns${countryParam}`),
+        getProviderStats(country || undefined),
+        getTopProviders(country || undefined, 20),
+        getPriceFavoritism(country || undefined, startYear, endYear),
+        getGeographicFavoritism(),
+        getTemporalPatterns(country || undefined),
       ]);
 
-      if (statsRes.ok) setStats(await statsRes.json());
-      if (providersRes.ok) setProviders(await providersRes.json());
-      if (priceRes.ok) setPriceData(await priceRes.json());
-      if (geoRes.ok) setGeoData(await geoRes.json());
-      if (temporalRes.ok) setTemporalData(await temporalRes.json());
+      setStats(statsRes);
+      setProviders(providersRes);
+      setPriceData(priceRes);
+      setGeoData(geoRes);
+      setTemporalData(temporalRes);
+    } catch (err) {
+      // Surfaced rather than swallowed: an ignored failure here renders as an
+      // empty section, which reads as "no favouritism found" rather than "the
+      // request failed".
+      setError(err instanceof Error ? err.message : "No se pudo cargar el análisis.");
     } finally {
       setLoading(false);
     }
@@ -144,7 +158,15 @@ export function ProviderFavoritismSection({
         </button>
       </div>
 
-      {!stats && !loading && <p className="wizard-note">Selecciona los filtros y haz clic en Actualizar para ver el análisis.</p>}
+      {error && (
+        <p className="wizard-note" style={{ color: "var(--danger)" }}>
+          {error}
+        </p>
+      )}
+
+      {!stats && !loading && !error && (
+        <p className="wizard-note">Seleccioná los filtros y hacé clic en Actualizar para ver el análisis.</p>
+      )}
 
       {/* Market Concentration Overview */}
       {stats && (

@@ -262,3 +262,79 @@ export async function getTenderBenchmark(country: string, category: string) {
   }
   return res.json() as Promise<TenderBenchmark>;
 }
+
+// --- Provider favoritism & market concentration ---
+
+export type ProviderStats = {
+  total_providers: number;
+  total_contracts: number;
+  total_spending_usd: number;
+  hhi_concentration: number;
+  top_10_share: number;
+};
+
+export type ProviderDetail = {
+  provider_name: string;
+  country_code: string;
+  total_contracts: number;
+  total_spending_usd: number;
+  market_share: number;
+  spending_share: number;
+  avg_contract_value_usd: number;
+  anomaly_rate: number;
+  repeat_buyer_count: number;
+};
+
+export type PriceFavoritismPoint = {
+  provider_name: string;
+  year: number;
+  avg_contract_value_usd: number;
+  market_baseline_usd: number;
+  markup_percent: number;
+};
+
+export type GeographicPattern = {
+  provider_name: string;
+  country_code: string;
+  contracts: number;
+  total_spending_usd: number;
+  market_share_in_country: number;
+};
+
+export type TemporalCluster = {
+  provider_name: string;
+  award_date: string;
+  buyer_name: string;
+  contract_amount_usd: number;
+  consecutive_awards: number;
+};
+
+function providerQuery(country?: string, extra: Record<string, string | number> = {}) {
+  const qs = new URLSearchParams();
+  if (country) qs.set("country", country);
+  for (const [k, v] of Object.entries(extra)) qs.set(k, String(v));
+  const s = qs.toString();
+  return s ? `?${s}` : "";
+}
+
+export function getProviderStats(country?: string) {
+  return apiFetch<ProviderStats>(`/providers/stats${providerQuery(country)}`);
+}
+
+export function getTopProviders(country?: string, limit = 20) {
+  return apiFetch<ProviderDetail[]>(`/providers/top${providerQuery(country, { limit })}`);
+}
+
+export function getPriceFavoritism(country?: string, startYear = 2023, endYear = 2025) {
+  return apiFetch<PriceFavoritismPoint[]>(
+    `/providers/price-favoritism${providerQuery(country, { start_year: startYear, end_year: endYear })}`,
+  );
+}
+
+export function getGeographicFavoritism() {
+  return apiFetch<GeographicPattern[]>("/providers/geographic");
+}
+
+export function getTemporalPatterns(country?: string) {
+  return apiFetch<TemporalCluster[]>(`/providers/temporal-patterns${providerQuery(country)}`);
+}
