@@ -17,6 +17,11 @@ services:
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     plan: free
+    # Stated explicitly rather than left to the default: the API sat on code from
+    # before the /providers endpoints existed while main had moved on, and a
+    # dashboard toggle is easy to flip off without anyone noticing. A Blueprint
+    # re-sync applies this; it does not retroactively deploy missed commits.
+    autoDeploy: true
     envVars:
       - key: DATABASE_URL
         fromDatabase:
