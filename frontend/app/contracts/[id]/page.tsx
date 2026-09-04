@@ -1,5 +1,6 @@
 import { getContract, listCitizenReports } from "@/lib/api";
 import { CitizenReports } from "@/components/citizen-reports";
+import { isSafeExternalUrl } from "@/lib/safe-url";
 
 function fmtUsd(n: number | null) {
   if (n === null) return "—";
@@ -32,6 +33,19 @@ export default async function ContractDetailPage({
       <div className="card">
         <h2 style={{ marginTop: 0 }}>Descripción</h2>
         <p>{c.description ?? "Sin descripción disponible."}</p>
+        {isSafeExternalUrl(c.source_url) && (
+          <p>
+            <a
+              href={c.source_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="badge"
+              style={{ textDecoration: "none" }}
+            >
+              🔗 Ver contrato oficial en el portal de {c.country_code}
+            </a>
+          </p>
+        )}
         <p>
           <strong>Método de contratación:</strong> {c.procurement_method ?? "—"} <br />
           <strong>Categoría:</strong> {c.category_code ?? "—"} <br />
@@ -43,12 +57,7 @@ export default async function ContractDetailPage({
           )}
           {c.ocid && (
             <>
-              <strong>OCID:</strong> <code>{c.ocid}</code> <br />
-            </>
-          )}
-          {c.source_url && (
-            <>
-              <strong>Fuente:</strong> <a href={c.source_url} target="_blank" rel="noreferrer">ver proceso original</a>
+              <strong>OCID:</strong> <code>{c.ocid}</code>
             </>
           )}
         </p>

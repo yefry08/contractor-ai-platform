@@ -40,7 +40,7 @@ export function Navbar() {
             Licitaciones
           </a>
           <a href="mailto:yefrynunez45@gmail.com" className="navbar-cta navbar-cta-mobile" onClick={() => setOpen(false)}>
-            Contact us
+            Contáctanos
           </a>
           <div className="navbar-theme-mobile">
             <ThemeToggle />
@@ -51,7 +51,7 @@ export function Navbar() {
           <span className="navbar-tag">ES · datos abiertos OCDS</span>
           <ThemeToggle />
           <a href="mailto:yefrynunez45@gmail.com" className="navbar-cta">
-            Contact us
+            Contáctanos
           </a>
         </div>
       </div>
