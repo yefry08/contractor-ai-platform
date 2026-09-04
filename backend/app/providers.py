@@ -14,8 +14,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 
-from sqlalchemy import func, select, and_, or_
-from sqlalchemy.orm import Session
+from sqlalchemy import func, select
+from sqlalchemy.orm import Session, joinedload
 
 from . import models
 
@@ -417,19 +417,20 @@ def get_temporal_patterns(
     if country_code:
         contract_filter.append(models.Contract.country_code == country_code)
 
-    # Get all contracts ordered by provider and date
+    # Get all contracts ordered by provider and date. This has to select the
+    # whole mapped Contract entity, not a list of its individual columns/
+    # relationships (buyer_id, award_date, buyer, amount_usd) -- select()ing
+    # loose columns switches SQLAlchemy into Core/expression mode, and
+    # .options(joinedload(...)) has nothing to attach to there. It fails at
+    # query-execution time with "Query has only expression-based entities",
+    # not at import time, so nothing catches it short of actually calling
+    # this function against a real session -- which the tests now do.
     contracts = db.execute(
-        select(
-            models.Contract.buyer_id,
-            models.Contract.award_date,
-            models.Contract.buyer,
-            models.Contract.amount_usd,
-        )
-        .select_from(models.Contract)
-        .options(__import__('sqlalchemy.orm', fromlist=['joinedload']).joinedload(models.Contract.buyer))
+        select(models.Contract)
+        .options(joinedload(models.Contract.buyer))
         .where(*contract_filter)
         .order_by(models.Contract.buyer_id, models.Contract.award_date)
-    ).all()
+    ).scalars().all()
 
     results = []
     month_groups = {}

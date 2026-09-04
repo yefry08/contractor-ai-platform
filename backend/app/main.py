@@ -66,7 +66,7 @@ def list_contracts(
     min_amount_usd: float | None = Query(default=None),
     max_amount_usd: float | None = Query(default=None),
     only_anomalous: bool = Query(default=False, description="Solo contratos con al menos una anomalía abierta"),
-    limit: int = Query(default=25, le=200),
+    limit: int = Query(default=25, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
 ):
     stmt = select(models.Contract).options(joinedload(models.Contract.buyer))
@@ -178,7 +178,7 @@ def list_anomalies(
     anomaly_type: str | None = Query(default=None),
     status: str = Query(default="open"),
     min_score: float | None = Query(default=None),
-    limit: int = Query(default=25, le=200),
+    limit: int = Query(default=25, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
 ):
     stmt = (
@@ -225,7 +225,7 @@ def dashboard_summary(
 def rankings_buyers(
     db: Session = Depends(get_db),
     country: str | None = Query(default=None, description="Código de país, ej. PY. Si se omite, agrega los 4 países."),
-    limit: int = Query(default=20, le=100),
+    limit: int = Query(default=20, ge=1, le=100),
 ):
     items = dashboard.get_best_buyers(db, country.upper() if country else None, limit)
     return schemas.BuyerRankingList(
@@ -249,7 +249,7 @@ def provider_stats(
 def top_providers(
     db: Session = Depends(get_db),
     country: str | None = Query(default=None, description="Código de país, ej. PY"),
-    limit: int = Query(default=20, le=100),
+    limit: int = Query(default=20, ge=1, le=100),
 ):
     items = providers.get_top_providers(db, country.upper() if country else None, limit)
     return [schemas.ProviderDetailOut(**vars(r)) for r in items]
@@ -259,8 +259,8 @@ def top_providers(
 def price_favoritism(
     db: Session = Depends(get_db),
     country: str | None = Query(default=None, description="Código de país, ej. PY"),
-    start_year: int = Query(default=2023),
-    end_year: int = Query(default=2025),
+    start_year: int = Query(default=2023, ge=2000, le=2100),
+    end_year: int = Query(default=2025, ge=2000, le=2100),
 ):
     items = providers.get_price_favoritism_trends(db, country.upper() if country else None, start_year, end_year)
     return [schemas.PriceFavoritismPointOut(**vars(r)) for r in items]
@@ -326,7 +326,7 @@ def export_contracts_csv(
     country: str | None = Query(default=None),
     category: str | None = Query(default=None),
     only_anomalous: bool = Query(default=False),
-    limit: int = Query(default=5000, le=20000),
+    limit: int = Query(default=5000, ge=1, le=20000),
 ):
     stmt = select(models.Contract).options(joinedload(models.Contract.buyer))
     if country:

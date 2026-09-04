@@ -1,5 +1,7 @@
+from datetime import date
+
 from app import main
-from tests.conftest import make_contract, make_country
+from tests.conftest import make_buyer, make_contract, make_country
 
 
 def test_health(client):
@@ -210,3 +212,111 @@ def test_export_csv_headers(client, db_session):
     assert res.status_code == 200
     assert res.headers["content-type"].startswith("text/csv")
     assert "attachment" in res.headers["content-disposition"]
+
+
+# ---------- negative/zero limit: was an unhandled 500, now a clean 422 ----------
+# GET /contracts?limit=-1 reproduced this live against production (see the
+# session's security pass): `limit` fed straight into SQLAlchemy's .limit(),
+# and Postgres/SQLite both reject a negative LIMIT at the SQL level, which
+# surfaced as a bare, unhandled 500 to an unauthenticated caller. `offset` on
+# these same endpoints already had `ge=0`; `limit` was simply missed on every
+# endpoint that has one. FastAPI's `ge=1` now rejects it before it reaches the
+# database at all.
+
+
+def test_contracts_rejects_negative_limit(client):
+    res = client.get("/contracts?limit=-1")
+    assert res.status_code == 422
+
+
+def test_anomalies_rejects_negative_limit(client):
+    res = client.get("/anomalies?limit=-1")
+    assert res.status_code == 422
+
+
+def test_rankings_buyers_rejects_negative_limit(client):
+    res = client.get("/rankings/buyers?limit=-1")
+    assert res.status_code == 422
+
+
+def test_export_csv_rejects_negative_limit(client):
+    res = client.get("/export/contracts.csv?limit=-1")
+    assert res.status_code == 422
+
+
+def test_providers_top_rejects_negative_limit(client):
+    res = client.get("/providers/top?limit=-1")
+    assert res.status_code == 422
+
+
+def test_providers_price_favoritism_rejects_year_out_of_range(client):
+    res = client.get("/providers/price-favoritism?start_year=1500")
+    assert res.status_code == 422
+
+
+# ---------- /providers/* : no endpoint-level coverage existed before this ----------
+# app/providers.py's own functions are covered in test_providers.py; these
+# confirm the FastAPI layer around them -- routing, param parsing, and
+# response-model serialization -- actually works end to end, which is exactly
+# where get_temporal_patterns's ArgumentError (see test_providers.py) would
+# have surfaced if this test had existed before that bug was introduced.
+
+
+def test_providers_stats_shape(client, db_session):
+    make_country(db_session)
+    buyer = make_buyer(db_session)
+    make_contract(db_session, buyer_id=buyer.id, amount_usd=100.0)
+    db_session.commit()
+
+    res = client.get("/providers/stats")
+    assert res.status_code == 200
+    body = res.json()
+    assert body["total_providers"] == 1
+    assert body["hhi_concentration"] == 10000.0
+
+
+def test_providers_top_shape(client, db_session):
+    make_country(db_session)
+    buyer = make_buyer(db_session)
+    for _ in range(2):
+        make_contract(db_session, buyer_id=buyer.id, amount_usd=100.0)
+    db_session.commit()
+
+    res = client.get("/providers/top")
+    assert res.status_code == 200
+    body = res.json()
+    assert body[0]["provider_name"] == buyer.name
+
+
+def test_providers_price_favoritism_empty_is_200_not_500(client, db_session):
+    make_country(db_session)
+    db_session.commit()
+    res = client.get("/providers/price-favoritism")
+    assert res.status_code == 200
+    assert res.json() == []
+
+
+def test_providers_geographic_empty_is_200_not_500(client, db_session):
+    make_country(db_session)
+    db_session.commit()
+    res = client.get("/providers/geographic")
+    assert res.status_code == 200
+    assert res.json() == []
+
+
+def test_providers_temporal_patterns_endpoint_does_not_500(client, db_session):
+    """Regression test for the joinedload/ArgumentError bug fixed in
+    app/providers.py -- this specific request shape (a buyer with 3+ contracts
+    in the same month, hit through the real HTTP layer rather than calling the
+    function directly) is what would have caught it before deploy."""
+    make_country(db_session)
+    buyer = make_buyer(db_session)
+    for day in (1, 10, 20):
+        make_contract(db_session, buyer_id=buyer.id, amount_usd=100.0, award_date=date(2024, 5, day))
+    db_session.commit()
+
+    res = client.get("/providers/temporal-patterns")
+    assert res.status_code == 200
+    body = res.json()
+    assert len(body) == 3
+    assert body[0]["consecutive_awards"] == 3

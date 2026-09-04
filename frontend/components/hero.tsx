@@ -20,7 +20,7 @@ export function Hero() {
               Analizar contratos
             </a>
             <a href="mailto:yefrynunez45@gmail.com" className="hero-btn hero-btn-secondary">
-              Contact us
+              Contáctanos
             </a>
           </div>
         </div>
