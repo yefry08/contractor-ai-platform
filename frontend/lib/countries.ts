@@ -25,6 +25,9 @@ export const COUNTRIES: Country[] = [
   { code: "CR", name: "Costa Rica", currency: "CRC" },
   { code: "DO", name: "República Dominicana", currency: "DOP" },
   { code: "PE", name: "Perú", currency: "PEN" },
+  // El Salvador esta dolarizado desde 2001: sus montos ya vienen en USD
+  // desde la fuente, sin conversion de por medio.
+  { code: "SV", name: "El Salvador", currency: "USD" },
 ];
 
 /** Mapa código → nombre, para las pantallas que sólo necesitan etiquetar. */

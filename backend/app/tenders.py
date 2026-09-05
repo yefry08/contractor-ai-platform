@@ -32,6 +32,7 @@ OFFICIAL_PORTALS: dict[str, dict[str, str]] = {
     "CO": {"name": "Colombia Compra Eficiente (SECOP)", "url": "https://www.colombiacompra.gov.co/"},
     "CR": {"name": "SICOP — Sistema Integrado de Compras Públicas", "url": "https://www.sicop.go.cr/"},
     "DO": {"name": "DGCP — Dirección General de Contrataciones Públicas", "url": "https://www.dgcp.gob.do/"},
+    "SV": {"name": "COMPRASAL — DINAC, Dirección Nacional de Compras Públicas", "url": "https://www.comprasal.gob.sv/"},
     # OECE, ex-OSCE. Se usa la ficha oficial en gob.pe y no seace.gob.pe ni
     # portal.osce.gob.pe: ambos dejaron de resolver tras el cambio de nombre
     # del organismo (verificado 2026-09-04, los dos devuelven error de

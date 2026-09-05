@@ -44,12 +44,17 @@ porque el primer intento de esta pasada dio un falso negativo:
 La decisión de no construir el conector sigue en pie, y ahora está verificada
 dos veces con dos años de diferencia.
 
-## Relevados en esta pasada, sin fuente utilizable todavía (2026-09-04)
+## Relevados en esta pasada (2026-09-04)
+
+El Salvador quedó integrado; México no. Se dejan juntos porque el contraste
+es la lección: en los dos casos la API existía, pero en uno las rutas se
+encontraron mirando el portal y en el otro el problema es estructural
+(no hay un feed nacional, hay 14+ dependencias publicando por separado).
 
 | País | Organismo | Estado | Notas |
 |---|---|---|---|
 | México | CompraNet (SHCP) | ⚠️ **Sin feed nacional unificado encontrado** | `compranet.hacienda.gob.mx`, `compranetinfo.hacienda.gob.mx` y `upcp-compranet.hacienda.gob.mx` no resuelven. `contratacionesabiertas.mx` sí responde pero es el sitio de la **Alianza para las Contrataciones Abiertas** (sociedad civil), no una API de gobierno: `/api/v1/releases` da 404. Lo que sí hay es `datos.gob.mx`, portal CKAN con API funcionando (`/api/3/action/package_search`): **29 datasets** de contrataciones, pero **todos en CSV, ninguno OCDS, repartidos entre 14 dependencias distintas** (Secretaría Anticorrupción, SESNA, puertos, aeropuertos…). Es decir: no es un país que se integre con un conector, son 14+ conectores por dependencia con esquemas distintos. Volumen alto, costo de integración alto. No descartado, pero no es un "país más". |
-| El Salvador | COMPRASAL (Ministerio de Hacienda) | ⚠️ **Hay API pero sus rutas no son públicas** | `comprasal.gob.sv` responde y **existe una capa JSON**: cualquier ruta bajo `/api/v1/` devuelve `{"message":"Recurso no encontrado"}` con `content-type: application/json`, o sea que el backend está ahí y contesta en JSON. Pero no se encontró documentación ni nombre de recurso válido adivinando (`/api/v1/releases`, `/api/ocds`, `/api/v1/contratos`, todos 404). Las únicas menciones a "api" en el HTML son Google Fonts y reCAPTCHA. Para avanzar habría que observar las llamadas que hace el propio portal desde el navegador, o pedir la documentación — no seguir adivinando rutas. `transparenciafiscal.gob.sv` y `portaltransparencia.gob.sv` no resuelven. |
+| El Salvador | COMPRASAL (DINAC) | ✅ **Ya integrado (2026-09-04)** — la ruta se encontró leyendo el portal, no adivinando | `comprasal.gob.sv` responde y **existe una capa JSON**: cualquier ruta bajo `/api/v1/` devuelve `{"message":"Recurso no encontrado"}`, o sea que el backend está. Pero ninguna ruta salió adivinando. **Se resolvió abriendo el portal en un navegador y leyendo sus propias llamadas de red**: la ruta real es `/api/v1/publico/obtener/procesos/publicos` — namespace `publico`, sin autenticación, alcanzable desde el enlace "Registro de adjudicaciones" (`/procesos-publicos`). No se usó ninguna parte autenticada. Integrado en `backend/scripts/ingest_el_salvador_live.py`. Cada fila es un **renglón adjudicado**, no un contrato entero (varias filas comparten `codigo_proceso`), así que la clave de idempotencia es el `id` de fila. Sin campo de moneda: el país está dolarizado desde 2001, así que **es el primer país del corpus con `amount_usd` nativo**, sin tasa de cambio inventada ni conversión de un tercero. Lento: ~9-10 s por página de 100, y la respuesta no trae `total`. **Publica `accionistas` y `beneficiario` con nombres de personas físicas; el conector deliberadamente NO los almacena** (ver el docstring del módulo). |
 
 ## Sin API documentada — candidatos a scraper (Fase 4, no Fase 2)
 
