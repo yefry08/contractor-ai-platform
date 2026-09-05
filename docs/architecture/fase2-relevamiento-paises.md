@@ -23,7 +23,33 @@
 
 | País | Organismo | Estado | Notas |
 |---|---|---|---|
-| Panamá | DGCP / PanamaCompraenCifras | ⚠️ API OCDS real y documentada, pero **datos estructuralmente vacíos** | `ocds.panamacompraencifras.gob.pa` (encontrado tras descartar dos subdominios señuelo/dev) responde bien, con endpoints `/Record`, `/Release` reales y paginados. Pero se verificó en varias muestras (2023 y 2024) que `compiledRelease` **nunca** trae tender/award/value/description/supplier — solo `buyer` + `ocid` + fecha. No es un problema de acceso ni de staleness (que también existe: nada después de agosto 2024) — es que el pipeline de publicación de Panamá nunca llena los campos sustantivos del release. Construir un conector produciría contratos sin título, sin monto, sin descripción: no aporta nada útil. **Se decidió no construir el conector**, no por falta de esfuerzo sino porque los datos de origen no lo permiten. |
+| Panamá | DGCP / PanamaCompraenCifras | ⚠️ API OCDS real y documentada, pero **datos estructuralmente vacíos** — re-verificado el 2026-09-04, sigue igual | `ocds.panamacompraencifras.gob.pa` (encontrado tras descartar dos subdominios señuelo/dev) responde bien, con endpoints `/Record`, `/Release` reales y paginados. Pero se verificó en varias muestras (2023 y 2024) que `compiledRelease` **nunca** trae tender/award/value/description/supplier — solo `buyer` + `ocid` + fecha. No es un problema de acceso ni de staleness (que también existe: nada después de agosto 2024) — es que el pipeline de publicación de Panamá nunca llena los campos sustantivos del release. Construir un conector produciría contratos sin título, sin monto, sin descripción: no aporta nada útil. **Se decidió no construir el conector**, no por falta de esfuerzo sino porque los datos de origen no lo permiten. |
+
+### Re-verificación de Panamá (2026-09-04)
+
+Dos años después del relevamiento original, sin cambios. Vale anotar el detalle
+porque el primer intento de esta pasada dio un falso negativo:
+
+- **La API responde, pero tarda ~28-35 s.** Con un timeout de 20 s parece caída.
+  No darla por muerta sin subir el timeout (esto mismo pasó en la primera
+  medición de esta pasada y hubo que corregirlo).
+- `recordsCount` = **490.413** registros. De 50 muestreados por año, **0** traen
+  monto o adjudicación, ni en 2024, ni 2025, ni 2026.
+- `compiledRelease` sólo trae `buyer`, `date`, `id`, `initiationType`,
+  `language`, `ocid`, `parties`, `tag`. Sin `tender`, sin `awards`, sin
+  `contracts`, sin `value`. La fecha viene como `1900-01-01`, o sea nula.
+- El parámetro `year` **no filtra**: devuelve el mismo `recordsCount` para
+  cualquier año.
+
+La decisión de no construir el conector sigue en pie, y ahora está verificada
+dos veces con dos años de diferencia.
+
+## Relevados en esta pasada, sin fuente utilizable todavía (2026-09-04)
+
+| País | Organismo | Estado | Notas |
+|---|---|---|---|
+| México | CompraNet (SHCP) | ⚠️ **Sin feed nacional unificado encontrado** | `compranet.hacienda.gob.mx`, `compranetinfo.hacienda.gob.mx` y `upcp-compranet.hacienda.gob.mx` no resuelven. `contratacionesabiertas.mx` sí responde pero es el sitio de la **Alianza para las Contrataciones Abiertas** (sociedad civil), no una API de gobierno: `/api/v1/releases` da 404. Lo que sí hay es `datos.gob.mx`, portal CKAN con API funcionando (`/api/3/action/package_search`): **29 datasets** de contrataciones, pero **todos en CSV, ninguno OCDS, repartidos entre 14 dependencias distintas** (Secretaría Anticorrupción, SESNA, puertos, aeropuertos…). Es decir: no es un país que se integre con un conector, son 14+ conectores por dependencia con esquemas distintos. Volumen alto, costo de integración alto. No descartado, pero no es un "país más". |
+| El Salvador | COMPRASAL (Ministerio de Hacienda) | ⚠️ **Hay API pero sus rutas no son públicas** | `comprasal.gob.sv` responde y **existe una capa JSON**: cualquier ruta bajo `/api/v1/` devuelve `{"message":"Recurso no encontrado"}` con `content-type: application/json`, o sea que el backend está ahí y contesta en JSON. Pero no se encontró documentación ni nombre de recurso válido adivinando (`/api/v1/releases`, `/api/ocds`, `/api/v1/contratos`, todos 404). Las únicas menciones a "api" en el HTML son Google Fonts y reCAPTCHA. Para avanzar habría que observar las llamadas que hace el propio portal desde el navegador, o pedir la documentación — no seguir adivinando rutas. `transparenciafiscal.gob.sv` y `portaltransparencia.gob.sv` no resuelven. |
 
 ## Sin API documentada — candidatos a scraper (Fase 4, no Fase 2)
 
