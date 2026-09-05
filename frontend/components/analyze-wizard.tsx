@@ -1,5 +1,6 @@
 "use client";
 
+import { COUNTRIES } from "@/lib/countries";
 import { useState } from "react";
 import {
   ApiError,
@@ -11,14 +12,13 @@ import {
 } from "@/lib/api";
 import { EyeLoader } from "@/components/ui/eye-loader";
 
-const COUNTRIES = [
-  { code: "PY", name: "Paraguay", currency: "PYG" },
-  { code: "CO", name: "Colombia", currency: "COP" },
-  { code: "CR", name: "Costa Rica", currency: "CRC" },
-  { code: "DO", name: "República Dominicana", currency: "DOP" },
-];
 
-const CURRENCIES = ["PYG", "COP", "CRC", "USD", "DOP"];
+// Derivado de COUNTRIES en vez de escrito a mano: la lista fija se quedó sin
+// PEN al sumar Perú, y el síntoma no habría sido un error sino un desplegable
+// que simplemente no ofrece la moneda del país recién agregado. USD va aparte
+// porque no es la moneda de ningún país del corpus: es la de los montos que
+// Costa Rica ya publica convertidos.
+const CURRENCIES = [...new Set([...COUNTRIES.map((c) => c.currency), "USD"])];
 
 const METHODS: { key: ExtractionMethod; icon: string; title: string; sub: string }[] = [
   { key: "pdf", icon: "📄", title: "Subir PDF", sub: "Nativo o escaneado" },
