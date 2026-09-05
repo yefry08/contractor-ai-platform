@@ -37,6 +37,7 @@ uso es más bajo -- se agrega una pausa entre páginas para no abusar de un
 servicio público gratuito.
 """
 
+import argparse
 import json
 import sys
 import time
@@ -55,7 +56,11 @@ DATASET_ID = "jbjy-vk9h"
 BASE_URL = f"https://www.datos.gov.co/resource/{DATASET_ID}.json"
 COUNTRY_CODE = "CO"
 PAGE_SIZE = 1000
-MAX_RECORDS = 5000  # muestra reciente, no el dataset completo (5.95M filas)
+# Techo por defecto, no un limite de la fuente: el dataset tiene ~5.95M filas.
+# Se sube con --max-records. La corrida es idempotente (se saltean los
+# `id_contrato` ya presentes), asi que re-correr con un techo mayor suma lo
+# que falta en vez de duplicar.
+MAX_RECORDS = 5000
 REQUEST_DELAY_SECONDS = 0.3
 
 
@@ -95,6 +100,13 @@ def normalize(name: str | None) -> str:
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Ingesta en vivo de Colombia (datos.gov.co / SECOP II).")
+    parser.add_argument("--max-records", type=int, default=MAX_RECORDS)
+    parser.add_argument("--delay", type=float, default=REQUEST_DELAY_SECONDS)
+    args = parser.parse_args()
+    max_records = args.max_records
+    delay = args.delay
+
     Base.metadata.create_all(engine)
     db = SessionLocal()
 
@@ -150,7 +162,7 @@ def main():
         failed = 0
         offset = 0
 
-        while offset < MAX_RECORDS:
+        while offset < max_records:
             try:
                 rows = fetch_page(offset)
             except Exception as exc:  # noqa: BLE001
@@ -229,7 +241,7 @@ def main():
             db.commit()
             offset += PAGE_SIZE
             print(f"  ... offset {offset}: {ingested} contratos nuevos, {skipped_duplicate} ya existian")
-            time.sleep(REQUEST_DELAY_SECONDS)
+            time.sleep(delay)
 
         run.finished_at = datetime.utcnow()
         run.records_ingested = ingested

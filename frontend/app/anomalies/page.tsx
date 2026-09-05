@@ -1,3 +1,4 @@
+import { COUNTRIES } from "@/lib/countries";
 import { listAnomalies, ContractSummary } from "@/lib/api";
 
 function fmtUsd(n: number | null) {
@@ -75,10 +76,11 @@ export default async function AnomaliesPage({
       <form className="filters" method="get">
         <select name="country" defaultValue={country}>
           <option value="">Todos los países</option>
-          <option value="PY">Paraguay</option>
-          <option value="CO">Colombia</option>
-          <option value="CR">Costa Rica</option>
-          <option value="DO">República Dominicana</option>
+          {COUNTRIES.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.name}
+            </option>
+          ))}
         </select>
         <select name="anomaly_type" defaultValue={sp.anomaly_type ?? ""}>
           <option value="">Todos los tipos</option>

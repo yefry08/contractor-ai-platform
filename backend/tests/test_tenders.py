@@ -3,10 +3,18 @@ from app.stats import MIN_GROUP_SIZE
 from tests.conftest import make_contract, make_country
 
 
-def test_official_portals_cover_all_four_countries():
-    assert set(tenders.OFFICIAL_PORTALS.keys()) == {"PY", "CO", "CR", "DO"}
-    for portal in tenders.OFFICIAL_PORTALS.values():
-        assert portal["url"].startswith("https://")
+def test_official_portals_are_well_formed():
+    # Antes fijaba el conjunto exacto {"PY","CO","CR","DO"} y el nombre decia
+    # "four countries", asi que sumar Peru lo rompia sin que nada estuviera mal.
+    # Congelar la lista no prueba nada util -- seria afirmar la constante contra
+    # si misma. Lo que si importa es que cada entrada este completa y bien
+    # formada, porque una URL vacia o sin https se convierte en un enlace roto
+    # en "Ver contrato oficial".
+    assert tenders.OFFICIAL_PORTALS, "no puede quedar vacio"
+    for code, portal in tenders.OFFICIAL_PORTALS.items():
+        assert len(code) == 2 and code.isupper(), f"codigo de pais invalido: {code!r}"
+        assert portal["url"].startswith("https://"), code
+        assert portal["name"].strip(), code
 
 
 def test_categories_excludes_small_samples(db_session):

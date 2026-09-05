@@ -160,12 +160,21 @@ def test_analyze_narrative_rate_limit(client, monkeypatch):
 
 
 def test_tenders_portals_covers_all_countries(client):
+    from app import tenders
+
     res = client.get("/tenders/portals")
     assert res.status_code == 200
     codes = {p["country_code"] for p in res.json()}
-    assert codes == {"PY", "CO", "CR", "DO"}
+    # Se compara contra OFFICIAL_PORTALS y no contra una lista escrita a mano:
+    # antes decia {"PY","CO","CR","DO"} y habia que editar el test cada vez que
+    # entraba un pais, lo que convierte a la prueba en una tarea administrativa
+    # en vez de una garantia. Lo que importa es que el endpoint exponga todo lo
+    # declarado, no cuantos paises hay hoy.
+    assert codes == set(tenders.OFFICIAL_PORTALS)
+    assert codes, "OFFICIAL_PORTALS no puede quedar vacio"
     for p in res.json():
         assert p["portal_url"].startswith("https://")
+        assert p["portal_name"]
 
 
 def test_tenders_categories_reflects_seeded_data(client, db_session):
