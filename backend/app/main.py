@@ -17,8 +17,8 @@ app = FastAPI(
     title="Contractor AI API",
     description=(
         "API pública de solo lectura para detectar anomalías en contrataciones "
-        "públicas (Fase 1: Paraguay, dataset histórico). Ver "
-        "docs/architecture/PLANNING.md en el repo para el roadmap completo."
+        "públicas. Cubre 6 países: Paraguay, Colombia, Costa Rica, República Dominicana, "
+        "Perú, y El Salvador. Ver docs/architecture/PLANNING.md en el repo para el roadmap completo."
     ),
     version="0.1.0",
 )
