@@ -1,3 +1,4 @@
+import { COUNTRIES } from "@/lib/countries";
 import { listContracts, ContractSummary } from "@/lib/api";
 import { Hero } from "@/components/hero";
 import { Metrics } from "@/components/metrics";
@@ -45,8 +46,8 @@ export default async function ContractsPage({
 
       <h1>Contratos públicos</h1>
       <p className="subtitle">
-        {data.total.toLocaleString("es")} contratos — Paraguay, Colombia, Costa Rica y
-        República Dominicana (fuentes distintas por país, ver nota abajo).
+        {data.total.toLocaleString("es")} contratos — {COUNTRIES.map((c) => c.name).join(", ")}{" "}
+        (fuentes distintas por país, ver nota abajo).
       </p>
 
       <div className="note">
@@ -63,17 +64,23 @@ export default async function ContractsPage({
         Dominicana: ~2.000 contratos en vivo desde la API DGCP (OCDS nativo disponible,
         aunque se usa el endpoint tabular por simplicidad), con fecha real y monto en pesos
         dominicanos (DOP) sin conversión verificable a USD, sin score de anomalía todavía.
-        Ver docs/architecture/PLANNING.md y los scripts ingest_*_live.py en el repo para el
-        detalle metodológico de cada país.
+        Perú: adjudicaciones en vivo desde la API OCDS del portal de contrataciones abiertas
+        (OECE, ex-OSCE, sobre SEACE). Se ingiere sólo el monto efectivamente adjudicado
+        (<code>award.value</code>), nunca el valor referencial de la convocatoria, en soles
+        (PEN) sin conversión verificable a USD. Es el único país del corpus cuya fuente
+        publica además el proveedor adjudicatario con su RUC y la clasificación CUBSO de lo
+        comprado. Ver docs/architecture/PLANNING.md y los scripts ingest_*_live.py en el
+        repo para el detalle metodológico de cada país.
       </div>
 
       <form className="filters" method="get">
         <select name="country" defaultValue={country}>
           <option value="">Todos los países</option>
-          <option value="PY">Paraguay</option>
-          <option value="CO">Colombia</option>
-          <option value="CR">Costa Rica</option>
-          <option value="DO">República Dominicana</option>
+          {COUNTRIES.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.name}
+            </option>
+          ))}
         </select>
         <input type="text" name="buyer" placeholder="Buscar comprador…" defaultValue={sp.buyer ?? ""} />
         <input type="text" name="category" placeholder="Categoría (ej. services)" defaultValue={sp.category ?? ""} />

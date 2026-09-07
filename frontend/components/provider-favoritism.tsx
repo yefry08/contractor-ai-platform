@@ -8,13 +8,8 @@ import {
   getTemporalPatterns,
   getTopProviders,
 } from "@/lib/api";
+import { COUNTRY_NAMES } from "@/lib/countries";
 
-const COUNTRY_NAMES: Record<string, string> = {
-  PY: "Paraguay",
-  CO: "Colombia",
-  CR: "Costa Rica",
-  DO: "República Dominicana",
-};
 
 interface ProviderStats {
   total_providers: number;

@@ -39,3 +39,6 @@ graphify-out/
 
 # Database dumps (large, and contain the full ingested corpus)
 backups/
+
+# Sondas temporales de exploracion de APIs de paises
+backend/.pe_*.json

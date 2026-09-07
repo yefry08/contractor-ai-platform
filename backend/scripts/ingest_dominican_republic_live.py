@@ -36,6 +36,7 @@ fecha -- misma política que los demás países). Sin predicción/score de
 anomalía del modelo NLP (no hay pesos entrenados corriendo en este entorno).
 """
 
+import argparse
 import json
 import sys
 import time
@@ -53,6 +54,10 @@ from app.db import Base, SessionLocal, engine  # noqa: E402
 BASE = "https://datosabiertos.dgcp.gob.do/api-dgcp/v1/contratos"
 COUNTRY_CODE = "DO"
 PAGE_SIZE = 100
+# Techo por defecto, no un limite de la fuente: la API reporta totalResults
+# ~710.000. Se sube con --max-records. La corrida es idempotente (se saltean
+# los `codigo_contrato` ya presentes), asi que re-correr con un techo mayor
+# suma lo que falta en vez de duplicar.
 MAX_RECORDS = 2000
 REQUEST_DELAY_SECONDS = 0.3
 HEADERS = {
@@ -98,6 +103,13 @@ def normalize(name: str | None) -> str:
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Ingesta en vivo de Republica Dominicana (API DGCP).")
+    parser.add_argument("--max-records", type=int, default=MAX_RECORDS)
+    parser.add_argument("--delay", type=float, default=REQUEST_DELAY_SECONDS)
+    args = parser.parse_args()
+    max_records = args.max_records
+    delay = args.delay
+
     Base.metadata.create_all(engine)
     db = SessionLocal()
 
@@ -157,7 +169,7 @@ def main():
         failed = 0
         page = 1
 
-        while (page - 1) * PAGE_SIZE < MAX_RECORDS:
+        while (page - 1) * PAGE_SIZE < max_records:
             try:
                 data = fetch_page(page)
             except Exception as exc:  # noqa: BLE001
@@ -235,7 +247,7 @@ def main():
             db.commit()
             print(f"  ... pagina {page}: {ingested} contratos nuevos, {skipped_duplicate} ya existian, {failed} fallidos")
             page += 1
-            time.sleep(REQUEST_DELAY_SECONDS)
+            time.sleep(delay)
 
         run.finished_at = datetime.utcnow()
         run.records_ingested = ingested

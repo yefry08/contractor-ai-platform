@@ -1,0 +1,258 @@
+{
+ "id": 495008,
+ "monto": 875,
+ "proceso_compra": {
+  "id": 135240,
+  "nombre_proceso": "Adquisición de accesorios para equipos tecnológicos",
+  "codigo_proceso": "1700-2026-P0119",
+  "fecha_adjudicacion": "2026-09-04",
+  "id_forma_contratacion": 24,
+  "Institucion": {
+   "id": 4,
+   "codigo": "1700",
+   "nombre": "Fiscalía General de la República (FGR)"
+  },
+  "sp": {
+   "id": 5,
+   "nombre": "Contratación",
+   "color": "#1D3186"
+  }
+ },
+ "institucion": {
+  "id": 4,
+  "codigo": "1700",
+  "nombre": "Fiscalía General de la República (FGR)"
+ },
+ "proveedor": {
+  "id": 1214,
+  "id_proveedor": 1214,
+  "nombre": "TECNASA ES, S.A. DE C.V.",
+  "nombre_comercial": "TECNASA ES, S.A. DE C.V.",
+  "accionistas": [
+   {
+    "id": 1773,
+    "agente_legal": false,
+    "tipo_contribuyente": null
+   },
+   {
+    "id": 27283,
+    "agente_legal": false,
+    "tipo_contribuyente": null
+   },
+   {
+    "id": 1774,
+    "agente_legal": false,
+    "tipo_contribuyente": null
+   },
+   {
+    "id": 27284,
+    "agente_legal": false,
+    "tipo_contribuyente": null
+   },
+   {
+    "id": 27285,
+    "agente_legal": false,
+    "tipo_contribuyente": null
+   },
+   {
+    "id": 27286,
+    "agente_legal": false,
+    "tipo_contribuyente": null
+   },
+   {
+    "id": 27282,
+    "agente_legal": true,
+    "tipo_contribuyente": null
+   },
+   {
+    "id": 27287,
+    "agente_legal": false,
+    "tipo_contribuyente": null
+   }
+  ],
+  "porcentaje": null
+ },
+ "accionistas": [
+  {
+   "id": 1773,
+   "agente_legal": false,
+   "persona": {
+    "id": 5736,
+    "primer_nombre": "REDACTADO",
+    "segundo_nombre": null,
+    "tercer_nombre": null,
+    "primer_apellido": "",
+    "segundo_apellido": null,
+    "apellido_casada": null,
+    "doc_p": [
+     {
+      "id": 5987,
+      "id_tipo_documento": 5
+     },
+     {
+      "id": 5986,
+      "id_tipo_documento": 2
+     }
+    ]
+   },
+   "gentilicio": "extranjero/a"
+  },
+  {
+   "id": 27283,
+   "agente_legal": false,
+   "persona": {
+    "id": 90884,
+    "primer_nombre": "REDACTADO",
+    "segundo_nombre": "",
+    "tercer_nombre": "",
+    "primer_apellido": "REDACTADO",
+    "segundo_apellido": "REDACTADO",
+    "apellido_casada": "REDACTADO",
+    "doc_p": [
+     {
+      "id": 94360,
+      "id_tipo_documento": 3
+     }
+    ]
+   },
+   "gentilicio": "extranjero/a"
+  },
+  {
+   "id": 1774,
+   "agente_legal": false,
+   "persona": {
+    "id": 5737,
+    "primer_nombre": "REDACTADO",
+    "segundo_nombre": null,
+    "tercer_nombre": null,
+    "primer_apellido": "",
+    "segundo_apellido": null,
+    "apellido_casada": null,
+    "doc_p": [
+     {
+      "id": 5988,
+      "id_tipo_documento": 2
+     },
+     {
+      "id": 5989,
+      "id_tipo_documento": 5
+     }
+    ]
+   },
+   "gentilicio": "extranjero/a"
+  },
+  {
+   "id": 27284,
+   "agente_legal": false,
+   "persona": {
+    "id": 90885,
+    "primer_nombre": "REDACTADO",
+    "segundo_nombre": "",
+    "tercer_nombre": "",
+    "primer_apellido": "REDACTADO",
+    "segundo_apellido": "REDACTADO",
+    "apellido_casada": "REDACTADO",
+    "doc_p": [
+     {
+      "id": 94361,
+      "id_tipo_documento": 3
+     }
+    ]
+   },
+   "gentilicio": "extranjero/a"
+  },
+  {
+   "id": 27285,
+   "agente_legal": false,
+   "persona": {
+    "id": 90886,
+    "primer_nombre": "REDACTADO",
+    "segundo_nombre": "REDACTADO",
+    "tercer_nombre": "",
+    "primer_apellido": "REDACTADO",
+    "segundo_apellido": "REDACTADO",
+    "apellido_casada": "",
+    "doc_p": [
+     {
+      "id": 94362,
+      "id_tipo_documento": 3
+     }
+    ]
+   },
+   "gentilicio": "extranjero/a"
+  },
+  {
+   "id": 27286,
+   "agente_legal": false,
+   "persona": {
+    "id": 90887,
+    "primer_nombre": "REDACTADO",
+    "segundo_nombre": "REDACTADO",
+    "tercer_nombre": "",
+    "primer_apellido": "REDACTADO",
+    "segundo_apellido": "REDACTADO",
+    "apellido_casada": "REDACTADO",
+    "doc_p": [
+     {
+      "id": 94363,
+      "id_tipo_documento": 3
+     }
+    ]
+   },
+   "gentilicio": "extranjero/a"
+  },
+  {
+   "id": 27282,
+   "agente_legal": true,
+   "persona": {
+    "id": 90883,
+    "primer_nombre": "REDACTADO",
+    "segundo_nombre": "REDACTADO",
+    "tercer_nombre": "",
+    "primer_apellido": "REDACTADO",
+    "segundo_apellido": "REDACTADO",
+    "apellido_casada": "",
+    "doc_p": [
+     {
+      "id": 94359,
+      "id_tipo_documento": 3
+     }
+    ]
+   },
+   "gentilicio": "extranjero/a"
+  },
+  {
+   "id": 27287,
+   "agente_legal": false,
+   "persona": {
+    "id": 90889,
+    "primer_nombre": "REDACTADO",
+    "segundo_nombre": "REDACTADO",
+    "tercer_nombre": "",
+    "primer_apellido": "REDACTADO",
+    "segundo_apellido": "REDACTADO",
+    "apellido_casada": "",
+    "doc_p": [
+     {
+      "id": 94365,
+      "id_tipo_documento": 3
+     }
+    ]
+   },
+   "gentilicio": "extranjero/a"
+  }
+ ],
+ "beneficiario": {
+  "id": 102669,
+  "primer_nombre": "REDACTADO",
+  "segundo_nombre": null,
+  "tercer_nombre": null,
+  "primer_apellido": "REDACTADO",
+  "segundo_apellido": "REDACTADO",
+  "apellido_casada": "REDACTADO",
+  "pais": {
+   "id": 170,
+   "gentilicio": "panameño/panameña"
+  }
+ }
+}

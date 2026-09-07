@@ -14,7 +14,7 @@
 | Paraguay | DNCP | ✅ Ya integrado (Fase 1) | Actualización horaria, datos desde 2011. Portal: contrataciones.gov.py |
 | Colombia | Agencia Nacional de Contratación Pública (SECOP II / TVEC) | ⚠️ API OCDS "oficial" sin verificar — **pero hay alternativa verificada y ya integrada** | El endpoint OCDS de Colombia Compra Eficiente nunca se pudo confirmar (la página oficial no publica la URL, ver PROGRESS.md 2026-08-15). En su lugar se usó **datos.gov.co** (portal oficial de datos abiertos del gobierno, dataset "SECOP II - Contratos Electrónicos", API pública Socrata/SODA, id `jbjy-vk9h`) — verificado en vivo el 2026-08-15 (actualizado el mismo día, ~5.95M contratos totales). No es OCDS nativo (es tabular), se mapea campo a campo. Ya integrado como ingesta en vivo en `backend/scripts/ingest_colombia_live.py` (5,000 contratos más recientes, idempotente vía `id_contrato`). Sin modelo de predicción corriendo en vivo todavía — esos contratos no tienen score de anomalía. |
 | Chile | ChileCompra (Dirección de Compras y Contratación Pública) | API disponible, tiempo real | Cobertura completa desde 2022 en el dataset OCDS (implementación empezó en 2018, fue creciendo en alcance). Buen candidato para ir después de Colombia. |
-| Perú | OECE (ex-OSCE), vía SEACE | API disponible (`contratacionesabiertas.osce.gob.pe/api`) | Dataset con mayor profundidad histórica (desde 2003). Fuente reporta problemas de calidad conocidos (IDs de organización duplicados, estados de contrato faltantes) — reforzar la validación de esquema por país (§5 riesgo #1 de PLANNING.md) especialmente aquí. |
+| Perú | OECE (ex-OSCE), vía SEACE | ✅ Ya integrado (2026-09-04) — **pero el dominio de este relevamiento estaba muerto** | El `contratacionesabiertas.osce.gob.pe` que figuraba acá **ya no resuelve**: al renombrarse el organismo de OSCE a OECE cambió también el dominio. El bueno es `contratacionesabiertas.oece.gob.pe` (verificado 2026-09-04: el viejo da error de conexión, el nuevo 200). Lo mismo con el portal institucional: `seace.gob.pe` y `portal.osce.gob.pe` no resuelven, `gob.pe/oece` sí. OCDS 1.1 nativo, paginación `?page=N` de 20 releases, se agota en la página 500 (501 devuelve 404). El feed mezcla etapas: sólo ~30% de los releases tienen `awards`, y se ingieren únicamente esos, con `award.value` (monto adjudicado) y nunca `tender.value` (valor referencial). Integrado en `backend/scripts/ingest_peru_live.py`. **Es la primera fuente del proyecto con proveedor identificado (RUC) y clasificación real de objeto de compra (CUBSO)**, y el primer país cuyo `mainProcurementCategory` reparte de verdad (goods/services/works) en vez de concentrar todo en una sola categoría. |
 | Ecuador | SERCOP | API disponible | Empezó publicando compras de emergencia COVID-19 en OCDS, ahora cubre contratación general. |
 | Costa Rica | Ministerio de Hacienda (Observatorio de Compra Pública / SICOP) | ✅ Ya integrado (2026-08-15) — no vía API OCDS | SICOP no tiene API ni datos abiertos OCDS (confirmado). El Observatorio publica en cambio un ZIP mensual con CSVs relacionales de todo SICOP, **actualizado diariamente** para el mes en curso, en una URL documentada y predecible. Integrado en `backend/scripts/ingest_costa_rica_live.py`: 1,643 contratos, con fecha real y monto ya convertido a USD por el propio SICOP. |
 | República Dominicana | DGCP | ✅ Ya integrado (2026-08-15) — API distinta de la que parecía bloqueada | El portal CKAN (`datos.gob.do`) funciona para metadata pero sus 6 datasets son archivos estáticos en `dgcp.gob.do`, bloqueados por Cloudflare para clientes automatizados (esa parte sigue siendo cierta). Pero `datosabiertos.dgcp.gob.do` es un dominio/producto distinto ("API DGCP") con REST completo y OCDS nativo, licencia Apache 2.0. También detrás de Cloudflare, pero solo en modo básico: bloquea el User-Agent por defecto de `urllib`/`requests`, pasa con un User-Agent de navegador real — no throttling por frecuencia (25 pedidos seguidos, 0 fallos). Integrado en `backend/scripts/ingest_dominican_republic_live.py`: 2,000 contratos, 0 fallidos, idempotente. |
@@ -23,7 +23,38 @@
 
 | País | Organismo | Estado | Notas |
 |---|---|---|---|
-| Panamá | DGCP / PanamaCompraenCifras | ⚠️ API OCDS real y documentada, pero **datos estructuralmente vacíos** | `ocds.panamacompraencifras.gob.pa` (encontrado tras descartar dos subdominios señuelo/dev) responde bien, con endpoints `/Record`, `/Release` reales y paginados. Pero se verificó en varias muestras (2023 y 2024) que `compiledRelease` **nunca** trae tender/award/value/description/supplier — solo `buyer` + `ocid` + fecha. No es un problema de acceso ni de staleness (que también existe: nada después de agosto 2024) — es que el pipeline de publicación de Panamá nunca llena los campos sustantivos del release. Construir un conector produciría contratos sin título, sin monto, sin descripción: no aporta nada útil. **Se decidió no construir el conector**, no por falta de esfuerzo sino porque los datos de origen no lo permiten. |
+| Panamá | DGCP / PanamaCompraenCifras | ⚠️ API OCDS real y documentada, pero **datos estructuralmente vacíos** — re-verificado el 2026-09-04, sigue igual | `ocds.panamacompraencifras.gob.pa` (encontrado tras descartar dos subdominios señuelo/dev) responde bien, con endpoints `/Record`, `/Release` reales y paginados. Pero se verificó en varias muestras (2023 y 2024) que `compiledRelease` **nunca** trae tender/award/value/description/supplier — solo `buyer` + `ocid` + fecha. No es un problema de acceso ni de staleness (que también existe: nada después de agosto 2024) — es que el pipeline de publicación de Panamá nunca llena los campos sustantivos del release. Construir un conector produciría contratos sin título, sin monto, sin descripción: no aporta nada útil. **Se decidió no construir el conector**, no por falta de esfuerzo sino porque los datos de origen no lo permiten. |
+
+### Re-verificación de Panamá (2026-09-04)
+
+Dos años después del relevamiento original, sin cambios. Vale anotar el detalle
+porque el primer intento de esta pasada dio un falso negativo:
+
+- **La API responde, pero tarda ~28-35 s.** Con un timeout de 20 s parece caída.
+  No darla por muerta sin subir el timeout (esto mismo pasó en la primera
+  medición de esta pasada y hubo que corregirlo).
+- `recordsCount` = **490.413** registros. De 50 muestreados por año, **0** traen
+  monto o adjudicación, ni en 2024, ni 2025, ni 2026.
+- `compiledRelease` sólo trae `buyer`, `date`, `id`, `initiationType`,
+  `language`, `ocid`, `parties`, `tag`. Sin `tender`, sin `awards`, sin
+  `contracts`, sin `value`. La fecha viene como `1900-01-01`, o sea nula.
+- El parámetro `year` **no filtra**: devuelve el mismo `recordsCount` para
+  cualquier año.
+
+La decisión de no construir el conector sigue en pie, y ahora está verificada
+dos veces con dos años de diferencia.
+
+## Relevados en esta pasada (2026-09-04)
+
+El Salvador quedó integrado; México no. Se dejan juntos porque el contraste
+es la lección: en los dos casos la API existía, pero en uno las rutas se
+encontraron mirando el portal y en el otro el problema es estructural
+(no hay un feed nacional, hay 14+ dependencias publicando por separado).
+
+| País | Organismo | Estado | Notas |
+|---|---|---|---|
+| México | CompraNet (SHCP) | ⚠️ **Sin feed nacional unificado encontrado** | `compranet.hacienda.gob.mx`, `compranetinfo.hacienda.gob.mx` y `upcp-compranet.hacienda.gob.mx` no resuelven. `contratacionesabiertas.mx` sí responde pero es el sitio de la **Alianza para las Contrataciones Abiertas** (sociedad civil), no una API de gobierno: `/api/v1/releases` da 404. Lo que sí hay es `datos.gob.mx`, portal CKAN con API funcionando (`/api/3/action/package_search`): **29 datasets** de contrataciones, pero **todos en CSV, ninguno OCDS, repartidos entre 14 dependencias distintas** (Secretaría Anticorrupción, SESNA, puertos, aeropuertos…). Es decir: no es un país que se integre con un conector, son 14+ conectores por dependencia con esquemas distintos. Volumen alto, costo de integración alto. No descartado, pero no es un "país más". |
+| El Salvador | COMPRASAL (DINAC) | ✅ **Ya integrado (2026-09-04)** — la ruta se encontró leyendo el portal, no adivinando | `comprasal.gob.sv` responde y **existe una capa JSON**: cualquier ruta bajo `/api/v1/` devuelve `{"message":"Recurso no encontrado"}`, o sea que el backend está. Pero ninguna ruta salió adivinando. **Se resolvió abriendo el portal en un navegador y leyendo sus propias llamadas de red**: la ruta real es `/api/v1/publico/obtener/procesos/publicos` — namespace `publico`, sin autenticación, alcanzable desde el enlace "Registro de adjudicaciones" (`/procesos-publicos`). No se usó ninguna parte autenticada. Integrado en `backend/scripts/ingest_el_salvador_live.py`. Cada fila es un **renglón adjudicado**, no un contrato entero (varias filas comparten `codigo_proceso`), así que la clave de idempotencia es el `id` de fila. Sin campo de moneda: el país está dolarizado desde 2001, así que **es el primer país del corpus con `amount_usd` nativo**, sin tasa de cambio inventada ni conversión de un tercero. Lento: ~9-10 s por página de 100, y la respuesta no trae `total`. **Publica `accionistas` y `beneficiario` con nombres de personas físicas; el conector deliberadamente NO los almacena** (ver el docstring del módulo). |
 
 ## Sin API documentada — candidatos a scraper (Fase 4, no Fase 2)
 
@@ -39,9 +70,15 @@
 ## Recomendación de orden para Fase 2
 
 1. ~~**Colombia**~~ — ✅ hecho (2026-08-15). Ingesta en vivo funcionando contra datos.gov.co (ver tabla arriba y `backend/scripts/ingest_colombia_live.py`), más un dataset ya procesado de un tercero como complemento (`backend/scripts/migrate_colombia.py`). Pendiente: correr un modelo de predicción sobre los contratos que entran en vivo (hoy no tienen score de anomalía), y decidir si vale la pena seguir insistiendo con el endpoint OCDS oficial o quedarse con datos.gov.co como fuente definitiva para Colombia.
-2. **Chile** — API en tiempo real, buena documentación pública, sin señales de discontinuación.
-3. **Perú** — mayor volumen histórico, pero exige más trabajo de limpieza por los problemas de calidad ya reportados por terceros.
+2. **Chile** — ⚠️ conector escrito pero **no verificado a volumen útil**: ChileCompra corta las ráfagas de pedidos al endpoint de detalle (urllib, requests y curl fallan ~100% en loop; un pedido aislado siempre funciona). Ver la investigación completa en el docstring de `backend/scripts/ingest_chile_live.py`. No seguir tanteando el delay por prueba y error: preguntar el límite real a ChileCompra.
+3. ~~**Perú**~~ — ✅ hecho (2026-09-04). Ver la fila de arriba. Ojo: el dominio que figuraba en este documento estaba muerto.
 4. **Ecuador** — API disponible, menos verificado en esta pasada; confirmar estabilidad del endpoint antes de comprometerse.
+
+> **Lección del caso Perú, aplicable al resto:** este relevamiento se hizo por
+> búsqueda web, no por acceso verificado. El dominio de Perú ya había cambiado
+> cuando se intentó usar. Antes de dar por bueno cualquier endpoint de esta
+> tabla, hacer una petición real: los organismos se renombran y se llevan el
+> dominio puesto.
 
 Argentina, R. Dominicana, Honduras y Costa Rica quedan para Fase 4 (scraping) o
 para una futura versión de Fase 2 si alguno de ellos publica una API antes de

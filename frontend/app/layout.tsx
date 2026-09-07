@@ -5,7 +5,7 @@ import { Navbar } from "@/components/navbar";
 export const metadata = {
   title: "Contractor AI — Transparencia en contratación pública",
   description:
-    "Búsqueda y detección de anomalías en contratos públicos (Fase 1: Paraguay).",
+    "Búsqueda y detección de anomalías en contratos públicos. Cubre 6 países: Paraguay, Colombia, Costa Rica, República Dominicana, Perú, y El Salvador.",
 };
 
 const THEME_INIT_SCRIPT = `try{if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}`;

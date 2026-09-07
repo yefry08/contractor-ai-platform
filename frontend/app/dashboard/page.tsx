@@ -2,13 +2,8 @@ import { getDashboardSummary, getBestBuyers, exportCsvUrl, CountryBreakdown } fr
 import { BarChart } from "@/components/ui/bar-chart";
 import { ProviderFavoritismSection } from "@/components/provider-favoritism";
 import { ContractsGraph } from "@/components/contracts-graph";
+import { COUNTRY_NAMES } from "@/lib/countries";
 
-const COUNTRY_NAMES: Record<string, string> = {
-  PY: "Paraguay",
-  CO: "Colombia",
-  CR: "Costa Rica",
-  DO: "República Dominicana",
-};
 
 function fmtCompactUsd(n: number) {
   if (n <= 0) return "$0";

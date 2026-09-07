@@ -1,0 +1,821 @@
+{
+ "awarded": {
+  "ocid": "ocds-dgv273-seacev3-2026-200269-6",
+  "id": "ocds-dgv273-seacev3-2026-200269-6-2026-09-03T10:50:27.941554-05:00",
+  "date": "2026-09-03T10:50:27.941537-05:00",
+  "publishedDate": "2026-09-03T10:50:27.941559-05:00",
+  "tag": [
+   "planning",
+   "tender",
+   "award"
+  ],
+  "initiationType": "tender",
+  "buyer": {
+   "id": "PE-CONSUCODE-200269",
+   "name": "GOBIERNO REGIONAL DEL CUSCO - RED DE SERVICIOS DE SALUD CUSCO SUR"
+  },
+  "planning": {
+   "budget": {
+    "description": "Fondos Públicos"
+   }
+  },
+  "tender": {
+   "id": "1238406",
+   "title": "CP-ABR-10-2026-CS/RSSCS-1",
+   "description": "CONTRATACION DE SERVICIO DE LIMPIEZA PARA EL HOSPITAL TUPAC AMARU DE LA RED DE SERVICIOS DE SALUD CUSCO SUR",
+   "procuringEntity": {
+    "id": "PE-CONSUCODE-200269",
+    "name": "GOBIERNO REGIONAL DEL CUSCO - RED DE SERVICIOS DE SALUD CUSCO SUR"
+   },
+   "datePublished": "2026-08-04T00:24:00-05:00",
+   "procurementMethodDetails": "Concurso Público Abreviado",
+   "mainProcurementCategory": "services",
+   "additionalProcurementCategories": [
+    "services"
+   ],
+   "value": {
+    "amount": 337514.15,
+    "currency": "PEN",
+    "currencyName": "Soles",
+    "amount_PEN": 337514.15
+   },
+   "tenderPeriod": {
+    "startDate": "2026-08-04T00:00:00-05:00",
+    "endDate": "2026-08-04T00:00:00-05:00"
+   },
+   "enquiryPeriod": {
+    "startDate": "2026-08-05T00:01:00-05:00",
+    "endDate": "2026-08-10T23:59:00-05:00",
+    "durationInDays": 5
+   },
+   "tenderers": [
+    {
+     "id": "PE-RUC-20606732954",
+     "name": "JEGLIMP S.A.C."
+    },
+    {
+     "id": "PE-RUC-20536000934",
+     "name": "STHALEMS SMITH S.A.C."
+    },
+    {
+     "id": "PE-RUC-20601279704",
+     "name": "FRATRES COMPANY SOCIEDAD ANONIMA"
+    },
+    {
+     "id": "PE-RUC-20607073041",
+     "name": "PROTEGO TOTAL S.A.C."
+    },
+    {
+     "id": "PE-RUC-20615041786",
+     "name": "ESTRUMAX S.R.L."
+    },
+    {
+     "id": "PE-RUC-20448320970",
+     "name": "SUPERINTENDENCY IN PERUVIAN SERVICES SOCIEDAD ANONIMA CERRADA"
+    },
+    {
+     "id": "PE-RUC-20606346213",
+     "name": "GRUPO ECOIMPACT SERVICIOS GENERALES S.A.C."
+    },
+    {
+     "id": "PE-RUC-20543848744",
+     "name": "SERVICIOS GENERALES CRISOSTOMO S.A.C. - SERGENEC S.A.C."
+    },
+    {
+     "id": "PE-RUC-20612296163",
+     "name": "BALLTRE SOCIEDAD COMERCIAL DE RESPONSABILIDAD LIMITADA"
+    },
+    {
+     "id": "PE-RUC-20610982892",
+     "name": "EMPRESA DE SEGURIDAD INTEGRAL VIG & S S.A.C."
+    },
+    {
+     "id": "PE-RUC-20614402301",
+     "name": "LIMPIEZA TECNIFICADA Y SANEAMIENTO AMBIENTAL S.A.C."
+    },
+    {
+     "id": "PE-RUC-20611128801",
+     "name": "SEGURIDAD & LIMPIEZA CORPORATIVA SELIMCORP S.A.C."
+    },
+    {
+     "id": "PE-RUC-20606429721",
+     "name": "MEGA ANDINA S.A.C."
+    },
+    {
+     "id": "PE-RUC-20600226640",
+     "name": "INTENDENCIA DE ALTA DIRECCION SOCIEDAD ANONIMA CERRADA"
+    },
+    {
+     "id": "PE-RUC-20611416254",
+     "name": "VITAL CLEAN SERVICIOS ESPECIALIZADOS S.A.C."
+    },
+    {
+     "id": "PE-RUC-20559288510",
+     "name": "CONSORCIO SERMANSA S.A.C."
+    },
+    {
+     "id": "PE-RUC-20602158170",
+     "name": "INTENDENCIA DE DIRECCION GENERAL SOCIEDAD ANONIMA CERRADA"
+    },
+    {
+     "id": "PE-RUC-20601258812",
+     "name": "ROMA & SGH SOCIEDAD ANONIMA CERRADA - ROMA & SGH S.A.C."
+    },
+    {
+     "id": "PE-RUC-20358706101",
+     "name": "JV SERVICIOS E INVERSIONES MÚLTIPLES SOCIEDAD ANÓNIMA CERRADA"
+    },
+    {
+     "id": "PE-RUC-20564289419",
+     "name": "CLEAN & SECURITY SERVICIOS GENERALES S.R.L."
+    },
+    {
+     "id": "PE-RUC-20601406358",
+     "name": "SERVICIOS GENERALES ALL MASTER S.R.L. - SEGALMAS S.R.L."
+    }
+   ],
+   "numberOfTenderers": 21,
+   "items": [
+    {
+     "id": "21341558",
+     "position": "1",
+     "description": "CONTRATACION DE SERVICIO DE LIMPIEZA PARA EL HOSPITAL TUPAC AMARU DE LA RED DE SERVICIOS DE SALUD CUSCO SUR",
+     "statusDetails": "CONSENTIDO",
+     "status": "complete",
+     "classification": {
+      "id": "7611150100225375",
+      "description": "SERVICIO DE LIMPIEZA DE FACHADA",
+      "scheme": "CUBSO"
+     },
+     "additionalClassifications": [
+      {
+       "id": "76111501",
+       "description": "Servicios de limpieza de edificios",
+       "scheme": "UNSPSC"
+      }
+     ],
+     "quantity": 1.0,
+     "totalValue": {
+      "amount": 337514.15,
+      "currency": "PEN",
+      "currencyName": "Soles"
+     },
+     "unit": {
+      "id": "36",
+      "name": "Servicio",
+      "scheme": "PE-SEACE3-UnidadMedida"
+     }
+    }
+   ],
+   "documents": [
+    {
+     "id": "24831474986056207",
+     "url": "https://prod1.seace.gob.pe/SeaceWeb-PRO/SdescargarArchivoAlfresco?fileCode=ee8666cd-3f22-4ef4-a4ff-5437994c7ee4",
+     "datePublished": "2026-08-12T17:41:04-05:00",
+     "dateModified": "2026-08-12T17:41:04-05:00",
+     "format": "pdf",
+     "documentType": "clarifications",
+     "title": "Pliego de absolución de consultas y observaciones",
+     "language": "es"
+    },
+    {
+     "id": "24831474986056208",
+     "url": "https://prod1.seace.gob.pe/SeaceWeb-PRO/SdescargarArchivoAlfresco?fileCode=9dc0cee5-ea64-4b46-8000-afca97c23a1f",
+     "datePublished": "2026-08-12T17:41:04-05:00",
+     "dateModified": "2026-08-12T17:41:04-05:00",
+     "format": "rar",
+     "documentType": "biddingDocuments",
+     "title": "Bases Integradas",
+     "language": "es"
+    },
+    {
+     "id": "24831474986046801",
+     "url": "https://prod1.seace.gob.pe/SeaceWeb-PRO/SdescargarArchivoAlfresco?fileCode=7ff443f8-7dfa-4730-91c8-d7c2c755afe1",
+     "datePublished": "2026-08-04T00:24:00-05:00",
+     "dateModified": "2026-08-12T17:41:04-05:00",
+     "format": "pdf",
+     "documentType": "biddingDocuments",
+     "title": "Bases Administrativas",
+     "language": "es"
+    },
+    {
+     "id": "24831474986067278",
+     "url": "https://prod1.seace.gob.pe/SeaceWeb-PRO/SdescargarArchivoAlfresco?fileCode=c8a4e8c0-5be8-477f-bc50-1cf4dd3cdfcb",
+     "datePublished": "2026-08-21T11:54:14-05:00",
+     "format": "zip",
+     "documentType": "biddingDocuments",
+     "title": "Documentos de Presentación de Propuestas",
+     "language": "es"
+    },
+    {
+     "id": "24831474986067299",
+     "url": "https://prod1.seace.gob.pe/SeaceWeb-PRO/SdescargarArchivoAlfresco?fileCode=a267b765-d1f3-4f65-9d3f-e8884984df71",
+     "datePublished": "2026-08-21T11:54:15-05:00",
+     "format": "zip",
+     "documentType": "evaluationReports",
+     "title": "Documentos de Calificación y Evaluación",
+     "language": "es"
+    },
+    {
+     "id": "24831474986067300",
+     "url": "https://prod1.seace.gob.pe/SeaceWeb-PRO/SdescargarArchivoAlfresco?fileCode=24b1cec9-3e72-4111-ae93-12bf6371882c",
+     "datePublished": "2026-08-21T11:54:15-05:00",
+     "format": "zip",
+     "documentType": "awardNotice",
+     "title": "Documentos de Otorgamiento de Buena Pro",
+     "language": "es"
+    }
+   ],
+   "hasTenderInformationProtectedByLaw": false
+  },
+  "awards": [
+   {
+    "id": "1238406-20601258812",
+    "value": {
+     "amount": 330449.88,
+     "currency": "PEN",
+     "currencyName": "Soles"
+    },
+    "items": [
+     {
+      "id": "21341558",
+      "position": "1",
+      "description": "CONTRATACION DE SERVICIO DE LIMPIEZA PARA EL HOSPITAL TUPAC AMARU DE LA RED DE SERVICIOS DE SALUD CUSCO SUR",
+      "statusDetails": "CONSENTIDO",
+      "status": "active",
+      "classification": {
+       "id": "7611150100225375",
+       "description": "SERVICIO DE LIMPIEZA DE FACHADA",
+       "scheme": "CUBSO"
+      },
+      "additionalClassifications": [
+       {
+        "id": "76111501",
+        "description": "Servicios de limpieza de edificios",
+        "scheme": "UNSPSC"
+       }
+      ],
+      "quantity": 1.0,
+      "totalValue": {
+       "amount": 330449.88,
+       "currency": "PEN",
+       "currencyName": "Soles"
+      },
+      "unit": {
+       "id": "36",
+       "name": "Servicio",
+       "scheme": "PE-SEACE3-UnidadMedida"
+      }
+     }
+    ],
+    "date": "2026-08-21T00:00:00-05:00",
+    "suppliers": [
+     {
+      "id": "PE-RUC-20601258812",
+      "name": "ROMA & SGH SOCIEDAD ANONIMA CERRADA - ROMA & SGH S.A.C."
+     }
+    ]
+   }
+  ],
+  "parties": [
+   {
+    "id": "PE-CONSUCODE-200269",
+    "name": "GOBIERNO REGIONAL DEL CUSCO - RED DE SERVICIOS DE SALUD CUSCO SUR",
+    "identifier": {
+     "id": "200269",
+     "scheme": "PE-CONSUCODE",
+     "legalName": "GOBIERNO REGIONAL DEL CUSCO - RED DE SERVICIOS DE SALUD CUSCO SUR"
+    },
+    "additionalIdentifiers": [
+     {
+      "id": "20450736539",
+      "scheme": "PE-RUC",
+      "legalName": "GOBIERNO REGIONAL DEL CUSCO - RED DE SERVICIOS DE SALUD CUSCO SUR"
+     }
+    ],
+    "address": {
+     "streetAddress": "AV. MANCO CAPAC S/N SAN JERONIMO - CUSCO",
+     "locality": "SAN JERONIMO",
+     "region": "CUSCO",
+     "department": "CUSCO",
+     "countryName": "PERU"
+    },
+    "roles": [
+     "buyer",
+     "procuringEntity"
+    ]
+   },
+   {
+    "id": "PE-RUC-20606732954",
+    "name": "JEGLIMP S.A.C.",
+    "identifier": {
+     "scheme": "PE-RUC",
+     "id": "20606732954",
+     "legalName": "JEGLIMP S.A.C."
+    },
+    "contactPoint": {
+     "email": "Ver datos en Ficha del Proveedor",
+     "telephone": "Ver dato en ficha del proveedor"
+    },
+    "roles": [
+     "tenderer"
+    ]
+   },
+   {
+    "id": "PE-RUC-20536000934",
+    "name": "STHALEMS SMITH S.A.C.",
+    "identifier": {
+     "scheme": "PE-RUC",
+     "id": "20536000934",
+     "legalName": "STHALEMS SMITH S.A.C."
+    },
+    "contactPoint": {
+     "email": "Ver datos en Ficha del Proveedor",
+     "telephone": "Ver dato en ficha del proveedor"
+    },
+    "roles": [
+     "tenderer"
+    ]
+   },
+   {
+    "id": "PE-RUC-20601279704",
+    "name": "FRATRES COMPANY SOCIEDAD ANONIMA",
+    "identifier": {
+     "scheme": "PE-RUC",
+     "id": "20601279704",
+     "legalName": "FRATRES COMPANY SOCIEDAD ANONIMA"
+    },
+    "contactPoint": {
+     "email": "Ver datos en Ficha del Proveedor",
+     "telephone": "Ver dato en ficha del proveedor"
+    },
+    "roles": [
+     "tenderer"
+    ]
+   },
+   {
+    "id": "PE-RUC-20607073041",
+    "name": "PROTEGO TOTAL S.A.C.",
+    "identifier": {
+     "scheme": "PE-RUC",
+     "id": "20607073041",
+     "legalName": "PROTEGO TOTAL S.A.C."
+    },
+    "contactPoint": {
+     "email": "Ver datos en Ficha del Proveedor",
+     "telephone": "Ver dato en ficha del proveedor"
+    },
+    "roles": [
+     "tenderer"
+    ]
+   },
+   {
+    "id": "PE-RUC-20615041786",
+    "name": "ESTRUMAX S.R.L.",
+    "identifier": {
+     "scheme": "PE-RUC",
+     "id": "20615041786",
+     "legalName": "ESTRUMAX S.R.L."
+    },
+    "contactPoint": {
+     "email": "Ver datos en Ficha del Proveedor",
+     "telephone": "Ver dato en ficha del proveedor"
+    },
+    "roles": [
+     "tenderer"
+    ]
+   },
+   {
+    "id": "PE-RUC-20448320970",
+    "name": "SUPERINTENDENCY IN PERUVIAN SERVICES SOCIEDAD ANONIMA CERRADA",
+    "identifier": {
+     "scheme": "PE-RUC",
+     "id": "20448320970",
+     "legalName": "SUPERINTENDENCY IN PERUVIAN SERVICES SOCIEDAD ANONIMA CERRADA"
+    },
+    "contactPoint": {
+     "email": "Ver datos en Ficha del Proveedor",
+     "telephone": "Ver dato en ficha del proveedor"
+    },
+    "roles": [
+     "tenderer"
+    ]
+   },
+   {
+    "id": "PE-RUC-20606346213",
+    "name": "GRUPO ECOIMPACT SERVICIOS GENERALES S.A.C.",
+    "identifier": {
+     "scheme": "PE-RUC",
+     "id": "20606346213",
+     "legalName": "GRUPO ECOIMPACT SERVICIOS GENERALES S.A.C."
+    },
+    "contactPoint": {
+     "email": "Ver datos en Ficha del Proveedor",
+     "telephone": "Ver dato en ficha del proveedor"
+    },
+    "roles": [
+     "tenderer"
+    ]
+   },
+   {
+    "id": "PE-RUC-20543848744",
+    "name": "SERVICIOS GENERALES CRISOSTOMO S.A.C. - SERGENEC S.A.C.",
+    "identifier": {
+     "scheme": "PE-RUC",
+     "id": "20543848744",
+     "legalName": "SERVICIOS GENERALES CRISOSTOMO S.A.C. - SERGENEC S.A.C."
+    },
+    "contactPoint": {
+     "email": "Ver datos en Ficha del Proveedor",
+     "telephone": "Ver dato en ficha del proveedor"
+    },
+    "roles": [
+     "tenderer"
+    ]
+   },
+   {
+    "id": "PE-RUC-20612296163",
+    "name": "BALLTRE SOCIEDAD COMERCIAL DE RESPONSABILIDAD LIMITADA",
+    "identifier": {
+     "scheme": "PE-RUC",
+     "id": "20612296163",
+     "legalName": "BALLTRE SOCIEDAD COMERCIAL DE RESPONSABILIDAD LIMITADA"
+    },
+    "contactPoint": {
+     "email": "Ver datos en Ficha del Proveedor",
+     "telephone": "Ver dato en ficha del proveedor"
+    },
+    "roles": [
+     "tenderer"
+    ]
+   },
+   {
+    "id": "PE-RUC-20610982892",
+    "name": "EMPRESA DE SEGURIDAD INTEGRAL VIG & S S.A.C.",
+    "identifier": {
+     "scheme": "PE-RUC",
+     "id": "20610982892",
+     "legalName": "EMPRESA DE SEGURIDAD INTEGRAL VIG & S S.A.C."
+    },
+    "contactPoint": {
+     "email": "Ver datos en Ficha del Proveedor",
+     "telephone": "Ver dato en ficha del proveedor"
+    },
+    "roles": [
+     "tenderer"
+    ]
+   },
+   {
+    "id": "PE-RUC-20614402301",
+    "name": "LIMPIEZA TECNIFICADA Y SANEAMIENTO AMBIENTAL S.A.C.",
+    "identifier": {
+     "scheme": "PE-RUC",
+     "id": "20614402301",
+     "legalName": "LIMPIEZA TECNIFICADA Y SANEAMIENTO AMBIENTAL S.A.C."
+    },
+    "contactPoint": {
+     "email": "Ver datos en Ficha del Proveedor",
+     "telephone": "Ver dato en ficha del proveedor"
+    },
+    "roles": [
+     "tenderer"
+    ]
+   },
+   {
+    "id": "PE-RUC-20611128801",
+    "name": "SEGURIDAD & LIMPIEZA CORPORATIVA SELIMCORP S.A.C.",
+    "identifier": {
+     "scheme": "PE-RUC",
+     "id": "20611128801",
+     "legalName": "SEGURIDAD & LIMPIEZA CORPORATIVA SELIMCORP S.A.C."
+    },
+    "contactPoint": {
+     "email": "Ver datos en Ficha del Proveedor",
+     "telephone": "Ver dato en ficha del proveedor"
+    },
+    "roles": [
+     "tenderer"
+    ]
+   },
+   {
+    "id": "PE-RUC-20606429721",
+    "name": "MEGA ANDINA S.A.C.",
+    "identifier": {
+     "scheme": "PE-RUC",
+     "id": "20606429721",
+     "legalName": "MEGA ANDINA S.A.C."
+    },
+    "contactPoint": {
+     "email": "Ver datos en Ficha del Proveedor",
+     "telephone": "Ver dato en ficha del proveedor"
+    },
+    "roles": [
+     "tenderer"
+    ]
+   },
+   {
+    "id": "PE-RUC-20600226640",
+    "name": "INTENDENCIA DE ALTA DIRECCION SOCIEDAD ANONIMA CERRADA",
+    "identifier": {
+     "scheme": "PE-RUC",
+     "id": "20600226640",
+     "legalName": "INTENDENCIA DE ALTA DIRECCION SOCIEDAD ANONIMA CERRADA"
+    },
+    "contactPoint": {
+     "email": "Ver datos en Ficha del Proveedor",
+     "telephone": "Ver dato en ficha del proveedor"
+    },
+    "roles": [
+     "tenderer"
+    ]
+   },
+   {
+    "id": "PE-RUC-20611416254",
+    "name": "VITAL CLEAN SERVICIOS ESPECIALIZADOS S.A.C.",
+    "identifier": {
+     "scheme": "PE-RUC",
+     "id": "20611416254",
+     "legalName": "VITAL CLEAN SERVICIOS ESPECIALIZADOS S.A.C."
+    },
+    "contactPoint": {
+     "email": "Ver datos en Ficha del Proveedor",
+     "telephone": "Ver dato en ficha del proveedor"
+    },
+    "roles": [
+     "tenderer"
+    ]
+   },
+   {
+    "id": "PE-RUC-20559288510",
+    "name": "CONSORCIO SERMANSA S.A.C.",
+    "identifier": {
+     "scheme": "PE-RUC",
+     "id": "20559288510",
+     "legalName": "CONSORCIO SERMANSA S.A.C."
+    },
+    "contactPoint": {
+     "email": "Ver datos en Ficha del Proveedor",
+     "telephone": "Ver dato en ficha del proveedor"
+    },
+    "roles": [
+     "tenderer"
+    ]
+   },
+   {
+    "id": "PE-RUC-20602158170",
+    "name": "INTENDENCIA DE DIRECCION GENERAL SOCIEDAD ANONIMA CERRADA",
+    "identifier": {
+     "scheme": "PE-RUC",
+     "id": "20602158170",
+     "legalName": "INTENDENCIA DE DIRECCION GENERAL SOCIEDAD ANONIMA CERRADA"
+    },
+    "contactPoint": {
+     "email": "Ver datos en Ficha del Proveedor",
+     "telephone": "Ver dato en ficha del proveedor"
+    },
+    "roles": [
+     "tenderer"
+    ]
+   },
+   {
+    "id": "PE-RUC-20601258812",
+    "name": "ROMA & SGH SOCIEDAD ANONIMA CERRADA - ROMA & SGH S.A.C.",
+    "identifier": {
+     "scheme": "PE-RUC",
+     "id": "20601258812",
+     "legalName": "ROMA & SGH SOCIEDAD ANONIMA CERRADA - ROMA & SGH S.A.C."
+    },
+    "contactPoint": {
+     "email": "Ver datos en Ficha del Proveedor",
+     "telephone": "Ver dato en ficha del proveedor"
+    },
+    "roles": [
+     "tenderer",
+     "supplier"
+    ]
+   },
+   {
+    "id": "PE-RUC-20358706101",
+    "name": "JV SERVICIOS E INVERSIONES MÚLTIPLES SOCIEDAD ANÓNIMA CERRADA",
+    "identifier": {
+     "scheme": "PE-RUC",
+     "id": "20358706101",
+     "legalName": "JV SERVICIOS E INVERSIONES MÚLTIPLES SOCIEDAD ANÓNIMA CERRADA"
+    },
+    "contactPoint": {
+     "email": "Ver datos en Ficha del Proveedor",
+     "telephone": "Ver dato en ficha del proveedor"
+    },
+    "roles": [
+     "tenderer"
+    ]
+   },
+   {
+    "id": "PE-RUC-20564289419",
+    "name": "CLEAN & SECURITY SERVICIOS GENERALES S.R.L.",
+    "identifier": {
+     "scheme": "PE-RUC",
+     "id": "20564289419",
+     "legalName": "CLEAN & SECURITY SERVICIOS GENERALES S.R.L."
+    },
+    "contactPoint": {
+     "email": "Ver datos en Ficha del Proveedor",
+     "telephone": "Ver dato en ficha del proveedor"
+    },
+    "roles": [
+     "tenderer"
+    ]
+   },
+   {
+    "id": "PE-RUC-20601406358",
+    "name": "SERVICIOS GENERALES ALL MASTER S.R.L. - SEGALMAS S.R.L.",
+    "identifier": {
+     "scheme": "PE-RUC",
+     "id": "20601406358",
+     "legalName": "SERVICIOS GENERALES ALL MASTER S.R.L. - SEGALMAS S.R.L."
+    },
+    "contactPoint": {
+     "email": "Ver datos en Ficha del Proveedor",
+     "telephone": "Ver dato en ficha del proveedor"
+    },
+    "roles": [
+     "tenderer"
+    ]
+   }
+  ],
+  "sources": [
+   {
+    "id": "seace_v3",
+    "name": "Sistema Electrónico de Contrataciones del Estado - Versión 3",
+    "url": "https://prodapp2.seace.gob.pe/seacebus-uiwd-pub/buscadorPublico/buscadorPublico.xhtml"
+   }
+  ],
+  "dataSegmentation": {
+   "id": "2026-08",
+   "criteria": [
+    "añoInicioConvocatoria",
+    "mesInicioConvocatoria"
+   ]
+  }
+ },
+ "not_awarded": {
+  "ocid": "ocds-dgv273-seacev3-1239368",
+  "id": "ocds-dgv273-seacev3-1239368-2026-09-03T10:50:27.958237-05:00",
+  "date": "2026-09-03T10:50:27.958222-05:00",
+  "publishedDate": "2026-09-03T10:50:27.958243-05:00",
+  "tag": [
+   "planning",
+   "tender"
+  ],
+  "initiationType": "tender",
+  "buyer": {
+   "id": "PE-CONSUCODE-710",
+   "name": "MUNICIPALIDAD DISTRITAL DE LLAPA"
+  },
+  "planning": {
+   "budget": {
+    "description": "Fondos Públicos",
+    "project": "CREACION DE LOS SERVICIOS OPERATIVOS O MISIONALES INSTITUCIONALES EN GESTION COMUNAL EN EL LOCAL MULTIUSOS DEL CENTRO POBLADO PAMPA CUYOC   DISTRITO DE LLAPA DE LA PROVINCIA DE SAN MIGUEL DEL DEPARTAMENTO DE CAJAMARCA",
+    "projectID": "2722430"
+   }
+  },
+  "tender": {
+   "id": "1239368",
+   "title": "LP-ABR-7-2026-MDLL/CS-1-1",
+   "description": "CREACION DE LOS SERVICIOS OPERATIVOS O MISIONALES INSTITUCIONALES EN GESTION COMUNAL EN EL LOCAL MULTIUSOS DEL CENTRO POBLADO PAMPA CUYOC, DISTRITO DE LLAPA, PROVINCIA DE SAN MIGUEL, DEPARTAMENTO DE CAJAMARCA, CON CUI N°2722430",
+   "procuringEntity": {
+    "id": "PE-CONSUCODE-710",
+    "name": "MUNICIPALIDAD DISTRITAL DE LLAPA"
+   },
+   "datePublished": "2026-08-07T10:00:00-05:00",
+   "procurementMethodDetails": "Licitación Pública Abreviada",
+   "mainProcurementCategory": "works",
+   "additionalProcurementCategories": [
+    "works"
+   ],
+   "value": {
+    "amount": 0.0,
+    "currency": "PEN",
+    "currencyName": "Soles",
+    "amount_PEN": 0.0
+   },
+   "tenderPeriod": {
+    "startDate": "2026-08-07T00:00:00-05:00",
+    "endDate": "2026-08-07T00:00:00-05:00"
+   },
+   "enquiryPeriod": {
+    "startDate": "2026-08-08T00:01:00-05:00",
+    "endDate": "2026-08-12T23:59:00-05:00",
+    "durationInDays": 4
+   },
+   "items": [
+    {
+     "id": "21343642",
+     "position": "1",
+     "description": "CREACION DE LOS SERVICIOS OPERATIVOS O MISIONALES INSTITUCIONALES EN GESTION COMUNAL EN EL LOCAL MULTIUSOS DEL CENTRO POBLADO PAMPA CUYOC DISTRITO DE LLAPA DE LA PROVINCIA DE SAN MIGUEL DEL DEPARTAMENTO DE CAJAMARCA, CON CUI N°2722430",
+     "statusDetails": "CONVOCADO",
+     "status": "active",
+     "classification": {
+      "id": "7212110100233077",
+      "description": "CONSTRUCCION DE LOCAL COMUNAL",
+      "scheme": "CUBSO"
+     },
+     "additionalClassifications": [
+      {
+       "id": "72121101",
+       "description": "Servicios de construcción de nuevos edificios comerciales y de oficinas",
+       "scheme": "UNSPSC"
+      }
+     ],
+     "quantity": 1.0,
+     "totalValue": {
+      "amount": 0.0,
+      "currency": "PEN",
+      "currencyName": "Soles"
+     },
+     "unit": {
+      "id": "36",
+      "name": "Servicio",
+      "scheme": "PE-SEACE3-UnidadMedida"
+     }
+    }
+   ],
+   "documents": [
+    {
+     "id": "24831474986082035",
+     "url": "https://prod1.seace.gob.pe/SeaceWeb-PRO/SdescargarArchivoAlfresco?fileCode=6b74e01a-bea3-409f-a74e-468d738e2915",
+     "datePublished": "2026-09-02T18:34:30-05:00",
+     "dateModified": "2026-09-02T18:34:30-05:00",
+     "format": "pdf",
+     "documentType": "clarifications",
+     "title": "Pliego de absolución de consultas y observaciones",
+     "language": "es"
+    },
+    {
+     "id": "24831474986082036",
+     "url": "https://prod1.seace.gob.pe/SeaceWeb-PRO/SdescargarArchivoAlfresco?fileCode=44a71188-4fc9-4da6-9617-957c96c9643d",
+     "datePublished": "2026-09-02T18:34:30-05:00",
+     "dateModified": "2026-09-02T18:34:30-05:00",
+     "format": "pdf",
+     "documentType": "biddingDocuments",
+     "title": "Bases Integradas",
+     "language": "es"
+    },
+    {
+     "id": "24831474986050457",
+     "url": "https://prod1.seace.gob.pe/SeaceWeb-PRO/SdescargarArchivoAlfresco?fileCode=1cb68b20-1a78-4ba2-9452-df512d8d4481",
+     "datePublished": "2026-08-07T10:00:00-05:00",
+     "dateModified": "2026-09-02T18:34:30-05:00",
+     "format": "pdf",
+     "documentType": "biddingDocuments",
+     "title": "Bases Administrativas",
+     "language": "es"
+    }
+   ],
+   "hasTenderInformationProtectedByLaw": true
+  },
+  "parties": [
+   {
+    "id": "PE-CONSUCODE-710",
+    "name": "MUNICIPALIDAD DISTRITAL DE LLAPA",
+    "identifier": {
+     "id": "710",
+     "scheme": "PE-CONSUCODE",
+     "legalName": "MUNICIPALIDAD DISTRITAL DE LLAPA"
+    },
+    "additionalIdentifiers": [
+     {
+      "id": "20201594481",
+      "scheme": "PE-RUC",
+      "legalName": "MUNICIPALIDAD DISTRITAL DE LLAPA"
+     }
+    ],
+    "address": {
+     "streetAddress": "JR.RAMON CASTILLA Nº250",
+     "locality": "LLAPA",
+     "region": "SAN MIGUEL",
+     "department": "CAJAMARCA",
+     "countryName": "PERU"
+    },
+    "roles": [
+     "buyer",
+     "procuringEntity"
+    ]
+   }
+  ],
+  "sources": [
+   {
+    "id": "seace_v3",
+    "name": "Sistema Electrónico de Contrataciones del Estado - Versión 3",
+    "url": "https://prodapp2.seace.gob.pe/seacebus-uiwd-pub/buscadorPublico/buscadorPublico.xhtml"
+   }
+  ],
+  "dataSegmentation": {
+   "id": "2026-08",
+   "criteria": [
+    "añoInicioConvocatoria",
+    "mesInicioConvocatoria"
+   ]
+  }
+ }
+}
