@@ -21,7 +21,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from . import models
-from .stats import MIN_GROUP_SIZE, compute_group_stats
+from .stats import MIN_GROUP_SIZE, compute_group_stats, bootstrap_confidence_interval
 
 # One entry per supported country -- the official e-procurement/tendering
 # portal (not the open-data portal used for ingestion, which is a different
@@ -56,6 +56,12 @@ class PriceBenchmark:
     median_amount: float
     typical_low: float
     typical_high: float
+    # Phase 2 enhancements:
+    ci_lower: float | None = None  # 95% confidence interval lower bound
+    ci_upper: float | None = None  # 95% confidence interval upper bound
+    volatility: float | None = None  # Std dev in log-space (as percentage)
+    outlier_count: int = 0  # Contracts flagged as outliers
+    confidence: float = 0.7  # Confidence in this benchmark (0-1)
 
 
 def get_categories(db: Session, country_code: str) -> list[TenderCategory]:
@@ -83,7 +89,9 @@ def get_price_benchmark(db: Session, country_code: str, category_code: str) -> P
     between X and Y" instead of a single number implying false precision.
     Picks the currency with the most contracts when a category has more
     than one (shouldn't normally happen within one country, but the schema
-    allows it)."""
+    allows it).
+
+    Phase 2: Also calculates 95% confidence intervals, volatility, and outlier count."""
 
     base_stmt = select(models.Contract).where(
         models.Contract.country_code == country_code,
@@ -106,6 +114,30 @@ def get_price_benchmark(db: Session, country_code: str, category_code: str) -> P
     log_amounts = [math.log(r.amount_original) for r in group]
     stats = compute_group_stats(log_amounts)
 
+    # Phase 2: Calculate confidence intervals & volatility
+    amounts = [r.amount_original for r in group]
+    ci_lower, ci_upper = bootstrap_confidence_interval(amounts, ci=0.95, n_bootstrap=500)
+
+    # Calculate volatility (std dev in log-space as percentage)
+    import statistics
+    if len(log_amounts) > 1:
+        log_std = statistics.stdev(log_amounts)
+        volatility = (math.exp(log_std) - 1) * 100  # Convert to percentage
+    else:
+        volatility = 0.0
+
+    # Count outliers (beyond IQR fences)
+    iqr = stats["iqr"]
+    q1, q3 = stats["q1"], stats["q3"]
+    outlier_count = sum(
+        1 for amount in log_amounts
+        if amount < q1 - 1.5 * iqr or amount > q3 + 1.5 * iqr
+    )
+
+    # Confidence score based on sample size and spread
+    # High confidence with large sample and low volatility
+    confidence = min(1.0, 0.5 + (len(group) / (MIN_GROUP_SIZE * 3)) + (1 - min(volatility / 100, 1.0)) * 0.2)
+
     return PriceBenchmark(
         country_code=country_code,
         category_code=category_code,
@@ -114,4 +146,9 @@ def get_price_benchmark(db: Session, country_code: str, category_code: str) -> P
         median_amount=math.exp(stats["median"]),
         typical_low=math.exp(stats["q1"]),
         typical_high=math.exp(stats["q3"]),
+        ci_lower=ci_lower,
+        ci_upper=ci_upper,
+        volatility=volatility,
+        outlier_count=outlier_count,
+        confidence=confidence,
     )

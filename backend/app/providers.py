@@ -7,10 +7,12 @@ Metrics:
 - Price favoritism: Contracts to favored suppliers vs market baseline
 - Geographic favoritism: Provider distribution across regions/departments
 - Temporal patterns: Provider awards clustering over time
+- Corruption risk scoring: Multi-signal risk assessment
 """
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from datetime import date
 
@@ -18,6 +20,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
 from . import models
+from .stats import compute_group_stats, modified_zscore
 
 
 @dataclass
@@ -460,3 +463,183 @@ def get_temporal_patterns(
                 )
 
     return results[:limit]
+
+
+# ============================================================================
+# ADVANCED MARKET ANALYSIS (Phase 2 Enhancements)
+# ============================================================================
+
+
+@dataclass
+class SupplierConcentrationPerBuyer:
+    """Concentration analysis for one buyer's supplier relationships."""
+    buyer_name: str
+    supplier_count: int
+    top_3_share: float  # % of spending to top 3 suppliers
+    repeat_rate: float  # % of contracts to same supplier as previous
+    hhi_with_supplier: float  # HHI of supplier concentration for this buyer
+
+
+@dataclass
+class CorruptionRiskScore:
+    """Multi-signal corruption risk assessment."""
+    provider_name: str
+    overall_risk: float  # 0-1: composite risk score
+    hhi_risk: float  # Risk from market concentration
+    price_premium_risk: float  # Risk from consistently high prices
+    temporal_clustering_risk: float  # Risk from consecutive wins
+    geographic_concentration_risk: float  # Risk from one-country focus
+    risk_explanation: str
+    risk_level: str  # "low", "medium", "high", "critical"
+
+
+def calculate_supplier_concentration_per_buyer(db: Session, buyer_id: str) -> SupplierConcentrationPerBuyer | None:
+    """Analyze how concentrated one buyer's supplier relationships are.
+
+    High concentration = same few suppliers get most contracts (red flag).
+    """
+    buyer = db.get(models.Buyer, buyer_id)
+    if not buyer:
+        return None
+
+    contracts = db.execute(
+        select(models.Contract)
+        .where(models.Contract.buyer_id == buyer_id)
+        .where(models.Contract.amount_usd.isnot(None))
+        .where(models.Contract.amount_usd > 0)
+    ).scalars().all()
+
+    if len(contracts) < 2:
+        return None
+
+    # Group by external_id (supplier identifier)
+    supplier_spending = {}
+    for contract in contracts:
+        sid = contract.external_id or "unknown"
+        supplier_spending[sid] = supplier_spending.get(sid, 0.0) + (contract.amount_usd or 0.0)
+
+    total_spending = sum(supplier_spending.values())
+    supplier_count = len(supplier_spending)
+
+    # Top 3 share
+    top_3_values = sorted(supplier_spending.values(), reverse=True)[:3]
+    top_3_share = sum(top_3_values) / total_spending if total_spending > 0 else 0.0
+
+    # Repeat rate: contracts to same supplier as previous contract
+    repeat_count = 0
+    prev_supplier = None
+    for contract in sorted(contracts, key=lambda c: c.award_date or date.min):
+        if prev_supplier and contract.external_id == prev_supplier:
+            repeat_count += 1
+        prev_supplier = contract.external_id
+
+    repeat_rate = repeat_count / (len(contracts) - 1) if len(contracts) > 1 else 0.0
+
+    # HHI of supplier concentration
+    hhi_supplier = sum((v / total_spending) ** 2 for v in supplier_spending.values()) * 10000
+
+    return SupplierConcentrationPerBuyer(
+        buyer_name=buyer.name,
+        supplier_count=supplier_count,
+        top_3_share=top_3_share,
+        repeat_rate=repeat_rate,
+        hhi_with_supplier=hhi_supplier,
+    )
+
+
+def calculate_corruption_risk_score(db: Session, provider_name: str, country_code: str | None = None) -> CorruptionRiskScore | None:
+    """Calculate multi-signal corruption risk for a provider.
+
+    Combines: market concentration, price premiums, temporal clustering, geographic focus.
+    Returns composite 0-1 risk score.
+    """
+    stmt = select(models.Contract).where(
+        models.Contract.buyer.has(models.Buyer.normalized_name.contains(provider_name.lower()))
+    )
+    if country_code:
+        stmt = stmt.where(models.Contract.country_code == country_code)
+
+    contracts = db.execute(stmt).scalars().all()
+    if len(contracts) < 3:
+        return None
+
+    # Signal 1: Market concentration (HHI)
+    country = contracts[0].country_code if contracts else None
+    provider_stmt = select(models.Contract).where(models.Contract.country_code == country)
+    all_contracts = db.execute(provider_stmt).scalars().all()
+    total_spending = sum(c.amount_usd or 0.0 for c in all_contracts)
+    provider_spending = sum(c.amount_usd or 0.0 for c in contracts)
+    market_share = (provider_spending / total_spending) if total_spending > 0 else 0.0
+    hhi_risk = min(1.0, market_share ** 2 * 100)  # Normalize to 0-1
+
+    # Signal 2: Price premium
+    amounts = [c.amount_usd for c in contracts if c.amount_usd and c.amount_usd > 0]
+    category_contracts = [
+        c for c in all_contracts
+        if c.category_code == contracts[0].category_code and c.amount_usd and c.amount_usd > 0
+    ]
+    if len(amounts) >= 3 and len(category_contracts) >= 8:
+        log_amounts = [math.log(a) for a in category_contracts]
+        stats = compute_group_stats(log_amounts)
+        provider_avg = sum(math.log(a) for a in amounts) / len(amounts)
+        zscore = modified_zscore(provider_avg, stats["median"], stats["mad"])
+        price_premium_risk = min(1.0, max(0.0, zscore / 5.0))  # 0 at median, 1.0 at z=5
+    else:
+        price_premium_risk = 0.0
+
+    # Signal 3: Temporal clustering
+    awards_by_month = {}
+    for c in contracts:
+        if c.award_date:
+            month_key = (c.award_date.year, c.award_date.month)
+            awards_by_month[month_key] = awards_by_month.get(month_key, 0) + 1
+
+    max_awards_per_month = max(awards_by_month.values()) if awards_by_month else 0
+    temporal_clustering_risk = min(1.0, (max_awards_per_month - 1) / 5.0)  # 0 if 1-2/month, 1.0 if 6+/month
+
+    # Signal 4: Geographic concentration
+    countries_active = set(c.country_code for c in contracts if c.country_code)
+    geographic_concentration_risk = 0.0 if len(countries_active) > 1 else 0.3  # Lower risk if multi-country
+
+    # Composite score (weighted average)
+    weights = {"hhi": 0.30, "price": 0.25, "temporal": 0.25, "geo": 0.20}
+    overall_risk = (
+        weights["hhi"] * hhi_risk +
+        weights["price"] * price_premium_risk +
+        weights["temporal"] * temporal_clustering_risk +
+        weights["geo"] * geographic_concentration_risk
+    )
+
+    # Risk level classification
+    if overall_risk >= 0.7:
+        risk_level = "critical"
+    elif overall_risk >= 0.5:
+        risk_level = "high"
+    elif overall_risk >= 0.3:
+        risk_level = "medium"
+    else:
+        risk_level = "low"
+
+    # Explanation
+    risk_factors = []
+    if hhi_risk > 0.4:
+        risk_factors.append(f"Alta concentración de mercado ({market_share:.1%})")
+    if price_premium_risk > 0.4:
+        risk_factors.append(f"Precios sobre la mediana")
+    if temporal_clustering_risk > 0.4:
+        risk_factors.append(f"Adjudicaciones concentradas en {max_awards_per_month}+ por mes")
+    if geographic_concentration_risk > 0.2:
+        risk_factors.append("Proveedor activo en solo un país")
+
+    risk_explanation = ", ".join(risk_factors) if risk_factors else "Perfil de bajo riesgo"
+
+    return CorruptionRiskScore(
+        provider_name=provider_name,
+        overall_risk=overall_risk,
+        hhi_risk=hhi_risk,
+        price_premium_risk=price_premium_risk,
+        temporal_clustering_risk=temporal_clustering_risk,
+        geographic_concentration_risk=geographic_concentration_risk,
+        risk_explanation=risk_explanation,
+        risk_level=risk_level,
+    )
