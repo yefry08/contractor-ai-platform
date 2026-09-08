@@ -24,5 +24,9 @@ class Settings(BaseSettings):
     # unavailable, never simulated, when this isn't set.
     bazaarlink_api_key: str | None = None
 
+    # Optional: Redis for LLM narrative caching. Format: redis://localhost:6379
+    # or redis://user:password@host:port. Caching degrades gracefully if unavailable.
+    redis_url: str | None = None
+
 
 settings = Settings()

@@ -17,8 +17,12 @@ Degrades to None on any failure -- missing key, timeout, rate limit,
 content-policy block, malformed response. A narrative is a nice-to-have
 add-on; it must never block, replace, or silently fake the actual
 statistical comparison the rest of the app relies on.
+
+Caching: Results cached in Redis (24h TTL) if available. Caching failures
+are silent (degrades to no cache); the API call always proceeds.
 """
 
+import hashlib
 import json
 import urllib.error
 import urllib.request
@@ -29,6 +33,55 @@ API_URL = "https://api.bazaarlink.ai/v1/chat/completions"
 MODEL = "auto:free"
 TIMEOUT_SECONDS = 20
 MAX_INPUT_CHARS = 6000
+CACHE_TTL_SECONDS = 86400  # 24 hours
+
+# Redis connection pool (lazy-loaded)
+_redis_client = None
+
+
+def _get_redis_client():
+    """Lazy-load Redis client. Returns None if unavailable."""
+    global _redis_client
+    if _redis_client is not None or settings.redis_url is None:
+        return _redis_client
+
+    try:
+        import redis
+        _redis_client = redis.from_url(settings.redis_url, decode_responses=True, socket_connect_timeout=2)
+        _redis_client.ping()  # Test connection
+        return _redis_client
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _cache_key(contract_text: str, comparison_summary: str) -> str:
+    """Generate cache key from inputs."""
+    combined = f"{contract_text[:2000]}|{comparison_summary}"
+    return f"narrative:{hashlib.sha256(combined.encode()).hexdigest()}"
+
+
+def _get_cached_narrative(contract_text: str, comparison_summary: str) -> str | None:
+    """Attempt to retrieve cached narrative."""
+    try:
+        client = _get_redis_client()
+        if not client:
+            return None
+        key = _cache_key(contract_text, comparison_summary)
+        return client.get(key)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _set_cached_narrative(contract_text: str, comparison_summary: str, narrative: str) -> None:
+    """Attempt to cache narrative."""
+    try:
+        client = _get_redis_client()
+        if not client:
+            return
+        key = _cache_key(contract_text, comparison_summary)
+        client.setex(key, CACHE_TTL_SECONDS, narrative)
+    except Exception:  # noqa: BLE001
+        pass  # Silent failure - caching is best-effort
 
 _SYSTEM_PROMPT = (
     "Sos un asistente que resume contratos de compra pública para periodistas y "
@@ -47,6 +100,11 @@ def is_available() -> bool:
 def generate_narrative(contract_text: str, comparison_summary: str) -> str | None:
     if not settings.bazaarlink_api_key:
         return None
+
+    # Try cache first
+    cached = _get_cached_narrative(contract_text, comparison_summary)
+    if cached:
+        return cached
 
     user_content = (
         f"Texto del contrato (puede estar truncado):\n{contract_text[:MAX_INPUT_CHARS]}\n\n"
@@ -92,4 +150,6 @@ def generate_narrative(contract_text: str, comparison_summary: str) -> str | Non
     except (KeyError, IndexError, TypeError):
         return None
     content = (content or "").strip()
+    if content:
+        _set_cached_narrative(contract_text, comparison_summary, content)
     return content or None

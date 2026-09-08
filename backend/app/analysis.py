@@ -33,6 +33,7 @@ import socket
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
+from datetime import datetime
 from html.parser import HTMLParser
 from urllib.parse import urljoin, urlparse
 
@@ -48,6 +49,20 @@ MAX_REDIRECTS = 3
 _REDIRECT_CODES = (301, 302, 303, 307, 308)
 
 _AMOUNT_RE = re.compile(r"\d{1,3}(?:[.,]\d{3})+(?:[.,]\d{1,2})?|\d{4,}")
+
+# Date patterns for 6 countries (flexible parsing)
+_DATE_PATTERNS = [
+    r"(?:enero|february|febrero|march|marzo|abril|may|mayo|junio|julio|agosto|september|septiembre|october|octubre|november|noviembre|december|diciembre)\s+\d{1,2},?\s+\d{4}",
+    r"\d{1,2}[/-]\d{1,2}[/-]\d{2,4}",  # DD/MM/YYYY or MM/DD/YYYY
+    r"\d{4}-\d{2}-\d{2}",  # ISO format
+]
+_DATE_RE = re.compile("|".join(_DATE_PATTERNS), re.IGNORECASE)
+
+# Company name indicators (S.A., Ltd., etc.)
+_COMPANY_PATTERNS = [
+    r"[A-ZÑ][a-záéíóúñ]+(?:\s+[A-ZÑ][a-záéíóúñ]+)*(?:\s+(?:S\.?A\.?|Ltd\.?|LLC|Corp\.?|Inc\.?|S\.?L\.?|E\.?I\.?R\.?)\.?)?",
+]
+_COMPANY_RE = re.compile("|".join(_COMPANY_PATTERNS))
 
 
 class _TextExtractor(HTMLParser):
@@ -80,6 +95,8 @@ class ExtractionResult:
     suggested_amount: float | None = None
     warning: str | None = None
     candidate_amounts: list[float] = field(default_factory=list)
+    suggested_date: str | None = None
+    suggested_company: str | None = None
 
 
 def _pick_title(lines: list[str]) -> str | None:
@@ -87,6 +104,41 @@ def _pick_title(lines: list[str]) -> str | None:
         cleaned = line.strip()
         if len(cleaned) >= 8:
             return cleaned[:300]
+    return None
+
+
+def _extract_date(text: str) -> str | None:
+    """Extract first date found in text (flexible format support)."""
+    try:
+        from dateutil import parser as dateutil_parser
+        matches = _DATE_RE.findall(text)
+        if matches:
+            for match in matches[:3]:  # Try first 3 matches
+                try:
+                    parsed = dateutil_parser.parse(match, dayfirst=True)
+                    return parsed.isoformat()
+                except (ValueError, TypeError):
+                    continue
+    except ImportError:
+        # Fallback: simple ISO format
+        iso_match = re.search(r"\d{4}-\d{2}-\d{2}", text)
+        if iso_match:
+            return iso_match.group()
+    return None
+
+
+def _extract_company(text: str) -> str | None:
+    """Extract first company-like entity name from text."""
+    # Look for patterns with S.A., Ltd., etc. (strong signals)
+    strong_match = re.search(r"[A-ZÑ][a-záéíóúñ\s]+(?:S\.A\.|Ltd\.|LLC|Corp\.|Inc\.|S\.L\.|E\.I\.R\.)", text)
+    if strong_match:
+        return strong_match.group().strip()
+
+    # Fallback: look for capitalized phrases (3+ words)
+    weak_matches = re.findall(r"[A-ZÑ][a-záéíóúñ]+(?:\s+[A-ZÑ][a-záéíóúñ]+){2,}", text)
+    if weak_matches:
+        return weak_matches[0]
+
     return None
 
 
@@ -154,6 +206,8 @@ def extract_from_pdf(data: bytes) -> ExtractionResult:
         suggested_title=_pick_title(lines),
         suggested_amount=candidates[0] if candidates else None,
         candidate_amounts=candidates,
+        suggested_date=_extract_date(text),
+        suggested_company=_extract_company(text),
     )
 
 
@@ -290,6 +344,8 @@ def extract_from_link(url: str) -> ExtractionResult:
         suggested_title=_pick_title(lines),
         suggested_amount=candidates[0] if candidates else None,
         candidate_amounts=candidates,
+        suggested_date=_extract_date(text),
+        suggested_company=_extract_company(text),
     )
 
 
