@@ -1,0 +1,93 @@
+{
+  "nav": {
+    "home": "Ñepyrũ",
+    "contracts": "Contratos",
+    "anomalies": "Anomalías",
+    "tenders": "Licitaciones",
+    "dashboard": "Panel",
+    "analyze": "Analisar"
+  },
+  "common": {
+    "search": "Jeheka",
+    "filter": "Emonguatia",
+    "loading": "Kargaguata...",
+    "error": "Síva",
+    "success": "Okávo",
+    "close": "Esẽrrei",
+    "cancel": "Heja",
+    "confirm": "Marandu",
+    "delete": "Guasu",
+    "edit": "Mbohapysérã",
+    "save": "Ñongatu",
+    "back": "Guata atrasápe",
+    "next": "Pysua",
+    "previous": "Ñemoguata"
+  },
+  "home": {
+    "title": "Contractor AI",
+    "subtitle": "Transparencia rehegua ha retegua",
+    "description": "Ikatuha ñatile anomalías rehegua osẽ oikóva ko reteguápe",
+    "cta": "Hasita",
+    "features": "Mba'emimi"
+  },
+  "contracts": {
+    "title": "Contratos",
+    "country": "Tetã",
+    "buyer": "Ñemohenda rehegua",
+    "amount": "Cantidad",
+    "date": "Aravõ",
+    "category": "Jokupyty",
+    "status": "Estatus",
+    "view": "Oje'e",
+    "noResults": "Ndojejuhu contratos",
+    "anomalous": "Anomalías ryepépe"
+  },
+  "anomalies": {
+    "title": "Anomalías",
+    "detected": "Anomalías ohenohẽ",
+    "severity": "Piramo'ã",
+    "low": "Mba'e",
+    "medium": "Ipy",
+    "high": "Py'aguasu",
+    "extreme": "Asy'i",
+    "reason": "Mba'e",
+    "confidence": "Tapichakuéra"
+  },
+  "tenders": {
+    "title": "Emohenda rehegua",
+    "subtitle": "Eiporavo tetã ha jokupyty emikõ monguépe",
+    "selectCountry": "Eiporavo tetã",
+    "selectCategory": "Eiporavo jokupyty",
+    "median": "Iyoapy",
+    "range": "Py'aguasu rehegua",
+    "confidence": "Tapichakuéra",
+    "portal": "Pórtal rehegua"
+  },
+  "dashboard": {
+    "title": "Panel Control",
+    "overview": "Oje'e opaite",
+    "contracts": "Contratos",
+    "anomalies": "Anomalías",
+    "topCountries": "Tetã asu'ũ",
+    "topCategories": "Jokupyty asu'ũ",
+    "trend": "Mboguejy"
+  },
+  "analyze": {
+    "title": "Contratos analisar",
+    "upload": "PDF karga",
+    "paste": "Link ñemboja",
+    "results": "Resulta",
+    "comparison": "Ñembohysyve",
+    "amount": "Cantidad",
+    "date": "Aravõ",
+    "company": "Empresa"
+  },
+  "language": {
+    "select": "Ñe'ẽ",
+    "spanish": "Español",
+    "portuguese": "Português",
+    "guarani": "Guaraní",
+    "quechua": "Quechua",
+    "english": "English"
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "contracts": "Contratos",
+    "anomalies": "Anomalías",
+    "tenders": "Licitaciones",
+    "dashboard": "Panel",
+    "analyze": "Analizar"
+  },
+  "common": {
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "close": "Cerrar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "save": "Guardar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior"
+  },
+  "home": {
+    "title": "Contractor AI",
+    "subtitle": "Transparencia en contratación pública",
+    "description": "Detecta anomalías en contratos públicos usando estadística transparente y datos abiertos",
+    "cta": "Comenzar",
+    "features": "Características"
+  },
+  "contracts": {
+    "title": "Contratos",
+    "country": "País",
+    "buyer": "Comprador",
+    "amount": "Monto",
+    "date": "Fecha",
+    "category": "Categoría",
+    "status": "Estado",
+    "view": "Ver detalles",
+    "noResults": "No se encontraron contratos",
+    "anomalous": "Solo anómalos"
+  },
+  "anomalies": {
+    "title": "Anomalías",
+    "detected": "Anomalías detectadas",
+    "severity": "Severidad",
+    "low": "Baja",
+    "medium": "Media",
+    "high": "Alta",
+    "extreme": "Extrema",
+    "reason": "Razón",
+    "confidence": "Confianza"
+  },
+  "tenders": {
+    "title": "Preparate para ofertar",
+    "subtitle": "Elegí un país y una categoría para ver el precio mediano y el rango típico de contratos similares",
+    "selectCountry": "Selecciona un país",
+    "selectCategory": "Selecciona una categoría",
+    "median": "Mediano",
+    "range": "Rango típico",
+    "confidence": "Confianza",
+    "portal": "Portal oficial"
+  },
+  "dashboard": {
+    "title": "Panel de Control",
+    "overview": "Resumen",
+    "contracts": "Contratos",
+    "anomalies": "Anomalías",
+    "topCountries": "Países principales",
+    "topCategories": "Categorías principales",
+    "trend": "Tendencia"
+  },
+  "analyze": {
+    "title": "Analizar Contrato",
+    "upload": "Subir PDF",
+    "paste": "Pegar enlace",
+    "results": "Resultados",
+    "comparison": "Comparación",
+    "amount": "Monto",
+    "date": "Fecha",
+    "company": "Empresa"
+  },
+  "language": {
+    "select": "Idioma",
+    "spanish": "Español",
+    "portuguese": "Português",
+    "guarani": "Guaraní",
+    "quechua": "Quechua",
+    "english": "English"
+  }
+}

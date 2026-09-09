@@ -1,0 +1,93 @@
+{
+  "nav": {
+    "home": "Home",
+    "contracts": "Contracts",
+    "anomalies": "Anomalies",
+    "tenders": "Tenders",
+    "dashboard": "Dashboard",
+    "analyze": "Analyze"
+  },
+  "common": {
+    "search": "Search",
+    "filter": "Filter",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "close": "Close",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "save": "Save",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous"
+  },
+  "home": {
+    "title": "Contractor AI",
+    "subtitle": "Transparency in public procurement",
+    "description": "Detect anomalies in public contracts using transparent statistics and open data",
+    "cta": "Get Started",
+    "features": "Features"
+  },
+  "contracts": {
+    "title": "Contracts",
+    "country": "Country",
+    "buyer": "Buyer",
+    "amount": "Amount",
+    "date": "Date",
+    "category": "Category",
+    "status": "Status",
+    "view": "View Details",
+    "noResults": "No contracts found",
+    "anomalous": "Anomalous only"
+  },
+  "anomalies": {
+    "title": "Anomalies",
+    "detected": "Anomalies Detected",
+    "severity": "Severity",
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High",
+    "extreme": "Extreme",
+    "reason": "Reason",
+    "confidence": "Confidence"
+  },
+  "tenders": {
+    "title": "Prepare to Bid",
+    "subtitle": "Select a country and category to see the median price and typical range of similar awarded contracts",
+    "selectCountry": "Select a country",
+    "selectCategory": "Select a category",
+    "median": "Median",
+    "range": "Typical Range",
+    "confidence": "Confidence",
+    "portal": "Official Portal"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "overview": "Overview",
+    "contracts": "Contracts",
+    "anomalies": "Anomalies",
+    "topCountries": "Top Countries",
+    "topCategories": "Top Categories",
+    "trend": "Trend"
+  },
+  "analyze": {
+    "title": "Analyze Contract",
+    "upload": "Upload PDF",
+    "paste": "Paste Link",
+    "results": "Results",
+    "comparison": "Comparison",
+    "amount": "Amount",
+    "date": "Date",
+    "company": "Company"
+  },
+  "language": {
+    "select": "Language",
+    "spanish": "Español",
+    "portuguese": "Português",
+    "guarani": "Guaraní",
+    "quechua": "Quechua",
+    "english": "English"
+  }
+}

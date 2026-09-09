@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
@@ -48,7 +49,7 @@ export function Navbar() {
         </nav>
 
         <div className="navbar-actions">
-          <span className="navbar-tag">ES · datos abiertos OCDS</span>
+          <LanguageSwitcher />
           <ThemeToggle />
           <a href="mailto:yefrynunez45@gmail.com" className="navbar-cta">
             Contáctanos
