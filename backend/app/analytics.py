@@ -68,17 +68,23 @@ def get_anomaly_rate_trend(db: Session, country_code: str, granularity: str = "m
     Returns:
         List of AnomalyRateTrend with rates and directions
     """
-    # Get all contracts with anomaly status
-    stmt = select(
-        models.Contract.award_date,
-        func.count().label("total"),
-        func.sum(
-            func.cast(models.Contract.anomalies.any(), models.sqlalchemy.Integer)
-        ).label("anomalous")
-    ).where(
-        models.Contract.country_code == country_code,
-        models.Contract.award_date.isnot(None)
-    ).group_by(models.Contract.award_date)
+    # Per award_date: how many contracts, and how many of them have >=1 anomaly.
+    # Counting distinct contract ids on an outer join keeps the second number
+    # right when one contract has several anomaly rows.
+    stmt = (
+        select(
+            models.Contract.award_date,
+            func.count(func.distinct(models.Contract.id)).label("total"),
+            func.count(func.distinct(models.Anomaly.contract_id)).label("anomalous"),
+        )
+        .select_from(models.Contract)
+        .outerjoin(models.Anomaly, models.Anomaly.contract_id == models.Contract.id)
+        .where(
+            models.Contract.country_code == country_code,
+            models.Contract.award_date.isnot(None),
+        )
+        .group_by(models.Contract.award_date)
+    )
 
     results = db.execute(stmt).all()
 

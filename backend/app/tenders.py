@@ -39,7 +39,11 @@ OFFICIAL_PORTALS: dict[str, dict[str, str]] = {
     # conexión mientras gob.pe/oece responde 200).
     "PE": {"name": "OECE — Organismo Especializado para las Contrataciones Públicas Eficientes", "url": "https://www.gob.pe/oece"},
     "BR": {"name": "ComprasGov — Portal de Compras do Governo Federal", "url": "https://www.gov.br/compras/pt-br"},
-    "UY": {"name": "ONCP — Oficina Nacional de Contrataciones Públicas", "url": "https://www.oncp.gub.uy"},
+    # ARCE, no "ONCP": ese nombre y el dominio oncp.gub.uy que se usaron acá
+    # antes no existen (oncp.gub.uy no resuelve). Verificado 2026-09-09: el
+    # portal de compras estatales responde 200 y su propio <title> es
+    # "Agencia Reguladora de Compras Estatales".
+    "UY": {"name": "ARCE — Agencia Reguladora de Compras Estatales", "url": "https://www.comprasestatales.gub.uy/"},
 }
 
 
