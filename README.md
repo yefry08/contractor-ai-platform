@@ -74,8 +74,8 @@ decision records: [`docs/adr/`](docs/adr/) · what's built and what's next:
 | 🇩🇴 República Dominicana | DGCP live API | Shown in original DOP. |
 | 🇵🇪 Perú | OECE live API (gob.pe/oece) | OCDS format; category distribution supports /analyze/compare by category (≥3 groups, <60% concentration). |
 | 🇸🇻 El Salvador | COMPRASAL live API (DINAC) | Dolarizado desde 2001 (USD nativo); row-level data (line items, not full contracts); personal data excluded per privacy policy. |
-| 🇧🇷 Brasil | ComprasGov portal (gov.br/compras) | Federal government procurement data; ingestion ready. |
-| 🇺🇾 Uruguay | ONCP (Oficina Nacional de Contrataciones Públicas) | National public procurement office; ingestion ready. |
+| 🇧🇷 Brasil | Compras.gov.br open-data API (`dadosabertos.compras.gov.br`), live | Federal contracts. The API requires a `codigoOrgao` per query — there is no whole-dataset endpoint — and caps date windows at 365 days, so ingestion walks organisations one at a time. Shown in original BRL. |
+| 🇺🇾 Uruguay | ARCE via the national open-data catalogue, **native OCDS 1.1** | Yearly OCDS archives from 2002 onward. Amounts live on award line items (`quantity × unit.value.amount`), not on the award, and the data is multi-currency (UYU, USD, EUR, UYI); USD awards keep a real `amount_usd`, the rest stay in their original currency. |
 
 Every anomaly is scored two independent ways where data allows: an NLP
 model's deviation from its predicted price (only where a precomputed
