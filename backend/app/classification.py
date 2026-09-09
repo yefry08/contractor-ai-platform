@@ -9,7 +9,7 @@ Classifies contracts into UNSPSC/CUBSO categories:
 Uses keyword matching + confidence scoring. No ML model dependencies -- pure
 deterministic rules work as well for procurement data (mostly technical terms).
 
-Supports all 6 countries with country-specific keyword variants.
+Supports all 8 countries (PY, CO, CR, DO, SV, PE, BR, UY) with multilingual keywords.
 """
 
 from dataclasses import dataclass

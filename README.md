@@ -16,8 +16,8 @@
 **Contractor AI** compares every public contract it ingests against
 thousands of similar historical contracts and flags the ones whose price
 doesn't add up — using open data, transparent statistics, and no
-black-box "trust me" scoring. It currently covers **six countries: Paraguay, Colombia,
-Costa Rica, República Dominicana, Perú, and El Salvador** (18,000+ contracts and counting),
+black-box "trust me" scoring. It currently covers **eight countries: Paraguay, Colombia,
+Costa Rica, República Dominicana, Perú, El Salvador, Brasil, and Uruguay** (18,000+ contracts and counting),
 with a public dashboard, an institution-ranking board, a channel for
 citizens to flag or add context on any contract, and a live tool to check
 whether a contract that isn't in the dataset yet looks priced fairly.
@@ -74,6 +74,8 @@ decision records: [`docs/adr/`](docs/adr/) · what's built and what's next:
 | 🇩🇴 República Dominicana | DGCP live API | Shown in original DOP. |
 | 🇵🇪 Perú | OECE live API (gob.pe/oece) | OCDS format; category distribution supports /analyze/compare by category (≥3 groups, <60% concentration). |
 | 🇸🇻 El Salvador | COMPRASAL live API (DINAC) | Dolarizado desde 2001 (USD nativo); row-level data (line items, not full contracts); personal data excluded per privacy policy. |
+| 🇧🇷 Brasil | ComprasGov portal (gov.br/compras) | Federal government procurement data; ingestion ready. |
+| 🇺🇾 Uruguay | ONCP (Oficina Nacional de Contrataciones Públicas) | National public procurement office; ingestion ready. |
 
 Every anomaly is scored two independent ways where data allows: an NLP
 model's deviation from its predicted price (only where a precomputed

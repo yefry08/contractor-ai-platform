@@ -50,9 +50,10 @@ _REDIRECT_CODES = (301, 302, 303, 307, 308)
 
 _AMOUNT_RE = re.compile(r"\d{1,3}(?:[.,]\d{3})+(?:[.,]\d{1,2})?|\d{4,}")
 
-# Date patterns for 6 countries (flexible parsing)
+# Date patterns for 8 countries (flexible parsing: Spanish & Portuguese)
+# Supports: DD/MM/YYYY, MM/DD/YYYY, ISO format, and month names
 _DATE_PATTERNS = [
-    r"(?:enero|february|febrero|march|marzo|abril|may|mayo|junio|julio|agosto|september|septiembre|october|octubre|november|noviembre|december|diciembre)\s+\d{1,2},?\s+\d{4}",
+    r"(?:enero|february|febrero|march|março|marzo|abril|may|maio|mayo|junio|junho|julio|julho|agosto|september|setembro|septiembre|october|outubro|octubre|november|novembro|november|december|dezembro|diciembre)\s+\d{1,2},?\s+\d{4}",
     r"\d{1,2}[/-]\d{1,2}[/-]\d{2,4}",  # DD/MM/YYYY or MM/DD/YYYY
     r"\d{4}-\d{2}-\d{2}",  # ISO format
 ]
