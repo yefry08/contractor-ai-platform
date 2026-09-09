@@ -28,6 +28,8 @@ export const COUNTRIES: Country[] = [
   // El Salvador esta dolarizado desde 2001: sus montos ya vienen en USD
   // desde la fuente, sin conversion de por medio.
   { code: "SV", name: "El Salvador", currency: "USD" },
+  { code: "BR", name: "Brasil", currency: "BRL" },
+  { code: "UY", name: "Uruguay", currency: "UYU" },
 ];
 
 /** Mapa código → nombre, para las pantallas que sólo necesitan etiquetar. */
