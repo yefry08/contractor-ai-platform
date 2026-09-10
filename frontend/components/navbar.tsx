@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { useLanguage } from "@/lib/language-context";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const { t } = useLanguage();
 
   return (
     <header className="navbar">
@@ -18,7 +20,7 @@ export function Navbar() {
         <button
           type="button"
           className="navbar-burger"
-          aria-label={open ? "Cerrar menú" : "Abrir menú"}
+          aria-label={open ? t("nav.closeMenu") : t("nav.openMenu")}
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
         >
@@ -29,19 +31,19 @@ export function Navbar() {
 
         <nav className={`navbar-links ${open ? "navbar-links-open" : ""}`}>
           <a href="/analyze" onClick={() => setOpen(false)}>
-            Analizar contratos
+            {t("nav.analyze")}
           </a>
           <a href="/anomalies" onClick={() => setOpen(false)}>
-            Anomalías detectadas
+            {t("nav.anomalies")}
           </a>
           <a href="/dashboard" onClick={() => setOpen(false)}>
-            Panel
+            {t("nav.dashboard")}
           </a>
           <a href="/tenders" onClick={() => setOpen(false)}>
-            Licitaciones
+            {t("nav.tenders")}
           </a>
           <a href="mailto:yefrynunez45@gmail.com" className="navbar-cta navbar-cta-mobile" onClick={() => setOpen(false)}>
-            Contáctanos
+            {t("nav.contact")}
           </a>
           <div className="navbar-theme-mobile">
             <ThemeToggle />
@@ -52,7 +54,7 @@ export function Navbar() {
           <LanguageSwitcher />
           <ThemeToggle />
           <a href="mailto:yefrynunez45@gmail.com" className="navbar-cta">
-            Contáctanos
+            {t("nav.contact")}
           </a>
         </div>
       </div>

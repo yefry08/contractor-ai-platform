@@ -39,6 +39,15 @@ class CountryBreakdown:
 
 
 @dataclass
+class CountryYearCell:
+    country_code: str
+    year: int
+    contracts: int
+    anomalies: int
+    anomaly_rate: float
+
+
+@dataclass
 class DashboardSummary:
     country_code: str | None
     total_contracts: int
@@ -48,6 +57,7 @@ class DashboardSummary:
     by_year: list[YearPoint]
     by_category: list[CategoryBreakdown]
     by_country: list[CountryBreakdown]
+    by_country_year: list[CountryYearCell]
 
 
 @dataclass
@@ -193,6 +203,38 @@ def get_summary(db: Session, country_code: str | None) -> DashboardSummary:
             for row in country_rows
         ]
 
+    by_country_year: list[CountryYearCell] = []
+    if not country_code:
+        cell_rows = db.execute(
+            select(models.Contract.country_code, year_expr.label("year"), func.count().label("contracts"))
+            .select_from(models.Contract)
+            .where(models.Contract.award_date.isnot(None))
+            .group_by(models.Contract.country_code, year_expr)
+        ).all()
+
+        cell_anomalies = {
+            (cc, int(year)): n
+            for cc, year, n in db.execute(
+                select(models.Contract.country_code, year_expr, func.count(func.distinct(models.Anomaly.contract_id)))
+                .select_from(models.Anomaly)
+                .join(models.Contract)
+                .where(models.Anomaly.status == "open", models.Contract.award_date.isnot(None))
+                .group_by(models.Contract.country_code, year_expr)
+            ).all()
+        }
+
+        for row in cell_rows:
+            anomalies = int(cell_anomalies.get((row.country_code, int(row.year)), 0))
+            by_country_year.append(
+                CountryYearCell(
+                    country_code=row.country_code,
+                    year=int(row.year),
+                    contracts=row.contracts,
+                    anomalies=anomalies,
+                    anomaly_rate=anomalies / row.contracts if row.contracts else 0.0,
+                )
+            )
+
     return DashboardSummary(
         country_code=country_code,
         total_contracts=total_contracts,
@@ -202,6 +244,7 @@ def get_summary(db: Session, country_code: str | None) -> DashboardSummary:
         by_year=by_year,
         by_category=by_category,
         by_country=by_country,
+        by_country_year=by_country_year,
     )
 
 

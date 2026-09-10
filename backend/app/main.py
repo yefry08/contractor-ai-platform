@@ -206,7 +206,7 @@ def list_anomalies(
 @app.get("/dashboard/summary", response_model=schemas.DashboardSummaryOut)
 def dashboard_summary(
     db: Session = Depends(get_db),
-    country: str | None = Query(default=None, description="Código de país, ej. PY. Si se omite, agrega los 4 países."),
+    country: str | None = Query(default=None, description="Código de país, ej. PY. Si se omite, agrega todos los países."),
 ):
     result = dashboard.get_summary(db, country.upper() if country else None)
     return schemas.DashboardSummaryOut(
@@ -218,6 +218,7 @@ def dashboard_summary(
         by_year=[schemas.YearPointOut(**vars(p)) for p in result.by_year],
         by_category=[schemas.CategoryBreakdownOut(**vars(c)) for c in result.by_category],
         by_country=[schemas.CountryBreakdownOut(**vars(c)) for c in result.by_country],
+        by_country_year=[schemas.CountryYearCellOut(**vars(c)) for c in result.by_country_year],
     )
 
 

@@ -1039,6 +1039,174 @@ th { color: var(--muted); font-weight: 600; }
   text-overflow: ellipsis;
 }
 
+/* ---------- Heatmap ---------- */
+
+.dashboard-chart-wide {
+  grid-column: 1 / -1;
+}
+
+.heatmap {
+  position: relative;
+  /* one-hue sequential ramp, near-zero lightest */
+  --heat-1: #cde2fb;
+  --heat-2: #9ec5f4;
+  --heat-3: #6da7ec;
+  --heat-4: #3987e5;
+  --heat-5: #256abf;
+  --heat-6: #184f95;
+  --heat-7: #0d366b;
+  --heat-hatch: rgba(255, 255, 255, 0.6);
+}
+
+[data-theme="dark"] .heatmap {
+  /* same ramp, anchored so near-zero recedes into the dark surface */
+  --heat-1: #0d366b;
+  --heat-2: #184f95;
+  --heat-3: #256abf;
+  --heat-4: #3987e5;
+  --heat-5: #6da7ec;
+  --heat-6: #9ec5f4;
+  --heat-7: #cde2fb;
+  --heat-hatch: rgba(11, 18, 32, 0.6);
+}
+
+.heatmap-note {
+  margin: -8px 0 14px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.heatmap-scroll {
+  overflow-x: auto;
+  padding: 2px 2px 4px;
+}
+
+.heatmap-grid {
+  display: grid;
+  gap: 2px;
+  align-items: center;
+  min-width: min-content;
+}
+
+.heatmap-col-label {
+  font-size: 0.68rem;
+  color: var(--muted);
+  text-align: center;
+  padding-bottom: 4px;
+}
+
+.heatmap-row-label {
+  font-size: 0.78rem;
+  color: var(--text);
+  padding-right: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.heatmap-cell {
+  display: block;
+  height: 26px;
+  border-radius: 3px;
+  outline: none;
+}
+
+.heatmap-cell:hover,
+.heatmap-cell:focus-visible {
+  box-shadow: 0 0 0 2px var(--text);
+  position: relative;
+  z-index: 1;
+}
+
+.heatmap-cell-small {
+  background-image: repeating-linear-gradient(45deg, transparent 0 3px, var(--heat-hatch) 3px 5px);
+}
+
+.heatmap-cell-empty {
+  background: transparent;
+  border: 1px dashed var(--border);
+}
+
+.heatmap-tooltip {
+  position: absolute;
+  z-index: 5;
+  transform: translate(-50%, calc(-100% - 8px));
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 6px 9px;
+  border-radius: 6px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.75rem;
+  line-height: 1.35;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.heatmap-tooltip-start {
+  transform: translate(0, calc(-100% - 8px));
+}
+
+.heatmap-tooltip-end {
+  transform: translate(-100%, calc(-100% - 8px));
+}
+
+.heatmap-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 16px;
+  margin-top: 14px;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.heatmap-legend-scale {
+  display: flex;
+  gap: 2px;
+}
+
+.heatmap-legend-step {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.heatmap-legend-swatch {
+  display: block;
+  width: 36px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.heatmap-legend-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.heatmap-legend-key .heatmap-legend-swatch {
+  width: 14px;
+  height: 14px;
+}
+
+.heatmap-table {
+  margin-top: 14px;
+  font-size: 0.8rem;
+}
+
+.heatmap-table summary {
+  cursor: pointer;
+  color: var(--accent);
+}
+
+.heatmap-table-scroll {
+  max-height: 280px;
+  overflow: auto;
+  margin-top: 8px;
+}
+
 /* ---------- Citizen reports ---------- */
 
 .citizen-report-list {

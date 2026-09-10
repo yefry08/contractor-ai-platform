@@ -147,6 +147,14 @@ class CountryBreakdownOut(BaseModel):
     anomaly_rate: float
 
 
+class CountryYearCellOut(BaseModel):
+    country_code: str
+    year: int
+    contracts: int
+    anomalies: int
+    anomaly_rate: float
+
+
 class DashboardSummaryOut(BaseModel):
     country_code: str | None
     total_contracts: int
@@ -156,6 +164,7 @@ class DashboardSummaryOut(BaseModel):
     by_year: list[YearPointOut]
     by_category: list[CategoryBreakdownOut]
     by_country: list[CountryBreakdownOut]
+    by_country_year: list[CountryYearCellOut] = []
 
 
 class BuyerRankingOut(BaseModel):

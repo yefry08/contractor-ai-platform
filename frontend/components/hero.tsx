@@ -1,5 +1,6 @@
 import { Spotlight } from "@/components/ui/spotlight";
 import { SplineScene } from "@/components/ui/spline-scene";
+import { COUNTRIES } from "@/lib/countries";
 
 export function Hero() {
   return (
@@ -13,7 +14,7 @@ export function Hero() {
           <p className="hero-lead">
             Detectamos anomalías de precio en contratación pública comparando cada
             contrato contra miles de contratos históricos similares. Buscá, filtrá y
-            revisá la evidencia detrás de cada alerta, en cuatro países y contando.
+            revisá la evidencia detrás de cada alerta, en {COUNTRIES.length} países y contando.
           </p>
           <div className="hero-actions">
             <a href="/analyze" className="hero-btn hero-btn-primary">

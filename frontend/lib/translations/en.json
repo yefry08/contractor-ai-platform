@@ -1,93 +1,58 @@
 {
   "nav": {
-    "home": "Home",
-    "contracts": "Contracts",
-    "anomalies": "Anomalies",
-    "tenders": "Tenders",
+    "analyze": "Analyze contracts",
+    "anomalies": "Detected anomalies",
     "dashboard": "Dashboard",
-    "analyze": "Analyze"
-  },
-  "common": {
-    "search": "Search",
-    "filter": "Filter",
-    "loading": "Loading...",
-    "error": "Error",
-    "success": "Success",
-    "close": "Close",
-    "cancel": "Cancel",
-    "confirm": "Confirm",
-    "delete": "Delete",
-    "edit": "Edit",
-    "save": "Save",
-    "back": "Back",
-    "next": "Next",
-    "previous": "Previous"
-  },
-  "home": {
-    "title": "Contractor AI",
-    "subtitle": "Transparency in public procurement",
-    "description": "Detect anomalies in public contracts using transparent statistics and open data",
-    "cta": "Get Started",
-    "features": "Features"
-  },
-  "contracts": {
-    "title": "Contracts",
-    "country": "Country",
-    "buyer": "Buyer",
-    "amount": "Amount",
-    "date": "Date",
-    "category": "Category",
-    "status": "Status",
-    "view": "View Details",
-    "noResults": "No contracts found",
-    "anomalous": "Anomalous only"
-  },
-  "anomalies": {
-    "title": "Anomalies",
-    "detected": "Anomalies Detected",
-    "severity": "Severity",
-    "low": "Low",
-    "medium": "Medium",
-    "high": "High",
-    "extreme": "Extreme",
-    "reason": "Reason",
-    "confidence": "Confidence"
-  },
-  "tenders": {
-    "title": "Prepare to Bid",
-    "subtitle": "Select a country and category to see the median price and typical range of similar awarded contracts",
-    "selectCountry": "Select a country",
-    "selectCategory": "Select a category",
-    "median": "Median",
-    "range": "Typical Range",
-    "confidence": "Confidence",
-    "portal": "Official Portal"
-  },
-  "dashboard": {
-    "title": "Dashboard",
-    "overview": "Overview",
+    "tenders": "Tenders",
+    "contact": "Contact us",
     "contracts": "Contracts",
-    "anomalies": "Anomalies",
-    "topCountries": "Top Countries",
-    "topCategories": "Top Categories",
-    "trend": "Trend"
-  },
-  "analyze": {
-    "title": "Analyze Contract",
-    "upload": "Upload PDF",
-    "paste": "Paste Link",
-    "results": "Results",
-    "comparison": "Comparison",
-    "amount": "Amount",
-    "date": "Date",
-    "company": "Company"
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "language": {
     "select": "Language",
-    "spanish": "Español",
-    "portuguese": "Português",
-    "guarani": "Guaraní",
-    "quechua": "Quechua",
-    "english": "English"
+    "pending": "coming soon"
+  },
+  "dashboard": {
+    "title": "Institutional dashboard",
+    "subtitle": "Aggregate view of {n} contracts {scope}: volume, trend and the rate of anomalies flagged by the statistical layer (median + MAD on the log of the amount).",
+    "scopeAll": "across the {count} covered countries",
+    "scopeCountry": "in {country}",
+    "allCountries": "All countries",
+    "filter": "Filter",
+    "downloadCsv": "Download CSV",
+    "metricContracts": "Contracts",
+    "metricAmount": "Total amount (USD, partial coverage)",
+    "metricAnomalies": "Open anomalies",
+    "metricRate": "Anomaly rate",
+    "chartContractsByYear": "Contracts per year",
+    "chartRateByYear": "Anomaly rate per year",
+    "chartTopCategories": "Top categories",
+    "chartCountryComparison": "Country comparison",
+    "bestTitle": "Institutions with the strongest procurement record",
+    "bestNote": "Institutions with at least {min} ingested contracts and the lowest share of open statistical anomalies, best first. Not an integrity certificate — just a reading of the same data used across the app.",
+    "bestEmpty": "Not enough institutions with {min}+ contracts for this filter.",
+    "colInstitution": "Institution",
+    "colCountry": "Country",
+    "colContracts": "Contracts",
+    "colAmount": "Total amount",
+    "colAnomalies": "Anomalies",
+    "colRate": "Rate"
+  },
+  "heatmap": {
+    "title": "Anomaly rate by country and year",
+    "note": "Each cell is the share of that country's contracts in that year with an open statistical anomaly; the legend maps colors to rates. Hatched cells have fewer than {min} contracts, so their rate is unreliable.",
+    "empty": "No dated contracts to show yet.",
+    "legendNoData": "No data",
+    "legendSmall": "Fewer than {min} contracts",
+    "tooltipRate": "Anomaly rate",
+    "tooltipCount": "{a} of {n} contracts",
+    "tooltipSmall": "Small sample: read with caution",
+    "tableToggle": "View as table",
+    "colCountry": "Country",
+    "colYear": "Year",
+    "colContracts": "Contracts",
+    "colAnomalies": "Anomalies",
+    "colRate": "Rate"
   }
 }

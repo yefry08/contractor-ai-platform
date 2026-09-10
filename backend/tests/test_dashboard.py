@@ -49,6 +49,28 @@ def test_summary_total_anomalies_respects_country_and_status_filters(db_session)
     assert all_summary.total_anomalies == 2  # both open ones, not the dismissed one
 
 
+def test_summary_by_country_year_cells(db_session):
+    make_country(db_session, code="PY", name="Paraguay")
+    make_country(db_session, code="CO", name="Colombia")
+
+    flagged = make_contract(db_session, country_code="PY", award_date=date(2023, 3, 1))
+    _add_anomaly(db_session, flagged)
+    # A second anomaly row on the same contract must not count it twice.
+    _add_anomaly(db_session, flagged)
+    dismissed = make_contract(db_session, country_code="PY", award_date=date(2023, 9, 1))
+    _add_anomaly(db_session, dismissed, status="dismissed")
+    make_contract(db_session, country_code="CO", currency="COP", award_date=date(2024, 5, 1))
+    db_session.commit()
+
+    cells = {
+        (c.country_code, c.year): (c.contracts, c.anomalies, c.anomaly_rate)
+        for c in dashboard.get_summary(db_session, None).by_country_year
+    }
+    assert cells == {("PY", 2023): (2, 1, 0.5), ("CO", 2024): (1, 0, 0.0)}
+
+    assert dashboard.get_summary(db_session, "PY").by_country_year == []
+
+
 def test_summary_by_year_groups_correctly(db_session):
     make_country(db_session)
     make_contract(db_session, award_date=date(2023, 6, 1))

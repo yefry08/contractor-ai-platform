@@ -185,6 +185,15 @@ export type DashboardSummary = {
   by_year: YearPoint[];
   by_category: CategoryBreakdown[];
   by_country: CountryBreakdown[];
+  by_country_year: CountryYearCell[];
+};
+
+export type CountryYearCell = {
+  country_code: string;
+  year: number;
+  contracts: number;
+  anomalies: number;
+  anomaly_rate: number;
 };
 
 export function getDashboardSummary(country?: string) {

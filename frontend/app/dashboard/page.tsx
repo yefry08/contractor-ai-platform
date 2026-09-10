@@ -1,8 +1,10 @@
 import { getDashboardSummary, getBestBuyers, exportCsvUrl, CountryBreakdown } from "@/lib/api";
 import { BarChart } from "@/components/ui/bar-chart";
+import { Heatmap, MIN_RELIABLE_CONTRACTS } from "@/components/ui/heatmap";
 import { ProviderFavoritismSection } from "@/components/provider-favoritism";
 import { ContractsGraph } from "@/components/contracts-graph";
-import { COUNTRY_NAMES } from "@/lib/countries";
+import { COUNTRIES, COUNTRY_NAMES } from "@/lib/countries";
+import { getServerT } from "@/lib/i18n-server";
 
 
 function fmtCompactUsd(n: number) {
@@ -24,15 +26,16 @@ export default async function DashboardPage({
   const sp = await searchParams;
   const country = sp.country || undefined;
 
-  const [summary, buyers] = await Promise.all([
+  const [summary, buyers, { t, locale }] = await Promise.all([
     getDashboardSummary(country),
     getBestBuyers(country, 12),
+    getServerT(),
   ]);
 
   const yearData = summary.by_year.map((y) => ({
     label: String(y.year),
     value: y.contracts,
-    displayValue: String(y.contracts),
+    displayValue: y.contracts.toLocaleString(locale),
   }));
 
   const anomalyRateData = summary.by_year.map((y) => ({
@@ -44,75 +47,83 @@ export default async function DashboardPage({
   const categoryData = summary.by_category.map((c) => ({
     label: c.category_code.length > 14 ? `${c.category_code.slice(0, 13)}…` : c.category_code,
     value: c.contracts,
-    displayValue: c.contracts.toLocaleString("es"),
+    displayValue: c.contracts.toLocaleString(locale),
   }));
 
   const countryData = summary.by_country.map((c: CountryBreakdown) => ({
     label: c.country_code,
     value: c.contracts,
-    displayValue: c.contracts.toLocaleString("es"),
+    displayValue: c.contracts.toLocaleString(locale),
   }));
+
+  const scope = country
+    ? t("dashboard.scopeCountry", { country: COUNTRY_NAMES[country] ?? country })
+    : t("dashboard.scopeAll", { count: COUNTRIES.length });
 
   return (
     <>
-      <h1>Panel institucional</h1>
+      <h1>{t("dashboard.title")}</h1>
       <p className="subtitle">
-        Vista agregada de {summary.total_contracts.toLocaleString("es")} contratos
-        {country ? ` en ${COUNTRY_NAMES[country] ?? country}` : " en los 4 países cubiertos"}:
-        volumen, tendencia y tasa de anomalías detectadas por la capa estadística
-        (mediana + MAD sobre el logaritmo del monto).
+        {t("dashboard.subtitle", { n: summary.total_contracts.toLocaleString(locale), scope })}
       </p>
 
       <form className="filters" method="get">
         <select name="country" defaultValue={country ?? ""}>
-          <option value="">Todos los países</option>
+          <option value="">{t("dashboard.allCountries")}</option>
           {Object.entries(COUNTRY_NAMES).map(([code, name]) => (
             <option key={code} value={code}>
               {name}
             </option>
           ))}
         </select>
-        <button type="submit">Filtrar</button>
+        <button type="submit">{t("dashboard.filter")}</button>
         <a className="wizard-btn-secondary" style={{ textDecoration: "none" }} href={exportCsvUrl({ country })}>
-          Descargar CSV
+          {t("dashboard.downloadCsv")}
         </a>
       </form>
 
       <div className="metrics-strip">
         <div className="metric-card">
-          <div className="metric-value">{summary.total_contracts.toLocaleString("es")}</div>
-          <div className="metric-label">Contratos</div>
+          <div className="metric-value">{summary.total_contracts.toLocaleString(locale)}</div>
+          <div className="metric-label">{t("dashboard.metricContracts")}</div>
         </div>
         <div className="metric-card">
           <div className="metric-value">{fmtCompactUsd(summary.total_amount_usd)}</div>
-          <div className="metric-label">Monto total (USD, cobertura parcial)</div>
+          <div className="metric-label">{t("dashboard.metricAmount")}</div>
         </div>
         <div className="metric-card">
-          <div className="metric-value">{summary.total_anomalies.toLocaleString("es")}</div>
-          <div className="metric-label">Anomalías abiertas</div>
+          <div className="metric-value">{summary.total_anomalies.toLocaleString(locale)}</div>
+          <div className="metric-label">{t("dashboard.metricAnomalies")}</div>
         </div>
         <div className="metric-card">
           <div className="metric-value">{fmtPct(summary.anomaly_rate)}</div>
-          <div className="metric-label">Tasa de anomalías</div>
+          <div className="metric-label">{t("dashboard.metricRate")}</div>
         </div>
       </div>
 
       <div className="dashboard-grid">
+        {!country && (
+          <div className="card dashboard-chart-card dashboard-chart-wide">
+            <h3>{t("heatmap.title")}</h3>
+            <p className="heatmap-note">{t("heatmap.note", { min: MIN_RELIABLE_CONTRACTS })}</p>
+            <Heatmap cells={summary.by_country_year} />
+          </div>
+        )}
         <div className="card dashboard-chart-card">
-          <h3>Contratos por año</h3>
+          <h3>{t("dashboard.chartContractsByYear")}</h3>
           <BarChart data={yearData} />
         </div>
         <div className="card dashboard-chart-card">
-          <h3>Tasa de anomalías por año</h3>
+          <h3>{t("dashboard.chartRateByYear")}</h3>
           <BarChart data={anomalyRateData} color="var(--danger)" />
         </div>
         <div className="card dashboard-chart-card">
-          <h3>Categorías principales</h3>
+          <h3>{t("dashboard.chartTopCategories")}</h3>
           <BarChart data={categoryData} color="var(--ok)" />
         </div>
         {!country && countryData.length > 0 && (
           <div className="card dashboard-chart-card">
-            <h3>Comparación entre países</h3>
+            <h3>{t("dashboard.chartCountryComparison")}</h3>
             <BarChart data={countryData} />
           </div>
         )}
@@ -123,31 +134,26 @@ export default async function DashboardPage({
       <ContractsGraph initialCountry={country} />
 
       <h2 className="wizard-subtitle">
-        Instituciones con mejor historial de contratación
-        {country ? ` en ${COUNTRY_NAMES[country] ?? country}` : ""}
+        {t("dashboard.bestTitle")}
+        {country ? ` — ${COUNTRY_NAMES[country] ?? country}` : ""}
       </h2>
       <p className="wizard-note" style={{ marginBottom: 14 }}>
-        Instituciones con al menos {buyers.min_contracts} contratos ingeridos y la menor
-        proporción de anomalías estadísticas abiertas, ordenadas de mejor a peor. No es un
-        certificado de integridad — es una lectura del mismo dato que ya se usa en el resto
-        de la app.
+        {t("dashboard.bestNote", { min: buyers.min_contracts })}
       </p>
 
       {buyers.items.length === 0 ? (
-        <p className="wizard-note">
-          No hay suficientes instituciones con {buyers.min_contracts}+ contratos para este filtro.
-        </p>
+        <p className="wizard-note">{t("dashboard.bestEmpty", { min: buyers.min_contracts })}</p>
       ) : (
         <table>
           <thead>
             <tr>
               <th>#</th>
-              <th>Institución</th>
-              <th>País</th>
-              <th>Contratos</th>
-              <th>Monto total</th>
-              <th>Anomalías</th>
-              <th>Tasa</th>
+              <th>{t("dashboard.colInstitution")}</th>
+              <th>{t("dashboard.colCountry")}</th>
+              <th>{t("dashboard.colContracts")}</th>
+              <th>{t("dashboard.colAmount")}</th>
+              <th>{t("dashboard.colAnomalies")}</th>
+              <th>{t("dashboard.colRate")}</th>
             </tr>
           </thead>
           <tbody>
@@ -156,7 +162,7 @@ export default async function DashboardPage({
                 <td>{i + 1}</td>
                 <td>{b.name}</td>
                 <td>{b.country_code}</td>
-                <td>{b.total_contracts.toLocaleString("es")}</td>
+                <td>{b.total_contracts.toLocaleString(locale)}</td>
                 <td>{fmtCompactUsd(b.total_amount_usd)}</td>
                 <td>{b.anomalies}</td>
                 <td>

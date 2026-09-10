@@ -1,93 +1,58 @@
 {
   "nav": {
-    "home": "Início",
-    "contracts": "Contratos",
-    "anomalies": "Anomalias",
-    "tenders": "Licitações",
+    "analyze": "Analisar contratos",
+    "anomalies": "Anomalias detectadas",
     "dashboard": "Painel",
-    "analyze": "Analisar"
-  },
-  "common": {
-    "search": "Pesquisar",
-    "filter": "Filtrar",
-    "loading": "Carregando...",
-    "error": "Erro",
-    "success": "Sucesso",
-    "close": "Fechar",
-    "cancel": "Cancelar",
-    "confirm": "Confirmar",
-    "delete": "Deletar",
-    "edit": "Editar",
-    "save": "Salvar",
-    "back": "Voltar",
-    "next": "Próximo",
-    "previous": "Anterior"
-  },
-  "home": {
-    "title": "Contractor AI",
-    "subtitle": "Transparência em contratações públicas",
-    "description": "Detecta anomalias em contratos públicos usando estatísticas transparentes e dados abertos",
-    "cta": "Começar",
-    "features": "Recursos"
-  },
-  "contracts": {
-    "title": "Contratos",
-    "country": "País",
-    "buyer": "Comprador",
-    "amount": "Valor",
-    "date": "Data",
-    "category": "Categoria",
-    "status": "Status",
-    "view": "Ver detalhes",
-    "noResults": "Nenhum contrato encontrado",
-    "anomalous": "Apenas anomalias"
-  },
-  "anomalies": {
-    "title": "Anomalias",
-    "detected": "Anomalias detectadas",
-    "severity": "Severidade",
-    "low": "Baixa",
-    "medium": "Média",
-    "high": "Alta",
-    "extreme": "Extrema",
-    "reason": "Motivo",
-    "confidence": "Confiança"
-  },
-  "tenders": {
-    "title": "Prepare-se para licitar",
-    "subtitle": "Escolha um país e uma categoria para ver o preço mediano e o intervalo típico de contratos similares",
-    "selectCountry": "Selecione um país",
-    "selectCategory": "Selecione uma categoria",
-    "median": "Mediano",
-    "range": "Intervalo típico",
-    "confidence": "Confiança",
-    "portal": "Portal oficial"
-  },
-  "dashboard": {
-    "title": "Painel de Controle",
-    "overview": "Visão geral",
+    "tenders": "Licitações",
+    "contact": "Fale conosco",
     "contracts": "Contratos",
-    "anomalies": "Anomalias",
-    "topCountries": "Países principais",
-    "topCategories": "Categorias principais",
-    "trend": "Tendência"
-  },
-  "analyze": {
-    "title": "Analisar Contrato",
-    "upload": "Fazer upload de PDF",
-    "paste": "Colar link",
-    "results": "Resultados",
-    "comparison": "Comparação",
-    "amount": "Valor",
-    "date": "Data",
-    "company": "Empresa"
+    "openMenu": "Abrir menu",
+    "closeMenu": "Fechar menu"
   },
   "language": {
     "select": "Idioma",
-    "spanish": "Español",
-    "portuguese": "Português",
-    "guarani": "Guaraní",
-    "quechua": "Quechua",
-    "english": "English"
+    "pending": "em preparação"
+  },
+  "dashboard": {
+    "title": "Painel institucional",
+    "subtitle": "Visão agregada de {n} contratos {scope}: volume, tendência e taxa de anomalias detectadas pela camada estatística (mediana + MAD sobre o logaritmo do valor).",
+    "scopeAll": "nos {count} países cobertos",
+    "scopeCountry": "em {country}",
+    "allCountries": "Todos os países",
+    "filter": "Filtrar",
+    "downloadCsv": "Baixar CSV",
+    "metricContracts": "Contratos",
+    "metricAmount": "Valor total (USD, cobertura parcial)",
+    "metricAnomalies": "Anomalias abertas",
+    "metricRate": "Taxa de anomalias",
+    "chartContractsByYear": "Contratos por ano",
+    "chartRateByYear": "Taxa de anomalias por ano",
+    "chartTopCategories": "Principais categorias",
+    "chartCountryComparison": "Comparação entre países",
+    "bestTitle": "Instituições com melhor histórico de contratação",
+    "bestNote": "Instituições com pelo menos {min} contratos ingeridos e a menor proporção de anomalias estatísticas abertas, da melhor para a pior. Não é um certificado de integridade — é uma leitura do mesmo dado usado no resto do app.",
+    "bestEmpty": "Não há instituições suficientes com {min}+ contratos para este filtro.",
+    "colInstitution": "Instituição",
+    "colCountry": "País",
+    "colContracts": "Contratos",
+    "colAmount": "Valor total",
+    "colAnomalies": "Anomalias",
+    "colRate": "Taxa"
+  },
+  "heatmap": {
+    "title": "Taxa de anomalias por país e ano",
+    "note": "Cada célula é a proporção de contratos daquele país e ano com uma anomalia estatística aberta; a legenda mostra a taxa de cada cor. Células hachuradas têm menos de {min} contratos, então a taxa é pouco confiável.",
+    "empty": "Ainda não há contratos com data para mostrar.",
+    "legendNoData": "Sem dados",
+    "legendSmall": "Menos de {min} contratos",
+    "tooltipRate": "Taxa de anomalias",
+    "tooltipCount": "{a} de {n} contratos",
+    "tooltipSmall": "Amostra pequena: interpretar com cautela",
+    "tableToggle": "Ver como tabela",
+    "colCountry": "País",
+    "colYear": "Ano",
+    "colContracts": "Contratos",
+    "colAnomalies": "Anomalias",
+    "colRate": "Taxa"
   }
 }
