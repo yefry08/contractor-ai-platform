@@ -15,55 +15,52 @@ export interface LanguageContextType {
   t: (key: string) => string;
 }
 
-const translations: Record<Language, Record<string, any>> = {
-  es,
-  pt,
-  gn,
-  qu,
-  en,
-};
+type Dict = { [key: string]: string | Dict };
+
+const translations: Record<Language, Dict> = { es, pt, gn, qu, en };
+const STORAGE_KEY = "contractor-ai-language";
+
+function isLanguage(value: string | null): value is Language {
+  return value !== null && value in translations;
+}
+
+function lookup(dict: Dict, key: string): string | undefined {
+  let node: string | Dict | undefined = dict;
+  for (const part of key.split(".")) {
+    if (typeof node !== "object") return undefined;
+    node = node[part];
+  }
+  return typeof node === "string" ? node : undefined;
+}
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  // The provider must wrap children on every render, including the server
+  // render: consumers throw without it. Start from Spanish (what the server
+  // renders) and switch to the saved choice after mount.
   const [language, setLanguageState] = useState<Language>("es");
-  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // Load saved language preference from localStorage
-    const saved = localStorage.getItem("contractor-ai-language") as Language | null;
-    if (saved && Object.keys(translations).includes(saved)) {
-      setLanguageState(saved);
-    }
-    setIsMounted(true);
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (isLanguage(saved)) setLanguageState(saved);
+    } catch {}
   }, []);
 
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+
   const setLanguage = (lang: Language) => {
-    if (Object.keys(translations).includes(lang)) {
-      setLanguageState(lang);
-      localStorage.setItem("contractor-ai-language", lang);
-    }
+    setLanguageState(lang);
+    try {
+      localStorage.setItem(STORAGE_KEY, lang);
+    } catch {}
   };
 
-  const t = (key: string): string => {
-    const keys = key.split(".");
-    let value: any = translations[language];
-
-    for (const k of keys) {
-      if (value && typeof value === "object") {
-        value = value[k];
-      } else {
-        return key; // Return key if translation not found
-      }
-    }
-
-    return typeof value === "string" ? value : key;
-  };
-
-  // Don't render until mounted to avoid hydration mismatch
-  if (!isMounted) {
-    return <>{children}</>;
-  }
+  const t = (key: string): string =>
+    lookup(translations[language], key) ?? lookup(translations.es, key) ?? key;
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>
