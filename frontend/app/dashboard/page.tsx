@@ -102,7 +102,7 @@ export default async function DashboardPage({
       </div>
 
       <div className="dashboard-grid">
-        {!country && (
+        {!country && summary.by_country_year && (
           <div className="card dashboard-chart-card dashboard-chart-wide">
             <h3>{t("heatmap.title")}</h3>
             <p className="heatmap-note">{t("heatmap.note", { min: MIN_RELIABLE_CONTRACTS })}</p>

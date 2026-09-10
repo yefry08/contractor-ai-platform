@@ -185,7 +185,8 @@ export type DashboardSummary = {
   by_year: YearPoint[];
   by_category: CategoryBreakdown[];
   by_country: CountryBreakdown[];
-  by_country_year: CountryYearCell[];
+  // Absent from API deploys that predate the heatmap.
+  by_country_year?: CountryYearCell[];
 };
 
 export type CountryYearCell = {
