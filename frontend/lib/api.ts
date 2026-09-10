@@ -12,6 +12,7 @@ export type ContractSummary = {
   amount_original: number | null;
   amount_usd: number | null;
   award_date: string | null;
+  source_url: string | null;
   buyer: Buyer | null;
 };
 
@@ -44,7 +45,6 @@ export type Anomaly = {
 export type ContractDetail = ContractSummary & {
   description: string | null;
   procurement_method: string | null;
-  source_url: string | null;
   ingested_at: string;
   predictions: Prediction[];
   anomalies: Anomaly[];

@@ -1,5 +1,6 @@
 import { COUNTRIES } from "@/lib/countries";
 import { listAnomalies, ContractSummary } from "@/lib/api";
+import { isSafeExternalUrl } from "@/lib/safe-url";
 
 function fmtUsd(n: number | null) {
   if (n === null) return "—";
@@ -107,9 +108,21 @@ export default async function AnomaliesPage({
           {data.items.map((a) => (
             <tr key={a.id}>
               <td>
-                <a href={`/contracts/${a.contract.id}`}>
-                  {a.contract.title ?? "(sin título)"} 🔗
-                </a>
+                <a href={`/contracts/${a.contract.id}`}>{a.contract.title ?? "(sin título)"}</a>
+                {/* "Fuente oficial", not "ver contrato": for some countries the
+                    source is the portal's home page, not this contract's page. */}
+                {isSafeExternalUrl(a.contract.source_url) && (
+                  <div style={{ fontSize: "0.8rem", marginTop: "0.2rem" }}>
+                    <a
+                      href={a.contract.source_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={`Abre la fuente oficial de ${a.contract.country_code} en una pestaña nueva`}
+                    >
+                      Fuente oficial ↗
+                    </a>
+                  </div>
+                )}
               </td>
               <td>{a.contract.country_code}</td>
               <td>{a.contract.buyer?.name ?? "—"}</td>
