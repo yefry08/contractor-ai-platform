@@ -1,5 +1,6 @@
 import csv
 import io
+import os
 import time
 from datetime import datetime
 
@@ -45,7 +46,8 @@ app.add_middleware(
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    # Render sets RENDER_GIT_COMMIT on each deploy; it shows which commit is live.
+    return {"status": "ok", "commit": os.environ.get("RENDER_GIT_COMMIT")}
 
 
 @app.get("/countries")

@@ -4,10 +4,16 @@ from app import main
 from tests.conftest import make_buyer, make_contract, make_country
 
 
-def test_health(client):
+def test_health(client, monkeypatch):
+    monkeypatch.delenv("RENDER_GIT_COMMIT", raising=False)
     res = client.get("/health")
     assert res.status_code == 200
-    assert res.json() == {"status": "ok"}
+    assert res.json() == {"status": "ok", "commit": None}
+
+
+def test_health_reports_deployed_commit(client, monkeypatch):
+    monkeypatch.setenv("RENDER_GIT_COMMIT", "abc1234")
+    assert client.get("/health").json() == {"status": "ok", "commit": "abc1234"}
 
 
 def test_countries_lists_seeded_country(client, db_session):
