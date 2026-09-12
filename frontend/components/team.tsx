@@ -13,11 +13,13 @@ type Member = {
   email?: string;
 };
 
-// Photos are served from this repo, under public/team/. They used to be
-// hotlinked from LinkedIn, whose CDN signs every URL with an expiry — all four
-// of those returned 403 and fell back to initials. Any replacement LinkedIn
-// URL would expire the same way, so the files live here instead. A missing
-// file still falls back to initials rather than a broken image.
+// LinkedIn's photo CDN signs every URL with an expiry (the `e=` query
+// param), so whichever link is pasted in below will eventually 403 again —
+// ImageWithFallback is what keeps that from showing as a broken image
+// instead of the initials. When these go stale, get a fresh one from the
+// person's own profile: open their photo full-size, right-click it, "Copy
+// image address" (not the profile page URL, which won't work as an <img>
+// src), and swap it in here.
 const MEMBERS: Member[] = [
   {
     name: "Cristian Sosa",
@@ -60,7 +62,10 @@ const MEMBERS: Member[] = [
   {
     name: "Natalia Ramírez Pérez",
     roleKey: "cto",
-    photo: "/team/natalia-ramirez.jpg",
+    // Expired 403 as of 2026-09: needs a fresh "copy image address" from
+    // her LinkedIn photo (see the note above the array).
+    photo:
+      "https://media.licdn.com/dms/image/v2/D4E03AQHI4Vu3-_lhJA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1705888131569?e=1788393600&v=beta&t=waFNn0Uxt1pKD9xSQNkrkeEl0XzgKThtCa87gCWohQk",
     initials: "NR",
     linkedin: "https://www.linkedin.com/in/natalia-ramirez-datamath",
     email: "narp1212@gmail.com",
@@ -68,7 +73,9 @@ const MEMBERS: Member[] = [
   {
     name: "Domingo Aybar Santos",
     roleKey: "information",
-    photo: "/team/domingo-aybar.jpg",
+    // Expired 403 as of 2026-09: needs a fresh link, same as above.
+    photo:
+      "https://media.licdn.com/dms/image/v2/D4E03AQFq3lOQgCc0EQ/profile-displayphoto-crop_800_800/B4EZ1y6gMTG4AM-/0/1775749434786?e=1788393600&v=beta&t=jrVhtSfnQdB_qkAzvBKUcV3yKBTbG9uxY2mRhUCcino",
     initials: "DA",
     linkedin: "https://www.linkedin.com/in/domingo-aybar-santos-527a08249",
     email: "domingo8537@gmail.com",
@@ -76,7 +83,9 @@ const MEMBERS: Member[] = [
   {
     name: "Nicole Checo",
     roleKey: "politics",
-    photo: "/team/nicole-checo.jpg",
+    // Expired 403 as of 2026-09: needs a fresh link, same as above.
+    photo:
+      "https://media.licdn.com/dms/image/v2/D4D03AQEnnpNfubEZKQ/profile-displayphoto-scale_200_200/B4DZthZ9l4IYAc-/0/1766865759214?e=1788393600&v=beta&t=H9uaHkbHhYQo2XhYXNMeMKkkagf88dk9iCspQI_SIjs",
     initials: "NC",
     linkedin: "https://www.linkedin.com/in/nicole-checo",
     email: "nicolecheco99@gmail.com",
@@ -84,7 +93,9 @@ const MEMBERS: Member[] = [
   {
     name: "Jomayris Rosario Medina",
     roleKey: "financial",
-    photo: "/team/jomayris-rosario.jpg",
+    // Expired 403 as of 2026-09: needs a fresh link, same as above.
+    photo:
+      "https://media.licdn.com/dms/image/v2/D4E03AQF-tJtL6Gqa4w/profile-displayphoto-scale_200_200/B4EZwCZnhLGcAY-/0/1769566798483?e=1788393600&v=beta&t=P6ROHGDSjYiFWIJxudqSmm02YK1efi7Uj9jCAbpG0Qw",
     initials: "JR",
     linkedin: "https://www.linkedin.com/in/jomayris-rosario-medina13",
     email: "jomayris13@live.com",
