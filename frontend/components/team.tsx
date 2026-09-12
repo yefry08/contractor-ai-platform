@@ -1,10 +1,11 @@
 import { Marquee } from "@/components/ui/marquee";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { XIcon, LinkedInIcon, MailIcon } from "@/components/ui/social-icons";
+import { getServerT } from "@/lib/i18n-server";
 
 type Member = {
   name: string;
-  role: string;
+  roleKey: string;
   photo: string;
   initials: string;
   x?: string;
@@ -12,10 +13,15 @@ type Member = {
   email?: string;
 };
 
+// Photos are served from this repo, under public/team/. They used to be
+// hotlinked from LinkedIn, whose CDN signs every URL with an expiry — all four
+// of those returned 403 and fell back to initials. Any replacement LinkedIn
+// URL would expire the same way, so the files live here instead. A missing
+// file still falls back to initials rather than a broken image.
 const MEMBERS: Member[] = [
   {
     name: "Cristian Sosa",
-    role: "Business Guru",
+    roleKey: "business",
     photo:
       "https://hackcorruption.org/wp-content/uploads/2023/08/7.-Cristian-Sosa-min-scaled-e1691679271248.jpg",
     initials: "CS",
@@ -23,7 +29,7 @@ const MEMBERS: Member[] = [
   },
   {
     name: "Dayanni Olivo",
-    role: "Journalist",
+    roleKey: "journalist",
     photo:
       "https://hackcorruption.org/wp-content/uploads/2023/08/16.-Dayanni-Olivo-Bogota-min-600x801.jpeg",
     initials: "DO",
@@ -31,14 +37,14 @@ const MEMBERS: Member[] = [
   },
   {
     name: "Daniel Duque",
-    role: "Former IA Researcher",
+    roleKey: "researcher",
     photo: "https://hackcorruption.org/wp-content/uploads/2023/08/11.-Daniel-Duque-Lozano-min.jpeg",
     initials: "DD",
     x: "#",
   },
   {
     name: "Daniel Sosa",
-    role: "Data Science",
+    roleKey: "dataScience",
     photo:
       "https://hackcorruption.org/wp-content/uploads/2023/08/Daniel-Leonardo-Rojas-Acosta-min-600x800.jpg",
     initials: "DS",
@@ -46,50 +52,58 @@ const MEMBERS: Member[] = [
   },
   {
     name: "Yefry Nunez",
-    role: "CEO and Forward Deploy Engineer",
+    roleKey: "ceo",
     photo: "https://hackcorruption.org/wp-content/uploads/2023/08/69.-Yefry-Nunez-e1691657328142.jpeg",
     initials: "YN",
     x: "#",
   },
   {
     name: "Natalia Ramírez Pérez",
-    role: "CTO and AI Engineer",
-    photo:
-      "https://media.licdn.com/dms/image/v2/D4E03AQHI4Vu3-_lhJA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1705888131569?e=1788393600&v=beta&t=waFNn0Uxt1pKD9xSQNkrkeEl0XzgKThtCa87gCWohQk",
+    roleKey: "cto",
+    photo: "/team/natalia-ramirez.jpg",
     initials: "NR",
     linkedin: "https://www.linkedin.com/in/natalia-ramirez-datamath",
     email: "narp1212@gmail.com",
   },
   {
     name: "Domingo Aybar Santos",
-    role: "Chief of Information",
-    photo:
-      "https://media.licdn.com/dms/image/v2/D4E03AQFq3lOQgCc0EQ/profile-displayphoto-crop_800_800/B4EZ1y6gMTG4AM-/0/1775749434786?e=1788393600&v=beta&t=jrVhtSfnQdB_qkAzvBKUcV3yKBTbG9uxY2mRhUCcino",
+    roleKey: "information",
+    photo: "/team/domingo-aybar.jpg",
     initials: "DA",
     linkedin: "https://www.linkedin.com/in/domingo-aybar-santos-527a08249",
     email: "domingo8537@gmail.com",
   },
   {
     name: "Nicole Checo",
-    role: "Chief of Politics",
-    photo:
-      "https://media.licdn.com/dms/image/v2/D4D03AQEnnpNfubEZKQ/profile-displayphoto-scale_200_200/B4DZthZ9l4IYAc-/0/1766865759214?e=1788393600&v=beta&t=H9uaHkbHhYQo2XhYXNMeMKkkagf88dk9iCspQI_SIjs",
+    roleKey: "politics",
+    photo: "/team/nicole-checo.jpg",
     initials: "NC",
     linkedin: "https://www.linkedin.com/in/nicole-checo",
     email: "nicolecheco99@gmail.com",
   },
   {
     name: "Jomayris Rosario Medina",
-    role: "Chief of Financial",
-    photo:
-      "https://media.licdn.com/dms/image/v2/D4E03AQF-tJtL6Gqa4w/profile-displayphoto-scale_200_200/B4EZwCZnhLGcAY-/0/1769566798483?e=1788393600&v=beta&t=P6ROHGDSjYiFWIJxudqSmm02YK1efi7Uj9jCAbpG0Qw",
+    roleKey: "financial",
+    photo: "/team/jomayris-rosario.jpg",
     initials: "JR",
     linkedin: "https://www.linkedin.com/in/jomayris-rosario-medina13",
     email: "jomayris13@live.com",
   },
 ];
 
-function MemberCard({ m }: { m: Member }) {
+function MemberCard({
+  m,
+  role,
+  linkedinLabel,
+  xLabel,
+  mailLabel,
+}: {
+  m: Member;
+  role: string;
+  linkedinLabel: string;
+  xLabel: string;
+  mailLabel: string;
+}) {
   return (
     <div className="team-card">
       <ImageWithFallback
@@ -104,25 +118,25 @@ function MemberCard({ m }: { m: Member }) {
       />
       <div className="team-card-content">
         <h3>{m.name}</h3>
-        <p>{m.role}</p>
+        <p>{role}</p>
         <ul>
           {m.linkedin && (
             <li>
-              <a href={m.linkedin} target="_blank" rel="noopener noreferrer" aria-label={`${m.name} en LinkedIn`}>
+              <a href={m.linkedin} target="_blank" rel="noopener noreferrer" aria-label={linkedinLabel}>
                 <LinkedInIcon />
               </a>
             </li>
           )}
           {m.x && (
             <li>
-              <a href={m.x} aria-label={`${m.name} en X`}>
+              <a href={m.x} aria-label={xLabel}>
                 <XIcon />
               </a>
             </li>
           )}
           {m.email && (
             <li>
-              <a href={`mailto:${m.email}`} aria-label={`Escribir a ${m.name}`}>
+              <a href={`mailto:${m.email}`} aria-label={mailLabel}>
                 <MailIcon />
               </a>
             </li>
@@ -133,19 +147,25 @@ function MemberCard({ m }: { m: Member }) {
   );
 }
 
-export function Team() {
+export async function Team() {
+  const { t } = await getServerT();
+
   return (
     <section className="team-section">
-      <span className="team-eyebrow">meet our</span>
-      <h2 className="team-title">Founders</h2>
-      <p className="team-lead">
-        Esta solución la construye un equipo que combina capacidades de producto y
-        capacidades técnicas entre sus integrantes:
-      </p>
+      <span className="team-eyebrow">{t("team.eyebrow")}</span>
+      <h2 className="team-title">{t("team.title")}</h2>
+      <p className="team-lead">{t("team.lead")}</p>
 
       <Marquee className="team-marquee" durationSeconds={45}>
         {MEMBERS.map((m) => (
-          <MemberCard key={m.name} m={m} />
+          <MemberCard
+            key={m.name}
+            m={m}
+            role={t(`team.roles.${m.roleKey}`)}
+            linkedinLabel={t("team.linkedinAria", { name: m.name })}
+            xLabel={t("team.xAria", { name: m.name })}
+            mailLabel={t("team.mailAria", { name: m.name })}
+          />
         ))}
       </Marquee>
     </section>

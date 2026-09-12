@@ -2,16 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { ApiError, TenderBenchmark, TenderCategory, TenderPortal, getTenderBenchmark } from "@/lib/api";
-
-function fmtAmount(n: number, currency: string | null) {
-  return `${Math.round(n).toLocaleString("es")} ${currency ?? ""}`.trim();
-}
+import { useLanguage } from "@/lib/language-context";
 
 export function TenderCountryCard({ portal, categories }: { portal: TenderPortal; categories: TenderCategory[] }) {
+  const { t, locale } = useLanguage();
   const [category, setCategory] = useState(categories[0]?.category_code ?? "");
   const [benchmark, setBenchmark] = useState<TenderBenchmark | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function fmtAmount(n: number, currency: string | null) {
+    return `${Math.round(n).toLocaleString(locale)} ${currency ?? ""}`.trim();
+  }
 
   // The <select> starts pre-set to the first category, but onChange only
   // fires on an actual change -- without this, a visitor who never touches
@@ -31,7 +33,7 @@ export function TenderCountryCard({ portal, categories }: { portal: TenderPortal
       const result = await getTenderBenchmark(portal.country_code, nextCategory);
       setBenchmark(result);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se pudo calcular el benchmark.");
+      setError(err instanceof ApiError ? err.message : t("tenders.benchmarkError"));
     } finally {
       setLoading(false);
     }
@@ -42,33 +44,35 @@ export function TenderCountryCard({ portal, categories }: { portal: TenderPortal
       <h3 className="tender-card-title">{portal.country_name}</h3>
 
       {categories.length === 0 ? (
-        <p className="wizard-note">Todavía no hay suficientes contratos ingeridos por categoría en este país.</p>
+        <p className="wizard-note">{t("tenders.noCategories")}</p>
       ) : (
         <>
           <label className="tender-select-label">
-            Categoría de contrato
+            {t("tenders.category")}
             <select value={category} onChange={(e) => loadBenchmark(e.target.value)}>
               {categories.map((c) => (
                 <option key={c.category_code} value={c.category_code}>
-                  {c.category_code} ({c.contracts.toLocaleString("es")})
+                  {c.category_code} ({c.contracts.toLocaleString(locale)})
                 </option>
               ))}
             </select>
           </label>
 
-          {loading && <p className="wizard-note">Calculando…</p>}
+          {loading && <p className="wizard-note">{t("tenders.calculating")}</p>}
           {error && <div className="wizard-warning">{error}</div>}
 
           {benchmark && !loading && (
             <div className="tender-benchmark">
               <div className="tender-benchmark-median">
                 <span className="tender-benchmark-value">{fmtAmount(benchmark.median_amount, benchmark.currency)}</span>
-                <span className="tender-benchmark-label">Precio mediano histórico</span>
+                <span className="tender-benchmark-label">{t("tenders.medianPrice")}</span>
               </div>
               <p className="wizard-note">
-                Rango típico: {fmtAmount(benchmark.typical_low, benchmark.currency)} –{" "}
-                {fmtAmount(benchmark.typical_high, benchmark.currency)} · basado en{" "}
-                {benchmark.sample_size.toLocaleString("es")} contratos similares ya ingeridos.
+                {t("tenders.typicalRange", {
+                  low: fmtAmount(benchmark.typical_low, benchmark.currency),
+                  high: fmtAmount(benchmark.typical_high, benchmark.currency),
+                  n: benchmark.sample_size.toLocaleString(locale),
+                })}
               </p>
             </div>
           )}
@@ -81,7 +85,7 @@ export function TenderCountryCard({ portal, categories }: { portal: TenderPortal
         rel="noopener noreferrer"
         className="wizard-btn-primary tender-portal-link"
       >
-        Ver licitaciones oficiales en {portal.portal_name} →
+        {t("tenders.portalLink", { portal: portal.portal_name })} →
       </a>
     </div>
   );

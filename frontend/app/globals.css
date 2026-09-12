@@ -1207,6 +1207,162 @@ th { color: var(--muted); font-weight: 600; }
   margin-top: 8px;
 }
 
+/* ---------- Country sources ---------- */
+
+.sources-section {
+  margin: 44px 0 12px;
+}
+
+.sources-title {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+}
+
+.sources-lead {
+  margin: 0 0 18px;
+  font-size: 0.9rem;
+  color: var(--muted);
+  max-width: 70ch;
+}
+
+.sources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 14px;
+}
+
+.sources-card {
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: var(--panel);
+  padding: 14px 16px;
+}
+
+.sources-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.sources-card-head h3 {
+  margin: 0;
+  font-size: 0.98rem;
+}
+
+.sources-code {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 2px 6px;
+}
+
+.sources-source {
+  margin: 0 0 6px;
+  font-size: 0.82rem;
+  color: var(--text);
+}
+
+.sources-note {
+  margin: 0 0 12px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.sources-figures {
+  display: flex;
+  gap: 18px;
+  margin: 0 0 8px;
+}
+
+.sources-figures dt {
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+.sources-figures dd {
+  margin: 2px 0 0;
+  font-size: 1.02rem;
+  font-weight: 600;
+}
+
+.sources-bar {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.sources-bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+/* ---------- Analyze onboarding ---------- */
+
+.onboarding-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+
+.onboarding-toggle-sub {
+  display: block;
+  margin: 0;
+  font-size: 0.9em;
+  color: var(--muted);
+}
+
+.onboarding-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.onboarding-card {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+}
+
+.onboarding-question {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+}
+
+.onboarding-example {
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  background: var(--bg);
+  color: var(--muted);
+}
+
+.onboarding-facts {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+}
+
 /* ---------- Citizen reports ---------- */
 
 .citizen-report-list {

@@ -2,12 +2,10 @@
 
 import { useState } from "react";
 import { ApiError, CitizenReport, submitCitizenReport } from "@/lib/api";
-
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString("es", { year: "numeric", month: "short", day: "numeric" });
-}
+import { useLanguage } from "@/lib/language-context";
 
 export function CitizenReports({ contractId, initialReports }: { contractId: string; initialReports: CitizenReport[] }) {
+  const { t, locale } = useLanguage();
   const [reports, setReports] = useState(initialReports);
   const [comment, setComment] = useState("");
   const [stance, setStance] = useState<"flag" | "context">("flag");
@@ -16,10 +14,14 @@ export function CitizenReports({ contractId, initialReports }: { contractId: str
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
+  function fmtDate(iso: string) {
+    return new Date(iso).toLocaleDateString(locale, { year: "numeric", month: "short", day: "numeric" });
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (comment.trim().length < 5) {
-      setError("Contá un poco más — mínimo 5 caracteres.");
+      setError(t("citizen.tooShort"));
       return;
     }
     setSubmitting(true);
@@ -32,7 +34,7 @@ export function CitizenReports({ contractId, initialReports }: { contractId: str
       setComment("");
       setDone(true);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se pudo enviar el reporte. Probá de nuevo.");
+      setError(err instanceof ApiError ? err.message : t("citizen.sendError"));
     } finally {
       setSubmitting(false);
     }
@@ -40,11 +42,9 @@ export function CitizenReports({ contractId, initialReports }: { contractId: str
 
   return (
     <div className="card">
-      <h2 style={{ marginTop: 0 }}>Participación ciudadana</h2>
+      <h2 style={{ marginTop: 0 }}>{t("citizen.title")}</h2>
       <p className="wizard-note" style={{ marginBottom: 16 }}>
-        Este es un espacio para que cualquier persona deje contexto sobre este contrato —
-        señalando algo que parece irregular, o aportando información que lo explica. No es un
-        canal de denuncia formal ni reemplaza a las autoridades competentes.
+        {t("citizen.lead")}
       </p>
 
       {reports.length > 0 && (
@@ -52,7 +52,7 @@ export function CitizenReports({ contractId, initialReports }: { contractId: str
           {reports.map((r) => (
             <li key={r.id} className="citizen-report-item">
               <span className={`badge ${r.stance === "flag" ? "wizard-verdict-revisar" : "wizard-verdict-normal"}`}>
-                {r.stance === "flag" ? "Señala un problema" : "Aporta contexto"}
+                {r.stance === "flag" ? t("citizen.flagBadge") : t("citizen.contextBadge")}
               </span>
               <p>{r.comment}</p>
               <span className="citizen-report-date">{fmtDate(r.created_at)}</span>
@@ -65,17 +65,17 @@ export function CitizenReports({ contractId, initialReports }: { contractId: str
         <div className="wizard-row" style={{ marginBottom: 10 }}>
           <label style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
             <input type="radio" name="stance" checked={stance === "flag"} onChange={() => setStance("flag")} />
-            Señalar un problema
+            {t("citizen.flagRadio")}
           </label>
           <label style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
             <input type="radio" name="stance" checked={stance === "context"} onChange={() => setStance("context")} />
-            Aportar contexto
+            {t("citizen.contextRadio")}
           </label>
         </div>
 
         <textarea
           className="wizard-input citizen-report-textarea"
-          placeholder="¿Qué observás sobre este contrato?"
+          placeholder={t("citizen.placeholder")}
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           maxLength={1000}
@@ -94,10 +94,10 @@ export function CitizenReports({ contractId, initialReports }: { contractId: str
         />
 
         {error && <div className="wizard-warning">{error}</div>}
-        {done && !error && <div className="wizard-note">Gracias — tu aporte ya se ve en la lista de arriba.</div>}
+        {done && !error && <div className="wizard-note">{t("citizen.thanks")}</div>}
 
         <button type="submit" className="wizard-btn-primary" disabled={submitting}>
-          {submitting ? "Enviando…" : "Enviar"}
+          {submitting ? t("citizen.sending") : t("citizen.send")}
         </button>
       </form>
     </div>

@@ -24,6 +24,68 @@ def modified_zscore(value: float, median: float, mad: float) -> float:
     return max(-ZSCORE_CAP, min(ZSCORE_CAP, z))
 
 
+def relative_deviation(amount: float, median_log: float) -> float:
+    """How far `amount` sits from a group's median, as a fraction: 0.5 means
+    50% above it. The median arrives in log space (see compute_group_stats
+    callers), which is why this exponentiates instead of dividing.
+
+    This is the number a reader can act on. The modified z-score says how
+    unusual the gap is against the group's own spread, not how much money it
+    is, and it saturates at ZSCORE_CAP -- two contracts can both read z=50
+    while one costs twice the median and the other a thousand times."""
+    if amount <= 0:
+        return 0.0
+    return math.exp(math.log(amount) - median_log) - 1
+
+
+def build_reference_stats(rows) -> dict[str, dict]:
+    """Group stats for every buyer / category / country, over log(amount).
+
+    `rows` is anything with country_code, buyer_id, category_code and
+    amount_original. Shared by the batch job and the API so the reference
+    group a contract is judged against is picked the same way in both.
+    """
+    by_buyer: dict[tuple, list[float]] = {}
+    by_category: dict[tuple, list[float]] = {}
+    by_country: dict[str, list[float]] = {}
+
+    for row in rows:
+        if not row.amount_original or row.amount_original <= 0:
+            continue
+        log_amount = math.log(row.amount_original)
+        if row.buyer_id:
+            by_buyer.setdefault((row.country_code, row.buyer_id), []).append(log_amount)
+        if row.category_code:
+            by_category.setdefault((row.country_code, row.category_code), []).append(log_amount)
+        by_country.setdefault(row.country_code, []).append(log_amount)
+
+    return {
+        "buyer": {k: compute_group_stats(v) for k, v in by_buyer.items() if len(v) >= MIN_GROUP_SIZE},
+        "category": {k: compute_group_stats(v) for k, v in by_category.items() if len(v) >= MIN_GROUP_SIZE},
+        "country": {k: compute_group_stats(v) for k, v in by_country.items()},
+    }
+
+
+def pick_reference(
+    stats: dict[str, dict],
+    country_code: str,
+    buyer_id: str | None,
+    category_code: str | None,
+) -> tuple[dict | None, str | None]:
+    """The narrowest group with enough contracts to compare against:
+    same buyer, else same category, else the country as a whole."""
+    key_buyer = (country_code, buyer_id) if buyer_id else None
+    key_category = (country_code, category_code) if category_code else None
+
+    if key_buyer in stats["buyer"]:
+        return stats["buyer"][key_buyer], f"{country_code}:buyer:{buyer_id}"
+    if key_category in stats["category"]:
+        return stats["category"][key_category], f"{country_code}:category:{category_code}"
+    if country_code in stats["country"]:
+        return stats["country"][country_code], f"{country_code}:country"
+    return None, None
+
+
 def compute_group_stats(values: list[float]) -> dict:
     sorted_vals = sorted(values)
     median = statistics.median(sorted_vals)

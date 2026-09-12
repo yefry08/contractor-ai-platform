@@ -10,7 +10,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
-from . import ai, analysis, dashboard, models, schemas, tenders, providers
+from . import ai, analysis, dashboard, models, reference, schemas, tenders, providers
 from .config import settings
 from .db import get_db
 
@@ -107,6 +107,8 @@ def get_contract(contract_id: str, db: Session = Depends(get_db)):
     contract = db.execute(stmt).unique().scalar_one_or_none()
     if contract is None:
         raise HTTPException(status_code=404, detail="Contrato no encontrado")
+    for anomaly in contract.anomalies:
+        anomaly.stat_deviation = reference.deviation_for(db, contract)
     return contract
 
 
@@ -201,6 +203,11 @@ def list_anomalies(
     total = db.execute(select(func.count()).select_from(stmt.subquery())).scalar_one()
     stmt = stmt.order_by(models.Anomaly.composite_score.desc().nullslast()).limit(limit).offset(offset)
     items = db.execute(stmt).unique().scalars().all()
+
+    # A readable "X% over comparable contracts" beside the z-score, which is
+    # good for ranking but means nothing to a reader (see app/reference.py).
+    for anomaly in items:
+        anomaly.stat_deviation = reference.deviation_for(db, anomaly.contract)
 
     return schemas.AnomalyPage(total=total, limit=limit, offset=offset, items=items)
 

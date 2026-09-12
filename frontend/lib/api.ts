@@ -38,6 +38,9 @@ export type Anomaly = {
   composite_score: number | null;
   nlp_component: number | null;
   stat_component: number | null;
+  // Fraction over/under comparable contracts. Absent on API deploys that
+  // predate it, so callers must treat undefined as "not available".
+  stat_deviation?: number | null;
   confidence: number | null;
   status: string;
 };

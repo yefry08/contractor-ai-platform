@@ -17,19 +17,21 @@ export type Country = {
   code: string;
   name: string;
   currency: string;
+  /** Who publishes the data. Proper nouns, so they are not translated. */
+  source: string;
 };
 
 export const COUNTRIES: Country[] = [
-  { code: "PY", name: "Paraguay", currency: "PYG" },
-  { code: "CO", name: "Colombia", currency: "COP" },
-  { code: "CR", name: "Costa Rica", currency: "CRC" },
-  { code: "DO", name: "República Dominicana", currency: "DOP" },
-  { code: "PE", name: "Perú", currency: "PEN" },
+  { code: "PY", name: "Paraguay", currency: "PYG", source: "DNCP" },
+  { code: "CO", name: "Colombia", currency: "COP", source: "SECOP II · datos.gov.co" },
+  { code: "CR", name: "Costa Rica", currency: "CRC", source: "SICOP · Observatorio de Compra Pública" },
+  { code: "DO", name: "República Dominicana", currency: "DOP", source: "DGCP" },
+  { code: "PE", name: "Perú", currency: "PEN", source: "OECE · contrataciones abiertas" },
   // El Salvador esta dolarizado desde 2001: sus montos ya vienen en USD
   // desde la fuente, sin conversion de por medio.
-  { code: "SV", name: "El Salvador", currency: "USD" },
-  { code: "BR", name: "Brasil", currency: "BRL" },
-  { code: "UY", name: "Uruguay", currency: "UYU" },
+  { code: "SV", name: "El Salvador", currency: "USD", source: "COMPRASAL · DINAC" },
+  { code: "BR", name: "Brasil", currency: "BRL", source: "Compras.gov.br" },
+  { code: "UY", name: "Uruguay", currency: "UYU", source: "ARCE · OCDS" },
 ];
 
 /** Mapa código → nombre, para las pantallas que sólo necesitan etiquetar. */

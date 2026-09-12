@@ -102,13 +102,6 @@ export default async function DashboardPage({
       </div>
 
       <div className="dashboard-grid">
-        {!country && summary.by_country_year && (
-          <div className="card dashboard-chart-card dashboard-chart-wide">
-            <h3>{t("heatmap.title")}</h3>
-            <p className="heatmap-note">{t("heatmap.note", { min: MIN_RELIABLE_CONTRACTS })}</p>
-            <Heatmap cells={summary.by_country_year} />
-          </div>
-        )}
         <div className="card dashboard-chart-card">
           <h3>{t("dashboard.chartContractsByYear")}</h3>
           <BarChart data={yearData} />
@@ -132,6 +125,14 @@ export default async function DashboardPage({
       <hr style={{ margin: "40px 0", border: "none", borderTop: "1px solid var(--border)" }} />
 
       <ContractsGraph initialCountry={country} />
+
+      {!country && summary.by_country_year && (
+        <div className="card dashboard-chart-card" style={{ marginBottom: 30 }}>
+          <h3>{t("heatmap.title")}</h3>
+          <p className="heatmap-note">{t("heatmap.note", { min: MIN_RELIABLE_CONTRACTS })}</p>
+          <Heatmap cells={summary.by_country_year} />
+        </div>
+      )}
 
       <h2 className="wizard-subtitle">
         {t("dashboard.bestTitle")}

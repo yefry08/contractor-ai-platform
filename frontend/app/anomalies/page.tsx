@@ -1,36 +1,29 @@
 import { COUNTRIES } from "@/lib/countries";
-import { listAnomalies, ContractSummary } from "@/lib/api";
+import { listAnomalies, ContractSummary, AnomalyWithContract } from "@/lib/api";
 import { isSafeExternalUrl } from "@/lib/safe-url";
+import { getServerT } from "@/lib/i18n-server";
+import { fmtDeviation } from "@/lib/format";
 
-function fmtUsd(n: number | null) {
+function fmtUsd(n: number | null, locale: string) {
   if (n === null) return "—";
-  return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+  return n.toLocaleString(locale, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 }
 
-function fmtAmount(c: ContractSummary) {
-  if (c.amount_usd !== null) return fmtUsd(c.amount_usd);
+function fmtAmount(c: ContractSummary, locale: string) {
+  if (c.amount_usd !== null) return fmtUsd(c.amount_usd, locale);
   if (c.amount_original !== null && c.currency) {
-    return `${c.amount_original.toLocaleString("es")} ${c.currency}`;
+    return `${c.amount_original.toLocaleString(locale)} ${c.currency}`;
   }
   return "—";
 }
 
-function fmtPct(n: number | null) {
-  if (n === null) return "—";
-  return `${(n * 100).toFixed(0)}%`;
-}
-
-function fmtDeviation(nlpComponent: number | null, statComponent: number | null) {
-  if (nlpComponent !== null) return fmtPct(nlpComponent);
-  if (statComponent !== null) return `z=${statComponent.toFixed(1)}`;
-  return "—";
-}
-
-function signalLabel(nlpComponent: number | null, statComponent: number | null) {
-  if (nlpComponent !== null && statComponent !== null) return "NLP + estadística";
-  if (nlpComponent !== null) return "NLP";
-  if (statComponent !== null) return "estadística";
-  return "—";
+// The NLP signal is already relative to its predicted price; the statistical
+// one is relative to comparable contracts. Both are fractions, so both go
+// through the same formatter — no z-scores on screen, they mean nothing to a
+// reader and saturate at 50.
+function deviationOf(a: AnomalyWithContract) {
+  if (a.nlp_component !== null) return a.nlp_component;
+  return a.stat_deviation ?? null;
 }
 
 export default async function AnomaliesPage({
@@ -43,40 +36,37 @@ export default async function AnomaliesPage({
   const offset = Number(sp.offset ?? 0);
 
   const country = sp.country ?? "";
-  const data = await listAnomalies({
-    country: country || undefined,
-    anomaly_type: sp.anomaly_type,
-    min_score: sp.min_score,
-    status: "open",
-    limit,
-    offset,
-  });
+  const [data, { t, locale }] = await Promise.all([
+    listAnomalies({
+      country: country || undefined,
+      anomaly_type: sp.anomaly_type,
+      min_score: sp.min_score,
+      status: "open",
+      limit,
+      offset,
+    }),
+    getServerT(),
+  ]);
+
+  function signalLabel(nlp: number | null, stat: number | null) {
+    if (nlp !== null && stat !== null) return t("anomalies.signalBoth");
+    if (nlp !== null) return t("anomalies.signalNlp");
+    if (stat !== null) return t("anomalies.signalStat");
+    return "—";
+  }
 
   return (
     <>
-      <h1>Anomalías detectadas</h1>
+      <h1>{t("anomalies.title")}</h1>
       <p className="subtitle">
-        Dos señales independientes: desviación del modelo NLP (BERT + XGBoost, solo
-        Paraguay y el bulk de Colombia) y desviación estadística robusta contra
-        contratos similares (todos los países, Fase 5 / ADR 0003).{" "}
-        {data.total.toLocaleString("es")} contratos marcados.
+        {t("anomalies.subtitle", { n: data.total.toLocaleString(locale) })}
       </p>
 
-      <div className="note">
-        Esto NO es una acusación de corrupción. Señal NLP: desviación respecto al valor
-        de referencia predicho por el modelo (solo se muestra cuando el valor real es al
-        menos el doble o menos de la mitad del predicho). Señal estadística: z-score
-        modificado (mediana + MAD, sobre el logaritmo del monto para no distorsionar por
-        la asimetría típica del gasto público) comparado contra el mismo comprador,
-        categoría o país — independiente de cualquier modelo de IA, calculado localmente
-        a partir de los datos ya ingeridos. Cuando un contrato tiene las dos señales,
-        ambas se muestran por separado, no se combinan en un solo número. Ver
-        docs/adr/0003 y backend/scripts/compute_statistical_anomalies.py en el repo.
-      </div>
+      <div className="note">{t("anomalies.note")}</div>
 
       <form className="filters" method="get">
         <select name="country" defaultValue={country}>
-          <option value="">Todos los países</option>
+          <option value="">{t("home.allCountries")}</option>
           {COUNTRIES.map((c) => (
             <option key={c.code} value={c.code}>
               {c.name}
@@ -84,73 +74,82 @@ export default async function AnomaliesPage({
           ))}
         </select>
         <select name="anomaly_type" defaultValue={sp.anomaly_type ?? ""}>
-          <option value="">Todos los tipos</option>
-          <option value="overcost">Sobrecosto</option>
-          <option value="undercost">Subcosto</option>
+          <option value="">{t("anomalies.allTypes")}</option>
+          <option value="overcost">{t("anomalies.overcost")}</option>
+          <option value="undercost">{t("anomalies.undercost")}</option>
         </select>
-        <input type="number" step="0.1" name="min_score" placeholder="Score mínimo (ej. 0.5)" defaultValue={sp.min_score ?? ""} />
-        <button type="submit">Filtrar</button>
+        <input
+          type="number"
+          step="0.1"
+          name="min_score"
+          placeholder={t("anomalies.minScore")}
+          defaultValue={sp.min_score ?? ""}
+        />
+        <button type="submit">{t("home.filter")}</button>
       </form>
 
       <table>
         <thead>
           <tr>
-            <th>Contrato</th>
-            <th>País</th>
-            <th>Comprador</th>
-            <th>Tipo</th>
-            <th>Señal</th>
-            <th>Desviación</th>
-            <th>Monto</th>
+            <th>{t("anomalies.colContract")}</th>
+            <th>{t("home.colCountry")}</th>
+            <th>{t("home.colBuyer")}</th>
+            <th>{t("anomalies.colType")}</th>
+            <th>{t("anomalies.colSignal")}</th>
+            <th>{t("anomalies.colDeviation")}</th>
+            <th>{t("home.colAmount")}</th>
           </tr>
         </thead>
         <tbody>
-          {data.items.map((a) => (
-            <tr key={a.id}>
-              <td>
-                <a href={`/contracts/${a.contract.id}`}>{a.contract.title ?? "(sin título)"}</a>
-                {/* "Fuente oficial", not "ver contrato": for some countries the
-                    source is the portal's home page, not this contract's page. */}
-                {isSafeExternalUrl(a.contract.source_url) && (
-                  <div style={{ fontSize: "0.8rem", marginTop: "0.2rem" }}>
-                    <a
-                      href={a.contract.source_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title={`Abre la fuente oficial de ${a.contract.country_code} en una pestaña nueva`}
-                    >
-                      Fuente oficial ↗
-                    </a>
-                  </div>
-                )}
-              </td>
-              <td>{a.contract.country_code}</td>
-              <td>{a.contract.buyer?.name ?? "—"}</td>
-              <td>
-                <span className={`badge ${a.anomaly_type}`}>
-                  {a.anomaly_type === "overcost" ? "Sobrecosto" : "Subcosto"}
-                </span>
-              </td>
-              <td>{signalLabel(a.nlp_component, a.stat_component)}</td>
-              <td>{fmtDeviation(a.nlp_component, a.stat_component)}</td>
-              <td>{fmtAmount(a.contract)}</td>
-            </tr>
-          ))}
+          {data.items.map((a) => {
+            const deviation = fmtDeviation(deviationOf(a), locale);
+            return (
+              <tr key={a.id}>
+                <td>
+                  <a href={`/contracts/${a.contract.id}`}>{a.contract.title ?? t("common.untitled")}</a>
+                  {/* "Fuente oficial", not "ver contrato": for some countries the
+                      source is the portal's home page, not this contract's page. */}
+                  {isSafeExternalUrl(a.contract.source_url) && (
+                    <div style={{ fontSize: "0.8rem", marginTop: "0.2rem" }}>
+                      <a
+                        href={a.contract.source_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={t("anomalies.sourceTitle", { country: a.contract.country_code })}
+                      >
+                        {t("anomalies.sourceLink")} ↗
+                      </a>
+                    </div>
+                  )}
+                </td>
+                <td>{a.contract.country_code}</td>
+                <td>{a.contract.buyer?.name ?? "—"}</td>
+                <td>
+                  <span className={`badge ${a.anomaly_type}`}>
+                    {a.anomaly_type === "overcost" ? t("anomalies.overcost") : t("anomalies.undercost")}
+                  </span>
+                </td>
+                <td>{signalLabel(a.nlp_component, a.stat_component)}</td>
+                <td title={deviation?.title ?? undefined}>{deviation?.label ?? "—"}</td>
+                <td>{fmtAmount(a.contract, locale)}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 
       <div className="pagination">
         {offset > 0 && (
           <a href={`?${new URLSearchParams({ ...sp, offset: String(Math.max(0, offset - limit)) } as Record<string, string>)}`}>
-            ← Anterior
+            ← {t("common.previous")}
           </a>
         )}
         <span>
-          {offset + 1}–{Math.min(offset + limit, data.total)} de {data.total}
+          {offset + 1}–{Math.min(offset + limit, data.total)} {t("common.of")} {data.total.toLocaleString(locale)}
         </span>
         {offset + limit < data.total && (
           <a href={`?${new URLSearchParams({ ...sp, offset: String(offset + limit) } as Record<string, string>)}`}>
-            Siguiente →
+            {t("common.next")} →
           </a>
         )}
       </div>

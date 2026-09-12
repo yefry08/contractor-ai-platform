@@ -23,6 +23,9 @@ class AnomalyOut(BaseModel):
     composite_score: float | None
     nlp_component: float | None
     stat_component: float | None
+    # Fraction over/under the median of comparable contracts (0.5 = 50% above).
+    # Computed per request from the reference group, not stored.
+    stat_deviation: float | None = None
     confidence: float | None
     status: str
 

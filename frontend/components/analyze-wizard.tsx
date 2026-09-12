@@ -11,6 +11,8 @@ import {
   generateNarrative,
 } from "@/lib/api";
 import { EyeLoader } from "@/components/ui/eye-loader";
+import { useLanguage } from "@/lib/language-context";
+import { fmtDeviation } from "@/lib/format";
 
 
 // Derivado de COUNTRIES en vez de escrito a mano: la lista fija se quedó sin
@@ -20,22 +22,13 @@ import { EyeLoader } from "@/components/ui/eye-loader";
 // Costa Rica ya publica convertidos.
 const CURRENCIES = [...new Set([...COUNTRIES.map((c) => c.currency), "USD"])];
 
-const METHODS: { key: ExtractionMethod; icon: string; title: string; sub: string }[] = [
-  { key: "pdf", icon: "📄", title: "Subir PDF", sub: "Nativo o escaneado" },
-  { key: "link", icon: "🔗", title: "Pegar link", sub: "Publicación oficial" },
+const METHODS: { key: ExtractionMethod; icon: string }[] = [
+  { key: "pdf", icon: "📄" },
+  { key: "link", icon: "🔗" },
 ];
 
-const VERDICT_LABEL: Record<Comparison["verdict"], string> = {
-  alta: "Alta desviación",
-  revisar: "Revisar",
-  normal: "Normal",
-};
-
-function fmtMoney(n: number, currency: string) {
-  return `${n.toLocaleString("es", { maximumFractionDigits: 0 })} ${currency}`;
-}
-
 export function AnalyzeWizard() {
+  const { t, locale } = useLanguage();
   const [step, setStep] = useState(1);
   const [method, setMethod] = useState<ExtractionMethod | null>(null);
   const [country, setCountry] = useState("PY");
@@ -66,6 +59,10 @@ export function AnalyzeWizard() {
     setCurrency(COUNTRIES.find((c) => c.code === code)?.currency ?? "PYG");
   }
 
+  function fmtMoney(n: number, cur: string) {
+    return `${n.toLocaleString(locale, { maximumFractionDigits: 0 })} ${cur}`;
+  }
+
   async function runExtraction() {
     if (!method) return;
     setExtracting(true);
@@ -82,7 +79,7 @@ export function AnalyzeWizard() {
       setCandidateAmounts(res.candidate_amounts);
       setStep(3);
     } catch (err) {
-      setExtractWarning(err instanceof ApiError ? err.message : "No se pudo procesar el documento.");
+      setExtractWarning(err instanceof ApiError ? err.message : t("wizard.errorExtract"));
       setStep(3);
     } finally {
       setExtracting(false);
@@ -92,7 +89,7 @@ export function AnalyzeWizard() {
   async function runComparison() {
     const parsedAmount = Number(amount);
     if (!parsedAmount || parsedAmount <= 0) {
-      setCompareError("Ingresá un monto válido, mayor a 0.");
+      setCompareError(t("wizard.errorAmount"));
       return;
     }
     setComparing(true);
@@ -109,7 +106,7 @@ export function AnalyzeWizard() {
       setResult(res);
       setStep(4);
     } catch (err) {
-      setCompareError(err instanceof ApiError ? err.message : "No se pudo calcular la comparación.");
+      setCompareError(err instanceof ApiError ? err.message : t("wizard.errorCompare"));
     } finally {
       setComparing(false);
     }
@@ -127,10 +124,10 @@ export function AnalyzeWizard() {
       if (res.available && res.narrative) {
         setNarrative(res.narrative);
       } else {
-        setNarrativeError("El resumen con IA no está disponible en este momento.");
+        setNarrativeError(t("wizard.aiUnavailable"));
       }
     } catch (err) {
-      setNarrativeError(err instanceof ApiError ? err.message : "No se pudo generar el resumen.");
+      setNarrativeError(err instanceof ApiError ? err.message : t("wizard.errorNarrative"));
     } finally {
       setNarrativeLoading(false);
     }
@@ -154,7 +151,9 @@ export function AnalyzeWizard() {
     setNarrativeError(null);
   }
 
-  const stepNames = ["Elegir método", "Cargar", "Confirmar", "Resultado"];
+  const stepNames = [t("wizard.step1"), t("wizard.step2"), t("wizard.step3"), t("wizard.step4")];
+  // deviation_pct arrives as a percentage; the shared formatter takes a fraction.
+  const deviation = result ? fmtDeviation(result.deviation_pct / 100, locale) : null;
 
   return (
     <div className="wizard-card">
@@ -175,14 +174,14 @@ export function AnalyzeWizard() {
         <div className="wizard-loader">
           <EyeLoader />
           <p className="wizard-note" style={{ marginTop: 16, textAlign: "center", width: "100%" }}>
-            {extracting ? "Procesando el documento…" : "Calculando la comparación…"}
+            {extracting ? t("wizard.processing") : t("wizard.calculating")}
           </p>
         </div>
       )}
 
       {!extracting && !comparing && step === 1 && (
         <div>
-          <h2 className="wizard-title">1 · Elegí cómo cargarlo</h2>
+          <h2 className="wizard-title">1 · {t("wizard.title1")}</h2>
           <div className="wizard-methods">
             {METHODS.map((m) => (
               <button
@@ -192,15 +191,15 @@ export function AnalyzeWizard() {
                 onClick={() => setMethod(m.key)}
               >
                 <span className="wizard-method-icon">{m.icon}</span>
-                <span className="wizard-method-title">{m.title}</span>
-                <span className="wizard-method-sub">{m.sub}</span>
+                <span className="wizard-method-title">{t(`wizard.method${m.key}`)}</span>
+                <span className="wizard-method-sub">{t(`wizard.method${m.key}Sub`)}</span>
               </button>
             ))}
           </div>
 
           <div className="wizard-row">
             <label>
-              País del contrato
+              {t("wizard.country")}
               <select value={country} onChange={(e) => pickCountry(e.target.value)}>
                 {COUNTRIES.map((c) => (
                   <option key={c.code} value={c.code}>
@@ -211,7 +210,7 @@ export function AnalyzeWizard() {
             </label>
             <div style={{ flex: 1 }} />
             <button type="button" className="wizard-btn-primary" disabled={!method} onClick={() => setStep(2)}>
-              Continuar
+              {t("common.continue")}
             </button>
           </div>
         </div>
@@ -219,7 +218,7 @@ export function AnalyzeWizard() {
 
       {!extracting && !comparing && step === 2 && method && (
         <div>
-          <h2 className="wizard-title">2 · {METHODS.find((m) => m.key === method)?.title}</h2>
+          <h2 className="wizard-title">2 · {t(`wizard.method${method}`)}</h2>
 
           {method === "pdf" && (
             <div className="wizard-dropzone">
@@ -228,7 +227,7 @@ export function AnalyzeWizard() {
                 accept="application/pdf"
                 onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               />
-              <p>PDF nativo o escaneado, hasta 15 MB.</p>
+              <p>{t("wizard.dropHint")}</p>
             </div>
           )}
 
@@ -244,7 +243,7 @@ export function AnalyzeWizard() {
 
           <div className="wizard-row">
             <button type="button" className="wizard-btn-secondary" onClick={() => setStep(1)}>
-              Atrás
+              {t("common.back")}
             </button>
             <div style={{ flex: 1 }} />
             <button
@@ -253,7 +252,7 @@ export function AnalyzeWizard() {
               disabled={extracting || (method !== "link" && !file) || (method === "link" && !link)}
               onClick={runExtraction}
             >
-              {extracting ? "Procesando…" : "Continuar"}
+              {extracting ? t("wizard.processing") : t("common.continue")}
             </button>
           </div>
         </div>
@@ -261,23 +260,28 @@ export function AnalyzeWizard() {
 
       {!extracting && !comparing && step === 3 && (
         <div>
-          <h2 className="wizard-title">3 · Confirmá los datos</h2>
+          <h2 className="wizard-title">3 · {t("wizard.title3")}</h2>
 
           {extractWarning && <div className="wizard-warning">{extractWarning}</div>}
           {textExcerpt && (
             <details className="wizard-excerpt">
-              <summary>Texto extraído (vista previa)</summary>
+              <summary>{t("wizard.excerpt")}</summary>
               <pre>{textExcerpt.slice(0, 1200)}</pre>
             </details>
           )}
 
           <div className="wizard-form-grid">
             <label className="wizard-field-wide">
-              Título / objeto del contrato
-              <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Opcional, solo para tu referencia" />
+              {t("wizard.fieldTitle")}
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder={t("wizard.fieldTitlePlaceholder")}
+              />
             </label>
             <label>
-              Monto
+              {t("wizard.amount")}
               <input
                 type="number"
                 min="0"
@@ -288,7 +292,7 @@ export function AnalyzeWizard() {
               />
             </label>
             <label>
-              Moneda
+              {t("wizard.currency")}
               <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
                 {CURRENCIES.map((c) => (
                   <option key={c} value={c}>
@@ -298,21 +302,31 @@ export function AnalyzeWizard() {
               </select>
             </label>
             <label>
-              Comprador (opcional)
-              <input type="text" value={buyerName} onChange={(e) => setBuyerName(e.target.value)} placeholder="Nombre exacto si lo sabés" />
+              {t("wizard.buyer")}
+              <input
+                type="text"
+                value={buyerName}
+                onChange={(e) => setBuyerName(e.target.value)}
+                placeholder={t("wizard.buyerPlaceholder")}
+              />
             </label>
             <label>
-              Categoría (opcional)
-              <input type="text" value={category} onChange={(e) => setCategory(e.target.value)} placeholder="ej. services" />
+              {t("wizard.category")}
+              <input
+                type="text"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                placeholder={t("wizard.categoryPlaceholder")}
+              />
             </label>
           </div>
 
           {candidateAmounts.length > 1 && (
             <div className="wizard-candidates">
-              <span>¿Es otro el monto?</span>
+              <span>{t("wizard.otherAmount")}</span>
               {candidateAmounts.map((c) => (
                 <button key={c} type="button" onClick={() => setAmount(String(c))}>
-                  {c.toLocaleString("es")}
+                  {c.toLocaleString(locale)}
                 </button>
               ))}
             </div>
@@ -322,11 +336,11 @@ export function AnalyzeWizard() {
 
           <div className="wizard-row">
             <button type="button" className="wizard-btn-secondary" onClick={() => setStep(2)}>
-              Atrás
+              {t("common.back")}
             </button>
             <div style={{ flex: 1 }} />
             <button type="button" className="wizard-btn-primary" disabled={comparing} onClick={runComparison}>
-              {comparing ? "Calculando…" : "Calcular"}
+              {comparing ? t("wizard.calculating") : t("wizard.calculate")}
             </button>
           </div>
         </div>
@@ -335,49 +349,46 @@ export function AnalyzeWizard() {
       {!extracting && !comparing && step === 4 && result && (
         <div>
           <div className="wizard-row" style={{ marginBottom: 18 }}>
-            <span className={`badge wizard-verdict-${result.verdict}`}>{VERDICT_LABEL[result.verdict]}</span>
+            <span className={`badge wizard-verdict-${result.verdict}`}>
+              {t(`wizard.verdict${result.verdict}`)}
+            </span>
             <span className="wizard-note" style={{ marginLeft: 10 }}>
-              Comparado contra {result.group_size.toLocaleString("es")} contratos ({result.reference_group})
+              {t("wizard.comparedAgainst", {
+                n: result.group_size.toLocaleString(locale),
+                group: result.reference_group,
+              })}
             </span>
           </div>
 
           <div className="wizard-result-grid">
             <div className="metric-card">
               <div className="metric-value">{fmtMoney(result.submitted_amount, currency)}</div>
-              <div className="metric-label">Monto ingresado</div>
+              <div className="metric-label">{t("wizard.submitted")}</div>
             </div>
             <div className="metric-card">
               <div className="metric-value">{fmtMoney(result.median_amount, currency)}</div>
-              <div className="metric-label">Mediana de referencia</div>
+              <div className="metric-label">{t("wizard.median")}</div>
             </div>
             <div className="metric-card">
-              <div className="metric-value">
-                {result.deviation_pct >= 0 ? "+" : ""}
-                {result.deviation_pct.toFixed(1)}%
+              <div className="metric-value" title={deviation?.title ?? undefined}>
+                {deviation?.label ?? "—"}
               </div>
-              <div className="metric-label">Desviación · z={result.zscore.toFixed(2)}</div>
+              <div className="metric-label">{t("wizard.deviation")}</div>
             </div>
           </div>
 
-          <div className="note">
-            Esto NO es una acusación de corrupción. El veredicto de arriba es puramente
-            estadístico (mediana + MAD sobre el logaritmo del monto, misma fórmula que usa el
-            resto de la app — ver /anomalies) contra contratos ya ingeridos del mismo país y
-            moneda — ningún modelo de IA participa en ese cálculo. El resumen en lenguaje
-            natural de abajo sí es opcional y generado por un modelo de IA externo (mejor
-            esfuerzo, puede no estar disponible); nunca es la fuente del veredicto.
-          </div>
+          <div className="note">{t("wizard.note")}</div>
 
           <div className="wizard-narrative">
             {!narrative && (
               <button type="button" className="wizard-btn-secondary" disabled={narrativeLoading} onClick={runNarrative}>
-                {narrativeLoading ? "Generando…" : "✨ Generar resumen con IA (opcional)"}
+                {narrativeLoading ? t("wizard.generating") : `✨ ${t("wizard.generateAi")}`}
               </button>
             )}
             {narrativeError && <div className="wizard-warning">{narrativeError}</div>}
             {narrative && (
               <div className="wizard-narrative-card">
-                <span className="wizard-narrative-label">Resumen generado por IA</span>
+                <span className="wizard-narrative-label">{t("wizard.aiSummary")}</span>
                 <p>{narrative}</p>
               </div>
             )}
@@ -385,21 +396,21 @@ export function AnalyzeWizard() {
 
           {result.comparables.length > 0 && (
             <>
-              <h3 className="wizard-subtitle">Contratos comparables más cercanos</h3>
+              <h3 className="wizard-subtitle">{t("wizard.comparables")}</h3>
               <table>
                 <thead>
                   <tr>
-                    <th>Título</th>
-                    <th>Comprador</th>
-                    <th>Monto</th>
-                    <th>Fecha</th>
+                    <th>{t("home.colTitle")}</th>
+                    <th>{t("home.colBuyer")}</th>
+                    <th>{t("home.colAmount")}</th>
+                    <th>{t("home.colDate")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {result.comparables.map((c) => (
                     <tr key={c.id}>
                       <td>
-                        <a href={`/contracts/${c.id}`}>{c.title ?? "(sin título)"}</a>
+                        <a href={`/contracts/${c.id}`}>{c.title ?? t("common.untitled")}</a>
                       </td>
                       <td>{c.buyer_name ?? "—"}</td>
                       <td>{fmtMoney(c.amount_original, currency)}</td>
@@ -413,7 +424,7 @@ export function AnalyzeWizard() {
 
           <div className="wizard-row" style={{ marginTop: 18 }}>
             <button type="button" className="wizard-btn-secondary" onClick={reset}>
-              Analizar otro
+              {t("wizard.analyzeAnother")}
             </button>
           </div>
         </div>

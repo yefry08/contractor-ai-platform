@@ -1,16 +1,18 @@
 import { listCountries, listAnomalies } from "@/lib/api";
+import { getServerT } from "@/lib/i18n-server";
 
 export async function Metrics({ totalContracts }: { totalContracts: number }) {
-  const [countries, anomalies] = await Promise.all([
+  const [countries, anomalies, { t, locale }] = await Promise.all([
     listCountries(),
     listAnomalies({ status: "open", limit: 1 }),
+    getServerT(),
   ]);
 
   const items = [
-    { value: totalContracts.toLocaleString("es"), label: "contratos ingeridos" },
-    { value: anomalies.total.toLocaleString("es"), label: "anomalías abiertas" },
-    { value: String(countries.filter((c) => c.active).length), label: "países OCDS activos" },
-    { value: "2", label: "señales de detección independientes" },
+    { value: totalContracts.toLocaleString(locale), label: t("metrics.contracts") },
+    { value: anomalies.total.toLocaleString(locale), label: t("metrics.openAnomalies") },
+    { value: String(countries.filter((c) => c.active).length), label: t("metrics.activeCountries") },
+    { value: "2", label: t("metrics.signals") },
   ];
 
   return (

@@ -40,7 +40,14 @@ def _fresh_test_db():
 def _clean_tables():
     """Every test starts from an empty database -- simplest way to keep
     tests independent of each other and of insertion order."""
+    # app.reference caches reference-group medians in module state. Each test
+    # builds its own tiny corpus, so without this a test would be scored
+    # against whatever the previous one inserted.
+    from app import reference
+
+    reference.reset_cache()
     yield
+    reference.reset_cache()
     session = SessionLocal()
     try:
         for table in reversed(Base.metadata.sorted_tables):

@@ -1,27 +1,26 @@
 import { Spotlight } from "@/components/ui/spotlight";
 import { SplineScene } from "@/components/ui/spline-scene";
 import { COUNTRIES } from "@/lib/countries";
+import { getServerT } from "@/lib/i18n-server";
 
-export function Hero() {
+export async function Hero() {
+  const { t } = await getServerT();
+
   return (
     <section className="hero-card">
       <Spotlight className="hero-spotlight" fill="white" />
 
       <div className="hero-grid">
         <div className="hero-copy">
-          <span className="hero-eyebrow">Desafío de Transparencia PIDA · OEA</span>
+          <span className="hero-eyebrow">{t("hero.eyebrow")}</span>
           <h1 className="hero-title">Contractor AI</h1>
-          <p className="hero-lead">
-            Detectamos anomalías de precio en contratación pública comparando cada
-            contrato contra miles de contratos históricos similares. Buscá, filtrá y
-            revisá la evidencia detrás de cada alerta, en {COUNTRIES.length} países y contando.
-          </p>
+          <p className="hero-lead">{t("hero.lead", { count: COUNTRIES.length })}</p>
           <div className="hero-actions">
             <a href="/analyze" className="hero-btn hero-btn-primary">
-              Analizar contratos
+              {t("nav.analyze")}
             </a>
             <a href="mailto:yefrynunez45@gmail.com" className="hero-btn hero-btn-secondary">
-              Contáctanos
+              {t("nav.contact")}
             </a>
           </div>
         </div>

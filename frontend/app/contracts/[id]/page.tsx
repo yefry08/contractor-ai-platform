@@ -1,15 +1,17 @@
 import { getContract, listCitizenReports } from "@/lib/api";
 import { CitizenReports } from "@/components/citizen-reports";
 import { isSafeExternalUrl } from "@/lib/safe-url";
+import { getServerT } from "@/lib/i18n-server";
+import { fmtDeviation } from "@/lib/format";
 
-function fmtUsd(n: number | null) {
+function fmtUsd(n: number | null, locale: string) {
   if (n === null) return "—";
-  return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+  return n.toLocaleString(locale, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 }
 
-function fmtOriginal(n: number | null, currency: string | null) {
+function fmtOriginal(n: number | null, currency: string | null, locale: string) {
   if (n === null) return "—";
-  return `${n.toLocaleString("es")} ${currency ?? ""}`.trim();
+  return `${n.toLocaleString(locale)} ${currency ?? ""}`.trim();
 }
 
 export default async function ContractDetailPage({
@@ -18,21 +20,28 @@ export default async function ContractDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [c, reports] = await Promise.all([getContract(id), listCitizenReports(id)]);
+  const [c, reports, { t, locale }] = await Promise.all([
+    getContract(id),
+    listCitizenReports(id),
+    getServerT(),
+  ]);
   const prediction = c.predictions[0];
   const anomaly = c.anomalies[0];
+  const nlpDeviation = anomaly ? fmtDeviation(anomaly.nlp_component, locale) : null;
+  const statDeviation = anomaly ? fmtDeviation(anomaly.stat_deviation, locale) : null;
 
   return (
     <>
-      <a href="/">← Volver a contratos</a>
-      <h1>{c.title ?? "(sin título)"}</h1>
+      <a href="/">← {t("contract.back")}</a>
+      <h1>{c.title ?? t("common.untitled")}</h1>
       <p className="subtitle">
-        {c.buyer?.name ?? "Comprador desconocido"} · {c.country_code} · {c.award_date ?? "fecha desconocida"}
+        {c.buyer?.name ?? t("contract.unknownBuyer")} · {c.country_code} ·{" "}
+        {c.award_date ?? t("contract.unknownDate")}
       </p>
 
       <div className="card">
-        <h2 style={{ marginTop: 0 }}>Descripción</h2>
-        <p>{c.description ?? "Sin descripción disponible."}</p>
+        <h2 style={{ marginTop: 0 }}>{t("contract.description")}</h2>
+        <p>{c.description ?? t("contract.noDescription")}</p>
         {isSafeExternalUrl(c.source_url) && (
           <p>
             <a
@@ -42,17 +51,18 @@ export default async function ContractDetailPage({
               className="badge"
               style={{ textDecoration: "none" }}
             >
-              🔗 Ver contrato oficial en el portal de {c.country_code}
+              🔗 {t("contract.sourceLink", { country: c.country_code })}
             </a>
           </p>
         )}
         <p>
-          <strong>Método de contratación:</strong> {c.procurement_method ?? "—"} <br />
-          <strong>Categoría:</strong> {c.category_code ?? "—"} <br />
-          <strong>Monto original:</strong> {fmtOriginal(c.amount_original, c.currency)} <br />
+          <strong>{t("contract.method")}:</strong> {c.procurement_method ?? "—"} <br />
+          <strong>{t("home.colCategory")}:</strong> {c.category_code ?? "—"} <br />
+          <strong>{t("contract.amountOriginal")}:</strong>{" "}
+          {fmtOriginal(c.amount_original, c.currency, locale)} <br />
           {c.amount_usd !== null && (
             <>
-              <strong>Monto ajustado (USD, CPI):</strong> {fmtUsd(c.amount_usd)} <br />
+              <strong>{t("contract.amountUsd")}:</strong> {fmtUsd(c.amount_usd, locale)} <br />
             </>
           )}
           {c.ocid && (
@@ -65,20 +75,21 @@ export default async function ContractDetailPage({
 
       {prediction && (
         <div className="card">
-          <h2 style={{ marginTop: 0 }}>Predicción del modelo (NLP)</h2>
+          <h2 style={{ marginTop: 0 }}>{t("contract.predictionTitle")}</h2>
           <p>
-            <strong>Valor predicho:</strong>{" "}
+            <strong>{t("contract.predicted")}:</strong>{" "}
             {prediction.predicted_value_usd !== null
-              ? fmtUsd(prediction.predicted_value_usd)
-              : fmtOriginal(prediction.predicted_value_original, c.currency)}
+              ? fmtUsd(prediction.predicted_value_usd, locale)
+              : fmtOriginal(prediction.predicted_value_original, c.currency, locale)}
             <br />
             {prediction.range_low !== null && (
               <>
-                <strong>Rango de referencia:</strong> {fmtUsd(prediction.range_low)} – {fmtUsd(prediction.range_high)} <br />
+                <strong>{t("contract.range")}:</strong> {fmtUsd(prediction.range_low, locale)} –{" "}
+                {fmtUsd(prediction.range_high, locale)} <br />
               </>
             )}
-            <strong>Score de similitud:</strong> {prediction.likelihood_score?.toFixed(4) ?? "—"} <br />
-            <strong>Modelo:</strong> {prediction.model_name} ({prediction.model_version})
+            <strong>{t("contract.similarity")}:</strong> {prediction.likelihood_score?.toFixed(4) ?? "—"} <br />
+            <strong>{t("contract.model")}:</strong> {prediction.model_name} ({prediction.model_version})
           </p>
         </div>
       )}
@@ -87,32 +98,30 @@ export default async function ContractDetailPage({
         <div className="card">
           <h2 style={{ marginTop: 0 }}>
             <span className={`badge ${anomaly.anomaly_type}`}>
-              {anomaly.anomaly_type === "overcost" ? "Sobrecosto" : "Subcosto"}
+              {anomaly.anomaly_type === "overcost" ? t("anomalies.overcost") : t("anomalies.undercost")}
             </span>
           </h2>
           <p>
-            {anomaly.nlp_component !== null && (
+            {nlpDeviation && (
               <>
-                Desviación del modelo NLP respecto al valor predicho:{" "}
-                <strong>{(anomaly.nlp_component * 100).toFixed(1)}%</strong>
+                {t("contract.nlpDeviation")}: <strong title={nlpDeviation.title}>{nlpDeviation.label}</strong>
                 <br />
               </>
             )}
-            {anomaly.stat_component !== null && (
+            {statDeviation && (
               <>
-                Desviación estadística (z-score modificado, robusto, contra contratos
-                similares del mismo comprador/categoría/país):{" "}
-                <strong>{anomaly.stat_component.toFixed(2)}</strong>
+                {t("contract.statDeviation")}:{" "}
+                <strong title={statDeviation.title}>{statDeviation.label}</strong>
               </>
             )}
           </p>
           <div className="note">
             {anomaly.nlp_component !== null && anomaly.stat_component !== null
-              ? "Ambas señales coinciden en marcar este contrato — el modelo NLP y el método estadístico son completamente independientes entre sí."
+              ? t("contract.bothSignals")
               : anomaly.nlp_component !== null
-                ? "Este score viene únicamente del modelo NLP. Todavía no hay una segunda capa estadística que lo corrobore para este contrato en particular."
-                : "Este score viene únicamente del método estadístico (mediana + MAD, sin ningún modelo de IA de por medio) — no hay predicción del modelo NLP para este contrato."}{" "}
-            Tratar como una señal a investigar, no como una conclusión.
+                ? t("contract.nlpOnly")
+                : t("contract.statOnly")}{" "}
+            {t("contract.treatAsSignal")}
           </div>
         </div>
       )}

@@ -3,18 +3,20 @@ import { listContracts, ContractSummary } from "@/lib/api";
 import { Hero } from "@/components/hero";
 import { Metrics } from "@/components/metrics";
 import { HowItWorks } from "@/components/how-it-works";
+import { CountrySources } from "@/components/country-sources";
 import { Team } from "@/components/team";
 import { Partners } from "@/components/partners";
+import { getServerT } from "@/lib/i18n-server";
 
-function fmtUsd(n: number | null) {
+function fmtUsd(n: number | null, locale: string) {
   if (n === null) return "—";
-  return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+  return n.toLocaleString(locale, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 }
 
-function fmtAmount(c: ContractSummary) {
-  if (c.amount_usd !== null) return fmtUsd(c.amount_usd);
+function fmtAmount(c: ContractSummary, locale: string) {
+  if (c.amount_usd !== null) return fmtUsd(c.amount_usd, locale);
   if (c.amount_original !== null && c.currency) {
-    return `${c.amount_original.toLocaleString("es")} ${c.currency}`;
+    return `${c.amount_original.toLocaleString(locale)} ${c.currency}`;
   }
   return "—";
 }
@@ -29,14 +31,17 @@ export default async function ContractsPage({
   const offset = Number(sp.offset ?? 0);
 
   const country = sp.country ?? "";
-  const data = await listContracts({
-    country: country || undefined,
-    buyer: sp.buyer,
-    category: sp.category,
-    only_anomalous: sp.only_anomalous === "1",
-    limit,
-    offset,
-  });
+  const [data, { t, locale }] = await Promise.all([
+    listContracts({
+      country: country || undefined,
+      buyer: sp.buyer,
+      category: sp.category,
+      only_anomalous: sp.only_anomalous === "1",
+      limit,
+      offset,
+    }),
+    getServerT(),
+  ]);
 
   return (
     <>
@@ -44,74 +49,53 @@ export default async function ContractsPage({
       <Metrics totalContracts={data.total} />
       <HowItWorks />
 
-      <h1>Contratos públicos</h1>
+      <h1>{t("home.title")}</h1>
       <p className="subtitle">
-        {data.total.toLocaleString("es")} contratos — {COUNTRIES.map((c) => c.name).join(", ")}{" "}
-        (fuentes distintas por país, ver nota abajo).
+        {t("home.subtitle", {
+          n: data.total.toLocaleString(locale),
+          countries: COUNTRIES.map((c) => c.name).join(", "),
+        })}
       </p>
-
-      <div className="note">
-        Paraguay: montos en USD ajustados por inflación (CPI) al año de referencia del
-        modelo, no el monto nominal al momento del contrato. Colombia combina dos fuentes:
-        ~5.000 contratos en vivo desde la API oficial de datos.gov.co (SECOP II, con fecha
-        real, sin score de anomalía todavía — no hay modelo de predicción corriendo en
-        vivo) y ~1.548 de un dataset ya procesado por un tercero (con predicción y
-        anomalía pero sin fecha). Ninguna de las dos fuentes de Colombia tiene una tasa de
-        cambio verificable por fecha, así que se muestra el monto original en pesos
-        colombianos (COP). Costa Rica: ~1.600 contratos en vivo desde el Observatorio de
-        Compra Pública (SICOP), actualizado a diario — con fecha real y monto en USD ya
-        convertido por el propio sistema oficial, sin score de anomalía todavía. República
-        Dominicana: ~2.000 contratos en vivo desde la API DGCP (OCDS nativo disponible,
-        aunque se usa el endpoint tabular por simplicidad), con fecha real y monto en pesos
-        dominicanos (DOP) sin conversión verificable a USD, sin score de anomalía todavía.
-        Perú: adjudicaciones en vivo desde la API OCDS del portal de contrataciones abiertas
-        (OECE, ex-OSCE, sobre SEACE). Se ingiere sólo el monto efectivamente adjudicado
-        (<code>award.value</code>), nunca el valor referencial de la convocatoria, en soles
-        (PEN) sin conversión verificable a USD. Es el único país del corpus cuya fuente
-        publica además el proveedor adjudicatario con su RUC y la clasificación CUBSO de lo
-        comprado. Ver docs/architecture/PLANNING.md y los scripts ingest_*_live.py en el
-        repo para el detalle metodológico de cada país.
-      </div>
 
       <form className="filters" method="get">
         <select name="country" defaultValue={country}>
-          <option value="">Todos los países</option>
+          <option value="">{t("home.allCountries")}</option>
           {COUNTRIES.map((c) => (
             <option key={c.code} value={c.code}>
               {c.name}
             </option>
           ))}
         </select>
-        <input type="text" name="buyer" placeholder="Buscar comprador…" defaultValue={sp.buyer ?? ""} />
-        <input type="text" name="category" placeholder="Categoría (ej. services)" defaultValue={sp.category ?? ""} />
+        <input type="text" name="buyer" placeholder={t("home.searchBuyer")} defaultValue={sp.buyer ?? ""} />
+        <input type="text" name="category" placeholder={t("home.searchCategory")} defaultValue={sp.category ?? ""} />
         <label style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--muted)" }}>
           <input type="checkbox" name="only_anomalous" value="1" defaultChecked={sp.only_anomalous === "1"} />
-          Solo con anomalías
+          {t("home.onlyAnomalous")}
         </label>
-        <button type="submit">Filtrar</button>
+        <button type="submit">{t("home.filter")}</button>
       </form>
 
       <table>
         <thead>
           <tr>
-            <th>Título</th>
-            <th>País</th>
-            <th>Comprador</th>
-            <th>Categoría</th>
-            <th>Monto</th>
-            <th>Fecha</th>
+            <th>{t("home.colTitle")}</th>
+            <th>{t("home.colCountry")}</th>
+            <th>{t("home.colBuyer")}</th>
+            <th>{t("home.colCategory")}</th>
+            <th>{t("home.colAmount")}</th>
+            <th>{t("home.colDate")}</th>
           </tr>
         </thead>
         <tbody>
           {data.items.map((c) => (
             <tr key={c.id}>
               <td>
-                <a href={`/contracts/${c.id}`}>{c.title ?? "(sin título)"}</a>
+                <a href={`/contracts/${c.id}`}>{c.title ?? t("common.untitled")}</a>
               </td>
               <td>{c.country_code}</td>
               <td>{c.buyer?.name ?? "—"}</td>
               <td>{c.category_code ?? "—"}</td>
-              <td>{fmtAmount(c)}</td>
+              <td>{fmtAmount(c, locale)}</td>
               <td>{c.award_date ?? "—"}</td>
             </tr>
           ))}
@@ -121,19 +105,20 @@ export default async function ContractsPage({
       <div className="pagination">
         {offset > 0 && (
           <a href={`?${new URLSearchParams({ ...sp, offset: String(Math.max(0, offset - limit)) } as Record<string, string>)}`}>
-            ← Anterior
+            ← {t("common.previous")}
           </a>
         )}
         <span>
-          {offset + 1}–{Math.min(offset + limit, data.total)} de {data.total}
+          {offset + 1}–{Math.min(offset + limit, data.total)} {t("common.of")} {data.total.toLocaleString(locale)}
         </span>
         {offset + limit < data.total && (
           <a href={`?${new URLSearchParams({ ...sp, offset: String(offset + limit) } as Record<string, string>)}`}>
-            Siguiente →
+            {t("common.next")} →
           </a>
         )}
       </div>
 
+      <CountrySources />
       <Team />
       <Partners />
     </>

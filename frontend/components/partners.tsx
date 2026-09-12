@@ -1,5 +1,6 @@
 import { Marquee } from "@/components/ui/marquee";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { getServerT } from "@/lib/i18n-server";
 
 const PARTNERS = [
   {
@@ -49,11 +50,13 @@ export function PartnerLogos({ className = "" }: { className?: string }) {
   );
 }
 
-export function Partners() {
+export async function Partners() {
+  const { t } = await getServerT();
+
   return (
     <section className="partners-section">
-      <span className="team-eyebrow">respaldado por</span>
-      <h2 className="team-title">Aliados</h2>
+      <span className="team-eyebrow">{t("partners.eyebrow")}</span>
+      <h2 className="team-title">{t("partners.title")}</h2>
       <PartnerLogos />
     </section>
   );

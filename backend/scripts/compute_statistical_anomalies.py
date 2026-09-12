@@ -69,10 +69,10 @@ from app import models  # noqa: E402
 from app.db import SessionLocal  # noqa: E402
 from app.stats import (  # noqa: E402
     IQR_MULTIPLIER,
-    MIN_GROUP_SIZE,
     ZSCORE_THRESHOLD,
-    compute_group_stats,
+    build_reference_stats,
     modified_zscore,
+    pick_reference,
 )
 
 
@@ -89,20 +89,9 @@ def main():
         print(f"{len(contracts)} contratos con monto válido (> 0) para analizar "
               f"({skipped_non_positive} con monto <= 0 excluidos de las estadísticas).")
 
-        by_buyer: dict[tuple, list[float]] = {}
-        by_category: dict[tuple, list[float]] = {}
-        by_country: dict[str, list[float]] = {}
-        for c in contracts:
-            log_amount = math.log(c.amount_original)
-            if c.buyer_id:
-                by_buyer.setdefault((c.country_code, c.buyer_id), []).append(log_amount)
-            if c.category_code:
-                by_category.setdefault((c.country_code, c.category_code), []).append(log_amount)
-            by_country.setdefault(c.country_code, []).append(log_amount)
-
-        stats_buyer = {k: compute_group_stats(v) for k, v in by_buyer.items() if len(v) >= MIN_GROUP_SIZE}
-        stats_category = {k: compute_group_stats(v) for k, v in by_category.items() if len(v) >= MIN_GROUP_SIZE}
-        stats_country = {k: compute_group_stats(v) for k, v in by_country.items()}
+        # Shared with the API (app/reference.py), which reports the same
+        # reference group as a percentage instead of a z-score.
+        reference_stats = build_reference_stats(contracts)
 
         db.execute(delete(models.StatisticalFlag))
         # Las filas de Anomaly creadas puramente por este script (sin
@@ -127,18 +116,11 @@ def main():
 
         for c in contracts:
             log_amount = math.log(c.amount_original)
-            key_buyer = (c.country_code, c.buyer_id) if c.buyer_id else None
-            key_category = (c.country_code, c.category_code) if c.category_code else None
-
-            if key_buyer in stats_buyer:
-                group_stats = stats_buyer[key_buyer]
-                reference_group = f"{c.country_code}:buyer:{c.buyer_id}"
-            elif key_category in stats_category:
-                group_stats = stats_category[key_category]
-                reference_group = f"{c.country_code}:category:{c.category_code}"
-            else:
-                group_stats = stats_country[c.country_code]
-                reference_group = f"{c.country_code}:country"
+            group_stats, reference_group = pick_reference(
+                reference_stats, c.country_code, c.buyer_id, c.category_code
+            )
+            if group_stats is None:
+                continue
 
             # Todo lo de acá para abajo opera en escala logarítmica (ver nota
             # en el docstring): "median"/"mad"/"q1"/"q3"/"iqr" de group_stats
