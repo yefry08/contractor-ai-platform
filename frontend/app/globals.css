@@ -1363,6 +1363,84 @@ th { color: var(--muted); font-weight: 600; }
   background: var(--panel);
 }
 
+/* ---------- Model comparison (benchmark) ---------- */
+
+.benchmark-cases {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.benchmark-figures {
+  display: flex;
+  gap: 20px;
+  margin: 0 0 4px;
+}
+
+.benchmark-figures dt {
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+.benchmark-figures dd {
+  margin: 2px 0 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.benchmark-verdicts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.benchmark-verdict {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.benchmark-verdict-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.benchmark-table-wrap {
+  overflow-x: auto;
+}
+
+.benchmark-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.benchmark-table th,
+.benchmark-table td {
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.benchmark-table thead th {
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.benchmark-table tbody th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 /* ---------- Citizen reports ---------- */
 
 .citizen-report-list {
