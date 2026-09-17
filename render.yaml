@@ -1,14 +1,17 @@
 # Render Blueprint — https://render.com/docs/blueprint-spec
 # Deploy: connect this repo on Render's dashboard ("New +" -> "Blueprint"),
 # point it at this file. Free instance type needs no payment method.
-# DATABASE_URL is provisioned automatically from the databases block below
-# and injected into the web service — nothing to configure by hand.
-
-databases:
-  - name: contractor-ai-db
-    plan: free
-    databaseName: contractor
-    user: contractor
+#
+# DATABASE_URL is NOT provisioned here. It used to come from a `databases:`
+# block naming a Render-managed free Postgres instance -- until that
+# instance hit Render's free-tier expiry (2026-09-16: it went from healthy
+# to permanently deleting itself in 12 days, with zero code-visible warning
+# beforehand) and took production down. The database now lives on Neon,
+# whose free tier pauses compute on an idle project instead of deleting it.
+# Set DATABASE_URL by hand in the Render dashboard (contractor-ai-api ->
+# Environment) to the Neon connection string -- as a secret, not in this
+# file. A `databases:` block here would let a future Blueprint sync silently
+# recreate the dead Render database and repoint DATABASE_URL back at it.
 
 services:
   - type: web
@@ -24,8 +27,6 @@ services:
     autoDeploy: true
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: contractor-ai-db
-          property: connectionString
+        sync: false
       - key: CORS_ALLOW_ORIGINS
         value: '["https://contractor-ai-one.vercel.app"]'
