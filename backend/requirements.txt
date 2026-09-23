@@ -8,3 +8,4 @@ python-dotenv==1.2.2
 psycopg2-binary==2.9.12
 pypdf==6.16.1
 python-multipart==0.0.32
+typesafe-sdk==0.7.1

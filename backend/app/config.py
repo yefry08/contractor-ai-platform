@@ -28,5 +28,10 @@ class Settings(BaseSettings):
     # or redis://user:password@host:port. Caching degrades gracefully if unavailable.
     redis_url: str | None = None
 
+    # Optional: TypeSafe AI (typesafe.ai) key for the Jev / System One model.
+    # Read here rather than left to the SDK's own env lookup so a key in
+    # backend/.env works too -- pydantic-settings doesn't export .env values.
+    typesafe_api_key: str | None = None
+
 
 settings = Settings()
