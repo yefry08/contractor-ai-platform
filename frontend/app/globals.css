@@ -726,6 +726,16 @@ th { color: var(--muted); font-weight: 600; }
   color: transparent;
 }
 
+/* .hero-card stays dark in both themes, so the logo uses the brand's
+   solid-white variant; its #606060 grey would disappear on it. */
+.hero-logo {
+  display: block;
+  width: min(100%, 320px);
+  height: auto;
+  margin-bottom: 4px;
+  filter: brightness(0) invert(1);
+}
+
 .hero-lead {
   color: #c7d0e0;
   max-width: 46ch;

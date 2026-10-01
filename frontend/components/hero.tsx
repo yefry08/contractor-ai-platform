@@ -12,6 +12,7 @@ export async function Hero() {
 
       <div className="hero-grid">
         <div className="hero-copy">
+          <img src="/logo.png" alt="Contractor IA" className="hero-logo" width={1862} height={416} />
           <span className="hero-eyebrow">{t("hero.eyebrow")}</span>
           <h1 className="hero-title">Contractor AI</h1>
           <p className="hero-lead">{t("hero.lead", { count: COUNTRIES.length })}</p>
