@@ -71,7 +71,8 @@
       "SV": "API en vivo de COMPRASAL. El país está dolarizado desde 2001, así que los montos ya vienen en dólares. Los datos llegan por línea de compra, no por contrato completo.",
       "BR": "API de datos abiertos del gobierno federal. Obliga a consultar órgano por órgano y en ventanas de hasta 365 días. Montos en reales.",
       "UY": "OCDS 1.1 nativo, publicado por año. Los montos vienen por ítem adjudicado y en varias monedas; se usa la de mayor peso en cada adjudicación.",
-      "CL": "Descarga masiva OCDS de ChileCompra, un archivo por mes. Solo licitaciones (no tratos directos ni convenio marco). Montos en pesos chilenos; la categoría es la clasificación UNSPSC oficial de cada ítem."
+      "CL": "Descarga masiva OCDS de ChileCompra, un archivo por mes. Solo licitaciones (no tratos directos ni convenio marco). Montos en pesos chilenos; la categoría es la clasificación UNSPSC oficial de cada ítem.",
+      "GT": "Descarga mensual OCDS de Guatecompras (Ministerio de Finanzas), actualizada a diario. Incluye compras directas y licitaciones. Montos en quetzales; la categoría es el segmento UNSPSC de cada ítem."
     }
   },
   "team": {
@@ -346,6 +347,13 @@
     "chartRateByYear": "Tasa de anomalías por año",
     "chartTopCategories": "Categorías principales",
     "chartCountryComparison": "Comparación entre países",
+    "tableView": "Ver como tabla",
+    "colYear": "Año",
+    "colCategory": "Categoría",
+    "anomaliesDetail": "{n} anomalías ({rate})",
+    "rateDetail": "{a} de {n} contratos",
+    "averageRate": "promedio {rate}",
+    "smallSampleNote": "Punto hueco: año con menos de {min} contratos; su tasa es poco fiable.",
     "bestTitle": "Instituciones con mejor historial de contratación",
     "bestNote": "Instituciones con al menos {min} contratos ingeridos y la menor proporción de anomalías estadísticas abiertas, ordenadas de mejor a peor. No es un certificado de integridad: es una lectura del mismo dato que ya se usa en el resto de la app.",
     "bestEmpty": "No hay suficientes instituciones con {min}+ contratos para este filtro.",

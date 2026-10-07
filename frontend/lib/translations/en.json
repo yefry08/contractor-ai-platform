@@ -71,7 +71,8 @@
       "SV": "Live COMPRASAL API. The country has used the dollar since 2001, so amounts arrive in USD. The data comes as purchase line items, not whole contracts.",
       "BR": "Federal government open-data API. It requires querying one organisation at a time, in windows of up to 365 days. Amounts in reais.",
       "UY": "Native OCDS 1.1, published per year. Amounts come per awarded line item and in several currencies; the one with the largest total in each award is used.",
-      "CL": "ChileCompra's bulk OCDS download, one file per month. Tenders only (no direct awards or framework agreements). Amounts in Chilean pesos; the category is each item's official UNSPSC classification."
+      "CL": "ChileCompra's bulk OCDS download, one file per month. Tenders only (no direct awards or framework agreements). Amounts in Chilean pesos; the category is each item's official UNSPSC classification.",
+      "GT": "Guatecompras' monthly OCDS download (Ministry of Finance), updated daily. Includes direct purchases and tenders. Amounts in quetzales; the category is each item's UNSPSC segment."
     }
   },
   "team": {
@@ -346,6 +347,13 @@
     "chartRateByYear": "Anomaly rate per year",
     "chartTopCategories": "Top categories",
     "chartCountryComparison": "Country comparison",
+    "tableView": "View as table",
+    "colYear": "Year",
+    "colCategory": "Category",
+    "anomaliesDetail": "{n} anomalies ({rate})",
+    "rateDetail": "{a} of {n} contracts",
+    "averageRate": "average {rate}",
+    "smallSampleNote": "Hollow point: a year with fewer than {min} contracts; its rate is unreliable.",
     "bestTitle": "Institutions with the strongest procurement record",
     "bestNote": "Institutions with at least {min} ingested contracts and the lowest share of open statistical anomalies, best first. Not an integrity certificate: just a reading of the same data used across the app.",
     "bestEmpty": "Not enough institutions with {min}+ contracts for this filter.",

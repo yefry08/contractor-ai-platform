@@ -4,9 +4,7 @@ import { Fragment, useRef, useState } from "react";
 import type { CountryYearCell } from "@/lib/api";
 import { COUNTRIES } from "@/lib/countries";
 import { useLanguage } from "@/lib/language-context";
-
-// Below this many contracts a cell's rate swings on one or two contracts.
-export const MIN_RELIABLE_CONTRACTS = 20;
+import { MIN_RELIABLE_CONTRACTS } from "@/lib/thresholds";
 
 // Fixed bin edges, not scaled to the max, so a colour means the same rate on every filter and dataset.
 const BIN_EDGES = [0, 0.025, 0.05, 0.1, 0.15, 0.2, 0.3];

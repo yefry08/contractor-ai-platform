@@ -1049,6 +1049,191 @@ th { color: var(--muted); font-weight: 600; }
   text-overflow: ellipsis;
 }
 
+/* ---------- Dashboard charts (components/ui/charts.tsx) ---------- */
+
+.vz { margin: 0; position: relative; }
+
+.vz-plot {
+  position: relative;
+  height: 170px;
+  margin-left: 44px;
+}
+
+.vz-grid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px solid var(--border);
+}
+
+.vz-grid span {
+  position: absolute;
+  right: calc(100% + 8px);
+  top: -0.6em;
+  font-size: 0.68rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.vz-cols {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.vz-col {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  position: relative;
+  outline: none;
+}
+
+.vz-col-bar {
+  width: 100%;
+  max-width: 24px;
+  background: var(--accent);
+  border-radius: 4px 4px 0 0;
+  position: relative;
+}
+
+.vz-col:hover .vz-col-bar,
+.vz-col:focus-visible .vz-col-bar { filter: brightness(1.15); }
+
+.vz-col-val {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.vz-xlabels {
+  display: flex;
+  gap: 2px;
+  margin-left: 44px;
+  padding-top: 6px;
+}
+
+.vz-xlabels span {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font-size: 0.68rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 520px) {
+  .vz-xlabels span:nth-child(even):not(:last-child) { visibility: hidden; }
+}
+
+.vz-tip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  padding: 6px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+.vz-tip strong { font-size: 0.8rem; margin-right: 4px; }
+.vz-tip em { display: block; font-style: normal; opacity: 0.75; }
+
+.vz-col:hover .vz-tip,
+.vz-col:focus-visible .vz-tip,
+.vz-hrow:hover .vz-tip,
+.vz-hrow:focus-visible .vz-tip { opacity: 1; }
+
+.vz-hbars { display: grid; gap: 6px; }
+
+.vz-hrow {
+  display: grid;
+  grid-template-columns: minmax(0, 38%) 1fr;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  padding: 2px 0;
+  outline: none;
+  border-radius: 4px;
+}
+
+.vz-hrow:hover,
+.vz-hrow:focus-visible { background: color-mix(in srgb, var(--accent) 7%, transparent); }
+
+.vz-hrow .vz-tip { left: 38%; transform: none; }
+
+.vz-hlabel {
+  font-size: 0.78rem;
+  color: var(--text);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.25;
+}
+
+.vz-htrack {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.vz-hbar {
+  height: 14px;
+  background: var(--accent);
+  border-radius: 0 4px 4px 0;
+  flex: none;
+  max-width: calc(100% - 64px);
+}
+
+.vz-hval {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.vz-svg { width: 100%; height: auto; display: block; overflow: visible; }
+.vz-gridline { stroke: var(--border); stroke-width: 1; }
+.vz-ref { stroke: var(--muted); stroke-width: 1; opacity: 0.6; }
+.vz-ref-label { fill: var(--muted); font-size: 11px; }
+.vz-tick { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.vz-line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.vz-hit { fill: transparent; }
+.vz-dot { fill: var(--accent); stroke: var(--panel); stroke-width: 2; }
+.vz-dot-small { fill: var(--panel); stroke: var(--accent); }
+.vz-pt { outline: none; cursor: default; }
+.vz-pt:hover .vz-dot,
+.vz-pt:focus-visible .vz-dot { r: 6; }
+.vz-pt-label { fill: var(--text); font-size: 11.5px; font-weight: 600; }
+
+.vz-table { margin-top: 10px; font-size: 0.78rem; }
+.vz-table summary { cursor: pointer; color: var(--muted); }
+.vz-table table { margin-top: 6px; font-size: 0.78rem; }
+.vz-table td:last-child, .vz-table th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+
+.vz-note { font-size: 0.72rem; color: var(--muted); margin: 6px 0 0; }
+
 /* ---------- Heatmap ---------- */
 
 .dashboard-chart-wide {
