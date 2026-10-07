@@ -44,6 +44,7 @@ OFFICIAL_PORTALS: dict[str, dict[str, str]] = {
     # portal de compras estatales responde 200 y su propio <title> es
     # "Agencia Reguladora de Compras Estatales".
     "UY": {"name": "ARCE — Agencia Reguladora de Compras Estatales", "url": "https://www.comprasestatales.gub.uy/"},
+    "CL": {"name": "ChileCompra — Mercado Público", "url": "https://www.mercadopublico.cl/"},
 }
 
 

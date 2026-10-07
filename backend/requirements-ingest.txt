@@ -1,0 +1,2 @@
+-r requirements.txt
+py7zr==1.1.3

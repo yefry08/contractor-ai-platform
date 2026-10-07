@@ -17,6 +17,7 @@ out/
 Data/zips/
 Data/records.csv
 backend/scripts/_pida_secp_processes.csv
+backend/scripts/_chile_cache/
 *.db
 *.db-journal
 *.db-wal

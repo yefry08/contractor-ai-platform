@@ -70,7 +70,8 @@
       "PE": "API OCDS do portal de contratações abertas. Só entra o valor efetivamente adjudicado, nunca o valor referencial do edital. É a única fonte do conjunto que também publica o fornecedor vencedor e a classificação CUBSO.",
       "SV": "API ao vivo do COMPRASAL. O país é dolarizado desde 2001, então os valores já vêm em dólares. Os dados chegam por item de compra, não por contrato completo.",
       "BR": "API de dados abertos do governo federal. Exige consultar órgão por órgão, em janelas de até 365 dias. Valores em reais.",
-      "UY": "OCDS 1.1 nativo, publicado por ano. Os valores vêm por item adjudicado e em várias moedas; usa-se a de maior peso em cada adjudicação."
+      "UY": "OCDS 1.1 nativo, publicado por ano. Os valores vêm por item adjudicado e em várias moedas; usa-se a de maior peso em cada adjudicação.",
+      "CL": "Download em massa OCDS da ChileCompra, um arquivo por mês. Só licitações (sem contratações diretas nem convênio-quadro). Valores em pesos chilenos; a categoria é a classificação UNSPSC oficial de cada item."
     }
   },
   "team": {

@@ -70,7 +70,8 @@
       "PE": "OCDS API from the open contracting portal. Only the awarded amount is ingested, never the tender's reference value. It is the only source here that also publishes the winning supplier and the CUBSO classification.",
       "SV": "Live COMPRASAL API. The country has used the dollar since 2001, so amounts arrive in USD. The data comes as purchase line items, not whole contracts.",
       "BR": "Federal government open-data API. It requires querying one organisation at a time, in windows of up to 365 days. Amounts in reais.",
-      "UY": "Native OCDS 1.1, published per year. Amounts come per awarded line item and in several currencies; the one with the largest total in each award is used."
+      "UY": "Native OCDS 1.1, published per year. Amounts come per awarded line item and in several currencies; the one with the largest total in each award is used.",
+      "CL": "ChileCompra's bulk OCDS download, one file per month. Tenders only (no direct awards or framework agreements). Amounts in Chilean pesos; the category is each item's official UNSPSC classification."
     }
   },
   "team": {
