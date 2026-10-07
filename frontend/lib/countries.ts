@@ -33,6 +33,7 @@ export const COUNTRIES: Country[] = [
   { code: "BR", name: "Brasil", currency: "BRL", source: "Compras.gov.br" },
   { code: "UY", name: "Uruguay", currency: "UYU", source: "ARCE · OCDS" },
   { code: "CL", name: "Chile", currency: "CLP", source: "ChileCompra · OCDS" },
+  { code: "GT", name: "Guatemala", currency: "GTQ", source: "Guatecompras · OCDS" },
 ];
 
 /** Mapa código → nombre, para las pantallas que sólo necesitan etiquetar. */
