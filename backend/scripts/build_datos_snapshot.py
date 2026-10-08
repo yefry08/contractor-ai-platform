@@ -20,6 +20,10 @@ What it computes, per country:
     different currencies can't be summed without a rate we don't have).
   - direction: open anomalies split into overcost / undercost, with the
     median amount of each group against the country's median.
+  - weekday: contracts by day of the week of award_date (1 = Monday) and the
+    busiest weekend dates, to tell steady weekend activity from one batch day.
+  - calendar: contracts by year and month of award_date, for Paraguay (the
+    only country with several full years) and Uruguay (to show it cannot be read).
   - signals: for the contracts that carry a prediction from Daniel Duque's
     BERT + XGBoost model, how often its flag and the statistical layer's
     flag agree.
@@ -111,6 +115,55 @@ def threshold_histogram(country: str, currency: str, low: int, high: int, step: 
         "most_repeated": [[a, n] for a, n in exact],
         "above_high": above,
     }
+
+
+def weekday_stats() -> dict:
+    with engine.connect() as conn:
+        days = conn.execute(
+            text(
+                "select country_code, extract(isodow from award_date)::int, count(*) from contracts "
+                "where award_date is not null group by 1, 2"
+            )
+        ).all()
+        methods = conn.execute(
+            text(
+                "select country_code, coalesce(procurement_method, '(sin dato)'), count(*) from contracts "
+                "where extract(isodow from award_date) in (6, 7) group by 1, 2 order by 3 desc"
+            )
+        ).all()
+        weekend = conn.execute(
+            text(
+                "select country_code, award_date, extract(isodow from award_date)::int, count(*) from contracts "
+                "where extract(isodow from award_date) in (6, 7) group by 1, 2, 3 order by 4 desc"
+            )
+        ).all()
+    out: dict = {}
+    for country, day, n in days:
+        out.setdefault(country, {"days": [0] * 7, "top_weekend_dates": []})["days"][day - 1] = n
+    for country, day_date, dow, n in weekend:
+        top = out[country]["top_weekend_dates"]
+        if len(top) < 3:
+            top.append([day_date.isoformat(), dow, n])
+    for country, method, n in methods:
+        out[country].setdefault("weekend_methods", [])
+        if len(out[country]["weekend_methods"]) < 3:
+            out[country]["weekend_methods"].append([method, n])
+    return dict(sorted(out.items()))
+
+
+def calendar_stats(country: str) -> dict:
+    with engine.connect() as conn:
+        rows = conn.execute(
+            text(
+                "select extract(year from award_date)::int, extract(month from award_date)::int, count(*) "
+                "from contracts where country_code = :c and award_date is not null group by 1, 2"
+            ),
+            {"c": country},
+        ).all()
+    years: dict[str, list[int]] = {}
+    for year, month, n in rows:
+        years.setdefault(str(year), [0] * 12)[month - 1] = n
+    return {"years": dict(sorted(years.items()))}
 
 
 def main() -> None:
@@ -214,6 +267,8 @@ def main() -> None:
         "benford_expected": [round(e, 4) for e in BENFORD],
         "countries": countries,
         "signals": signals_out,
+        "weekday": weekday_stats(),
+        "calendar": {"PY": calendar_stats("PY"), "UY": calendar_stats("UY")},
         "thresholds": {
             # Guatemala's direct purchase (Art. 43 b LCE) tops out at Q90,000;
             # the Dominican Republic's "Compras por Debajo del Umbral" thins

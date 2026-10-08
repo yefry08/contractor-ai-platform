@@ -17,7 +17,10 @@ export const NAMES: Record<string, string> = {
   GT: "Guatemala",
 };
 
-export const es = (n: number, digits = 0) => n.toLocaleString("es", { maximumFractionDigits: digits, minimumFractionDigits: digits });
+// useGrouping "always": the "es" locale skips the separator on four-digit numbers
+// (3843), but the titles here write 1.082, and a post shouldn't mix both.
+export const es = (n: number, digits = 0) =>
+  n.toLocaleString("es", { maximumFractionDigits: digits, minimumFractionDigits: digits, useGrouping: "always" });
 export const pct = (n: number, digits = 0) => `${es(n * 100, digits)}%`;
 
 export function Stats({ items }: { items: { value: string; label: string }[] }) {
@@ -60,3 +63,25 @@ export function Method({ children }: { children: ReactNode }) {
     </aside>
   );
 }
+
+export type WeekdayStats = {
+  days: number[];
+  top: { date: string; n: number }[];
+  methods: { method: string; n: number }[];
+};
+
+// JSON imports widen tuples to (string | number)[], so the weekday figures are
+// read once here with their real types.
+export const WEEKDAY: Record<string, WeekdayStats> = Object.fromEntries(
+  Object.entries(DATA.weekday).map(([code, w]) => {
+    const raw = w as { days: number[]; top_weekend_dates: (string | number)[][]; weekend_methods?: (string | number)[][] };
+    return [
+      code,
+      {
+        days: raw.days,
+        top: raw.top_weekend_dates.map(([date, , n]) => ({ date: String(date), n: Number(n) })),
+        methods: (raw.weekend_methods ?? []).map(([method, n]) => ({ method: String(method), n: Number(n) })),
+      },
+    ];
+  }),
+);
