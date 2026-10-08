@@ -611,3 +611,39 @@ export function ShareBarsChart({
   }, JSON.stringify(rows));
   return <Frame chartRef={ref} height={rows.length * 34 + 60} label={label} />;
 }
+
+/** One bar per row, longest first, labelled at the tip. Rows flagged
+ *  `highlight` take the orange slot so the reader's eye lands on them. */
+export function RankBarsChart({
+  rows,
+  label,
+}: {
+  rows: { label: string; value: number; display: string; highlight?: boolean }[];
+  label: string;
+}) {
+  const sorted = [...rows].sort((a, b) => a.value - b.value);
+  const ref = useEChart((t) => ({
+    ...base(t),
+    grid: { left: 8, right: 64, top: 4, bottom: 4, containLabel: true },
+    tooltip: {
+      ...base(t).tooltip,
+      trigger: "axis",
+      axisPointer: { type: "shadow" },
+      formatter: (ps: any) => `<b>${esc(sorted[ps[0].dataIndex].label)}</b><br/>${esc(sorted[ps[0].dataIndex].display)}`,
+    },
+    xAxis: { type: "value", show: false },
+    yAxis: { type: "category", data: sorted.map((r) => r.label), axisLine: axisLine(t), axisTick: { show: false }, axisLabel: { color: t.text } },
+    series: [
+      {
+        type: "bar",
+        barMaxWidth: 18,
+        data: sorted.map((r) => ({
+          value: r.value,
+          itemStyle: { color: r.highlight ? t.orange : t.blue, borderRadius: [0, 4, 4, 0] },
+        })),
+        label: { show: true, position: "right", color: t.text, fontWeight: 600, formatter: (p: any) => sorted[p.dataIndex].display },
+      },
+    ],
+  }), JSON.stringify(rows));
+  return <Frame chartRef={ref} height={sorted.length * 30 + 12} label={label} />;
+}

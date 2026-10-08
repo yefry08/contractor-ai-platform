@@ -43,16 +43,6 @@ export const POSTS: Post[] = [
     status: "published",
   },
   {
-    slug: "el-1-por-ciento-que-se-lleva-casi-todo",
-    title: "El 1% que se lleva casi todo: cuánto del gasto concentran los contratos más grandes",
-    summary:
-      "En República Dominicana un solo contrato de almuerzo escolar suma el 93% del monto de la muestra. En Paraguay el contrato más grande no llega al 3%.",
-    tags: ["Concentración", "Gasto"],
-    countries: ["PY", "CO", "CR", "DO", "PE", "SV", "BR", "UY", "CL", "GT"],
-    minutes: 4,
-    status: "published",
-  },
-  {
     slug: "sobrecosto-o-subcosto",
     title: "¿Sobrecosto o subcosto? En Guatemala y Chile la mayoría de las alertas apuntan hacia abajo",
     summary:
@@ -63,12 +53,22 @@ export const POSTS: Post[] = [
     status: "published",
   },
   {
-    slug: "dos-modelos-un-contrato",
-    title: "Dos modelos, un contrato: cuándo coinciden el modelo de IA de Daniel Duque y la estadística",
+    slug: "contratos-en-fin-de-semana",
+    title: "Contratos adjudicados en sábado y domingo",
     summary:
-      "En Paraguay el modelo BERT + XGBoost marca 696 contratos y la capa estadística 231, pero solo 62 coinciden. Por qué eso es una buena noticia y por dónde empezar a mirar.",
-    tags: ["Modelos", "IA"],
-    countries: ["PY", "CO"],
+      "Costa Rica registra 132 adjudicaciones en fin de semana, y 126 caen en solo dos fechas. En 6 de 8 países, una sola fecha reúne la mayor parte de los contratos de fin de semana: más una carga en bloque que una urgencia.",
+    tags: ["Fechas", "Procesos"],
+    countries: ["CR", "CO", "PY", "GT", "BR", "CL", "DO", "UY"],
+    minutes: 5,
+    status: "published",
+  },
+  {
+    slug: "el-efecto-diciembre",
+    title: "El efecto diciembre: ¿se gasta a las apuradas al cierre del año fiscal?",
+    summary:
+      "En Paraguay no hay un efecto diciembre estable: hasta 2018 el cierre de año es más flojo que el resto, y desde 2019 sube, con noviembre como el mes fuerte. Uruguay no se puede leer.",
+    tags: ["Estacionalidad"],
+    countries: ["PY", "UY"],
     minutes: 5,
     status: "published",
   },
@@ -90,24 +90,6 @@ export const POSTS: Post[] = [
     countries: ["PE"],
     status: "soon",
     needs: "Ingerir más meses de Perú: hoy hay 85 contratos, pocos para medir concentración.",
-  },
-  {
-    slug: "el-efecto-diciembre",
-    title: "El efecto diciembre: ¿se gasta a las apuradas al cierre del año fiscal?",
-    summary: "Paraguay (2014–2022) y Uruguay tienen años completos para medir si el gasto se acelera en las últimas semanas.",
-    tags: ["Estacionalidad"],
-    countries: ["PY", "UY"],
-    status: "soon",
-    needs: "Años completos para más países; hoy la mayoría cubre uno o dos meses.",
-  },
-  {
-    slug: "contratos-en-fin-de-semana",
-    title: "Contratos adjudicados en sábado y domingo",
-    summary: "Costa Rica registra 132 adjudicaciones en fin de semana. ¿Urgencias, cargas tardías o procesos acelerados?",
-    tags: ["Fechas", "Procesos"],
-    countries: ["CR", "CO", "PY"],
-    status: "soon",
-    needs: "Distinguir la fecha de adjudicación de la fecha de publicación en cada portal.",
   },
   {
     slug: "compradores-con-precios-dispersos",

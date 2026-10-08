@@ -8,7 +8,7 @@
     "contracts": "Contracts",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "datos": "Data about the data"
+    "datos": "Studies"
   },
   "language": {
     "select": "Language",
@@ -418,7 +418,7 @@
     "minutes": "{n} min read",
     "allCountries": "10 countries",
     "soonTitle": "Coming soon",
-    "soonLead": "The next five investigations. Each one says what data it still needs before it can be published rigorously.",
+    "soonLead": "The next investigations. Each one says what data it still needs before it can be published rigorously.",
     "soon": "Coming soon",
     "needs": "Still needs",
     "back": "Data about the data",

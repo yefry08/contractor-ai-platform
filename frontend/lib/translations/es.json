@@ -8,7 +8,7 @@
     "contracts": "Contratos",
     "openMenu": "Abrir menú",
     "closeMenu": "Cerrar menú",
-    "datos": "Datos de los datos"
+    "datos": "Estudios"
   },
   "language": {
     "select": "Idioma",
@@ -418,7 +418,7 @@
     "minutes": "{n} min de lectura",
     "allCountries": "10 países",
     "soonTitle": "Próximamente",
-    "soonLead": "Las próximas cinco investigaciones. Cada una dice qué datos le faltan para publicarse con rigor.",
+    "soonLead": "Las próximas investigaciones. Cada una dice qué datos le faltan para publicarse con rigor.",
     "soon": "Próximamente",
     "needs": "Falta",
     "back": "Datos de los datos",
