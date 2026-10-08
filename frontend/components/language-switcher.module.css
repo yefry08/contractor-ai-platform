@@ -11,6 +11,9 @@
 }
 
 .select {
+  /* Sized to the longest *ready* language, not to "Quechua (en preparación)":
+     the wide option made the navbar wrap once a fifth link was added. */
+  max-width: 7.5rem;
   padding: 0.3rem 0.45rem;
   font-size: 0.85rem;
   border: 1px solid var(--border);
@@ -30,8 +33,15 @@
   outline-offset: 1px;
 }
 
-@media (max-width: 640px) {
+/* The select's options already say what it is; the visible label is kept for
+   screen readers only where the navbar is tight. */
+@media (max-width: 1280px) {
   .label {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 }

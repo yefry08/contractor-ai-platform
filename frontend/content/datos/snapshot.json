@@ -1,0 +1,627 @@
+{
+ "generated": "2026-10-07",
+ "total_contracts": 43969,
+ "benford_expected": [
+  0.301,
+  0.1761,
+  0.1249,
+  0.0969,
+  0.0792,
+  0.0669,
+  0.058,
+  0.0512,
+  0.0458
+ ],
+ "countries": {
+  "BR": {
+   "contracts": 2981,
+   "main_currency": "BRL",
+   "median_main": 9380.0,
+   "benford": {
+    "n": 2980,
+    "observed": [
+     0.2933,
+     0.1718,
+     0.1255,
+     0.1084,
+     0.0792,
+     0.0641,
+     0.056,
+     0.0503,
+     0.0513
+    ],
+    "mad": 0.0039,
+    "class": "close"
+   },
+   "round": {
+    "n": 2582,
+    "round": 297,
+    "share": 0.115
+   },
+   "concentration": {
+    "n": 2981,
+    "largest_share": 0.2627,
+    "top1_share": 0.8671,
+    "top10_share": 0.9846
+   },
+   "direction": {
+    "overcost": {
+     "count": 43,
+     "median_main": 2862000.0
+    },
+    "undercost": {
+     "count": 7,
+     "median_main": 34.0
+    }
+   }
+  },
+  "CL": {
+   "contracts": 5000,
+   "main_currency": "CLP",
+   "median_main": 4400000.0,
+   "benford": {
+    "n": 4874,
+    "observed": [
+     0.3135,
+     0.1705,
+     0.112,
+     0.0923,
+     0.0864,
+     0.0591,
+     0.0587,
+     0.0579,
+     0.0497
+    ],
+    "mad": 0.0069,
+    "class": "acceptable"
+   },
+   "round": {
+    "n": 4828,
+    "round": 632,
+    "share": 0.1309
+   },
+   "concentration": {
+    "n": 4953,
+    "largest_share": 0.1394,
+    "top1_share": 0.3569,
+    "top10_share": 0.7345
+   },
+   "direction": {
+    "overcost": {
+     "count": 57,
+     "median_main": 71887500.0
+    },
+    "undercost": {
+     "count": 271,
+     "median_main": 78.0
+    }
+   }
+  },
+  "CO": {
+   "contracts": 11509,
+   "main_currency": "COP",
+   "median_main": 13600000.0,
+   "benford": {
+    "n": 11508,
+    "observed": [
+     0.4443,
+     0.1628,
+     0.0748,
+     0.0498,
+     0.0444,
+     0.0481,
+     0.0598,
+     0.0537,
+     0.0622
+    ],
+    "mad": 0.0365,
+    "class": "nonconformity"
+   },
+   "round": {
+    "n": 11508,
+    "round": 3747,
+    "share": 0.3256
+   },
+   "concentration": {
+    "n": 11509,
+    "largest_share": 0.1061,
+    "top1_share": 0.6194,
+    "top10_share": 0.8075
+   },
+   "direction": {
+    "overcost": {
+     "count": 579,
+     "median_main": 83950000.00000001
+    },
+    "undercost": {
+     "count": 235,
+     "median_main": 5100000.0
+    }
+   }
+  },
+  "CR": {
+   "contracts": 5297,
+   "main_currency": "CRC",
+   "median_main": 115360.0,
+   "benford": {
+    "n": 5007,
+    "observed": [
+     0.2838,
+     0.1791,
+     0.1364,
+     0.1074,
+     0.0779,
+     0.0569,
+     0.0537,
+     0.0549,
+     0.0497
+    ],
+    "mad": 0.0073,
+    "class": "acceptable"
+   },
+   "round": {
+    "n": 4281,
+    "round": 852,
+    "share": 0.199
+   },
+   "concentration": {
+    "n": 3833,
+    "largest_share": 0.0866,
+    "top1_share": 0.5602,
+    "top10_share": 0.93
+   },
+   "direction": {
+    "overcost": {
+     "count": 93,
+     "median_main": 14866098.45
+    },
+    "undercost": {
+     "count": 77,
+     "median_main": 3700.0
+    }
+   }
+  },
+  "DO": {
+   "contracts": 4000,
+   "main_currency": "DOP",
+   "median_main": 133832.5,
+   "benford": {
+    "n": 4000,
+    "observed": [
+     0.3272,
+     0.271,
+     0.0745,
+     0.069,
+     0.0658,
+     0.0535,
+     0.0515,
+     0.045,
+     0.0425
+    ],
+    "mad": 0.0269,
+    "class": "nonconformity"
+   },
+   "round": {
+    "n": 3994,
+    "round": 367,
+    "share": 0.0919
+   },
+   "concentration": {
+    "n": 3998,
+    "largest_share": 0.9325,
+    "top1_share": 0.98,
+    "top10_share": 0.9897
+   },
+   "direction": {
+    "overcost": {
+     "count": 103,
+     "median_main": 1706145.0
+    },
+    "undercost": {
+     "count": 127,
+     "median_main": 11411.0
+    }
+   }
+  },
+  "GT": {
+   "contracts": 5000,
+   "main_currency": "GTQ",
+   "median_main": 52610.0,
+   "benford": {
+    "n": 4997,
+    "observed": [
+     0.1235,
+     0.1133,
+     0.081,
+     0.0887,
+     0.072,
+     0.0869,
+     0.0772,
+     0.2806,
+     0.0768
+    ],
+    "mad": 0.0666,
+    "class": "nonconformity"
+   },
+   "round": {
+    "n": 4565,
+    "round": 1151,
+    "share": 0.2521
+   },
+   "concentration": {
+    "n": 5000,
+    "largest_share": 0.0923,
+    "top1_share": 0.5208,
+    "top10_share": 0.6235
+   },
+   "direction": {
+    "overcost": {
+     "count": 49,
+     "median_main": 829022.0
+    },
+    "undercost": {
+     "count": 651,
+     "median_main": 2200.0
+    }
+   }
+  },
+  "PE": {
+   "contracts": 85,
+   "main_currency": "PEN",
+   "median_main": 177671.64500000002,
+   "benford": {
+    "n": 85,
+    "observed": [
+     0.4235,
+     0.0588,
+     0.1059,
+     0.1176,
+     0.0353,
+     0.0588,
+     0.0353,
+     0.0941,
+     0.0706
+    ],
+    "mad": 0.0469,
+    "class": "nonconformity"
+   },
+   "round": {
+    "n": 85,
+    "round": 6,
+    "share": 0.0706
+   },
+   "concentration": {
+    "n": 84,
+    "largest_share": 0.1427,
+    "top1_share": 0.1427,
+    "top10_share": 0.5603
+   },
+   "direction": {
+    "overcost": {
+     "count": 4,
+     "median_main": 4334704.26
+    },
+    "undercost": {
+     "count": 0,
+     "median_main": null
+    }
+   }
+  },
+  "PY": {
+   "contracts": 5282,
+   "main_currency": "PYG",
+   "median_main": 177000000.0,
+   "benford": {
+    "n": 5279,
+    "observed": [
+     0.345,
+     0.1568,
+     0.1184,
+     0.0951,
+     0.0779,
+     0.069,
+     0.0506,
+     0.0483,
+     0.039
+    ],
+    "mad": 0.0102,
+    "class": "acceptable"
+   },
+   "round": {
+    "n": 5279,
+    "round": 1528,
+    "share": 0.2894
+   },
+   "concentration": {
+    "n": 5279,
+    "largest_share": 0.0287,
+    "top1_share": 0.3702,
+    "top10_share": 0.756
+   },
+   "direction": {
+    "overcost": {
+     "count": 741,
+     "median_main": 903995898.5
+    },
+    "undercost": {
+     "count": 124,
+     "median_main": 24246667.5
+    }
+   }
+  },
+  "SV": {
+   "contracts": 2000,
+   "main_currency": "USD",
+   "median_main": 498.37,
+   "benford": {
+    "n": 1932,
+    "observed": [
+     0.3292,
+     0.1749,
+     0.1268,
+     0.0849,
+     0.0751,
+     0.0595,
+     0.0637,
+     0.0476,
+     0.0383
+    ],
+    "mad": 0.0079,
+    "class": "acceptable"
+   },
+   "round": {
+    "n": 768,
+    "round": 131,
+    "share": 0.1706
+   },
+   "concentration": {
+    "n": 2000,
+    "largest_share": 0.3007,
+    "top1_share": 0.7082,
+    "top10_share": 0.9351
+   },
+   "direction": {
+    "overcost": {
+     "count": 46,
+     "median_main": 47750.0
+    },
+    "undercost": {
+     "count": 12,
+     "median_main": 61.86
+    }
+   }
+  },
+  "UY": {
+   "contracts": 2815,
+   "main_currency": "UYU",
+   "median_main": 45206.885,
+   "benford": {
+    "n": 2815,
+    "observed": [
+     0.3169,
+     0.1869,
+     0.1197,
+     0.0941,
+     0.0782,
+     0.0643,
+     0.0529,
+     0.0469,
+     0.0401
+    ],
+    "mad": 0.0059,
+    "class": "close"
+   },
+   "round": {
+    "n": 2744,
+    "round": 291,
+    "share": 0.106
+   },
+   "concentration": {
+    "n": 2648,
+    "largest_share": 0.071,
+    "top1_share": 0.5714,
+    "top10_share": 0.8952
+   },
+   "direction": {
+    "overcost": {
+     "count": 37,
+     "median_main": 2143512.645
+    },
+    "undercost": {
+     "count": 43,
+     "median_main": 1650.0
+    }
+   }
+  }
+ },
+ "signals": {
+  "CO": {
+   "both": 41,
+   "nlp_only": 66,
+   "stat_only": 68,
+   "neither": 1373
+  },
+  "PY": {
+   "both": 62,
+   "nlp_only": 634,
+   "stat_only": 169,
+   "neither": 4417
+  }
+ },
+ "thresholds": {
+  "GT": {
+   "currency": "GTQ",
+   "low": 40000,
+   "step": 1000,
+   "counts": [
+    27,
+    18,
+    22,
+    16,
+    39,
+    38,
+    15,
+    21,
+    27,
+    25,
+    33,
+    9,
+    26,
+    11,
+    20,
+    27,
+    23,
+    28,
+    19,
+    24,
+    28,
+    20,
+    25,
+    29,
+    44,
+    35,
+    25,
+    34,
+    24,
+    56,
+    45,
+    12,
+    26,
+    20,
+    27,
+    31,
+    19,
+    24,
+    51,
+    31,
+    58,
+    100,
+    34,
+    32,
+    69,
+    43,
+    90,
+    101,
+    203,
+    572,
+    307,
+    0,
+    1,
+    1,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    3
+   ],
+   "peak_bin": 89000,
+   "peak_methods": [
+    [
+     "Compra Directa con Oferta Electrónica (Art. 43 LCE Inciso b)",
+     561
+    ],
+    [
+     "Adquisición Directa por Ausencia de Oferta",
+     5
+    ],
+    [
+     "Procedimientos regulados por el artículo 54 LCE",
+     4
+    ],
+    [
+     "Arrendamiento o Adquisición de Bienes Inmuebles (Art.43 inciso e)",
+     2
+    ]
+   ],
+   "most_repeated": [
+    [
+     90000.0,
+     307
+    ],
+    [
+     89156.0,
+     55
+    ],
+    [
+     81412.5,
+     37
+    ]
+   ],
+   "above_high": 124
+  },
+  "DO": {
+   "currency": "DOP",
+   "low": 100000,
+   "step": 10000,
+   "counts": [
+    122,
+    114,
+    74,
+    85,
+    92,
+    71,
+    69,
+    111,
+    65,
+    74,
+    63,
+    67,
+    53,
+    70,
+    96,
+    115,
+    209,
+    23,
+    48,
+    49,
+    14,
+    11,
+    8,
+    9,
+    5,
+    27,
+    12,
+    9,
+    6,
+    11,
+    3
+   ],
+   "peak_bin": 260000,
+   "peak_methods": [
+    [
+     "(sin dato)",
+     107
+    ],
+    [
+     "Compras por Debajo del Umbral",
+     97
+    ],
+    [
+     "Procesos de Excepción",
+     4
+    ],
+    [
+     "Contratación Menor",
+     1
+    ]
+   ],
+   "most_repeated": [
+    [
+     177000.0,
+     48
+    ],
+    [
+     118000.0,
+     41
+    ],
+    [
+     94400.0,
+     34
+    ]
+   ],
+   "above_high": 560
+  }
+ }
+}

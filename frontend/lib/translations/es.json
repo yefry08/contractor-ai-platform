@@ -7,7 +7,8 @@
     "contact": "Contáctanos",
     "contracts": "Contratos",
     "openMenu": "Abrir menú",
-    "closeMenu": "Cerrar menú"
+    "closeMenu": "Cerrar menú",
+    "datos": "Datos de los datos"
   },
   "language": {
     "select": "Idioma",
@@ -362,7 +363,9 @@
     "colContracts": "Contratos",
     "colAmount": "Monto total",
     "colAnomalies": "Anomalías",
-    "colRate": "Tasa"
+    "colRate": "Tasa",
+    "seriesClean": "Sin anomalía",
+    "seriesFlagged": "Con anomalía abierta"
   },
   "benchmark": {
     "title": "Por qué esto no es lo mismo que preguntarle a un chatbot",
@@ -406,5 +409,35 @@
     "colContracts": "Contratos",
     "colAnomalies": "Anomalías",
     "colRate": "Tasa"
+  },
+  "datos": {
+    "eyebrow": "Estudios · hallazgos · comparaciones",
+    "title": "Datos de los datos",
+    "lead": "Lo que aprendimos mirando {n} contratos públicos de 10 países de América Latina. Cada cifra sale de un script que cualquiera puede volver a correr. Datos al {date}.",
+    "latest": "Lo más reciente",
+    "minutes": "{n} min de lectura",
+    "allCountries": "10 países",
+    "soonTitle": "Próximamente",
+    "soonLead": "Las próximas cinco investigaciones. Cada una dice qué datos le faltan para publicarse con rigor.",
+    "soon": "Próximamente",
+    "needs": "Falta",
+    "back": "Datos de los datos",
+    "dataAt": "datos al {date}",
+    "more": "Sigue leyendo",
+    "disclaimer": "Ningún patrón de este estudio es, por sí solo, una prueba de corrupción: son señales para orientar una revisión. Si trabajas en una de las instituciones mencionadas y tienes contexto que aportar, escríbenos.",
+    "spanishOnly": "Los estudios se publican por ahora solo en español."
+  },
+  "offline": {
+    "title": "Analiza contratos fuera de la plataforma",
+    "lead": "El mismo cálculo de esta página está publicado en Hugging Face, abierto y gratuito, para que cualquier persona de los 10 países lo use sin depender de Contractor AI: en el navegador, en su computadora sin internet o dentro de su propio código.",
+    "spaceTitle": "En el navegador",
+    "spaceText": "El analizador en línea: elige país, monto, categoría o comprador y obtén el veredicto. No necesitas instalar nada ni crear una cuenta.",
+    "spaceCta": "Abrir el analizador",
+    "localTitle": "En tu computadora",
+    "localText": "Un archivo de Python sin dependencias y el modelo de referencia de los 10 países (mediana + MAD por comprador, categoría y país). Funciona sin conexión.",
+    "localCta": "Ver el modelo en Hugging Face",
+    "baseTitle": "El modelo base de Daniel Duque",
+    "baseText": "El XGBoost original (BERT + XGBoost) entrenado con contratos de servicios de Paraguay, con su tarjeta de modelo y las 1.554 variables que usa. Sirve para reproducir y auditar el trabajo original.",
+    "baseCta": "Ver el modelo base"
   }
 }

@@ -17,7 +17,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const language = await getServerLanguage();
 
   return (
-    <html lang={language}>
+    // THEME_INIT_SCRIPT sets data-theme before React hydrates, on purpose.
+    <html lang={language} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>

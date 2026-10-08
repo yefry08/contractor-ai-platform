@@ -1,5 +1,5 @@
 import { getDashboardSummary, getBestBuyers, exportCsvUrl, CountryBreakdown } from "@/lib/api";
-import { ColumnChart, HBarChart, RateLineChart, type Datum, type RatePoint } from "@/components/ui/charts";
+import { ColumnsChart, RateChart, SplitBarsChart, TableView, type Datum, type RatePoint, type SplitRow } from "@/components/viz/charts";
 import { Heatmap } from "@/components/ui/heatmap";
 import { MIN_RELIABLE_CONTRACTS } from "@/lib/thresholds";
 import { ProviderFavoritismSection } from "@/components/provider-favoritism";
@@ -56,19 +56,26 @@ export default async function DashboardPage({
     };
   });
 
-  const categoryData: Datum[] = summary.by_category.map((c) => ({
-    label: c.category_code,
-    value: c.contracts,
-    display: num(c.contracts),
-    detail: anomaliesOf(c.anomalies, c.contracts),
-  }));
-
-  const countryData: Datum[] = summary.by_country.map((c: CountryBreakdown) => ({
-    label: COUNTRY_NAMES[c.country_code] ?? c.country_code,
-    value: c.contracts,
-    display: num(c.contracts),
-    detail: anomaliesOf(c.anomalies, c.contracts),
-  }));
+  const splitOf = (label: string, contracts: number, anomalies: number): SplitRow => ({
+    label,
+    total: contracts,
+    flagged: anomalies,
+    detail: `${t("dashboard.rateDetail", { a: num(anomalies), n: num(contracts) })} · ${pct(contracts ? anomalies / contracts : 0)}`,
+  });
+  const categoryRows = summary.by_category.map((c) => splitOf(c.category_code, c.contracts, c.anomalies));
+  const countryRows = summary.by_country.map((c: CountryBreakdown) =>
+    splitOf(COUNTRY_NAMES[c.country_code] ?? c.country_code, c.contracts, c.anomalies),
+  );
+  const splitNames: [string, string] = [t("dashboard.seriesClean"), t("dashboard.seriesFlagged")];
+  const splitTable = (rows: SplitRow[], first: string) => (
+    <TableView
+      caption={t("dashboard.tableView")}
+      headers={[first, t("dashboard.colContracts"), t("dashboard.colAnomalies"), t("dashboard.colRate")]}
+      rows={[...rows]
+        .sort((a, b) => b.total - a.total)
+        .map((r) => [r.label, num(r.total), num(r.flagged), pct(r.total ? r.flagged / r.total : 0)])}
+    />
+  );
 
   const scope = country
     ? t("dashboard.scopeCountry", { country: COUNTRY_NAMES[country] ?? country })
@@ -118,42 +125,39 @@ export default async function DashboardPage({
       <div className="dashboard-grid">
         <div className="card dashboard-chart-card">
           <h3>{t("dashboard.chartContractsByYear")}</h3>
-          <ColumnChart
-            data={yearData}
-            formatTick={num}
-            tableCaption={t("dashboard.tableView")}
+          <ColumnsChart data={yearData} label={t("dashboard.chartContractsByYear")} locale={locale} />
+          <TableView
+            caption={t("dashboard.tableView")}
             headers={[t("dashboard.colYear"), t("dashboard.colContracts")]}
+            rows={yearData.map((d) => [d.label, d.display])}
           />
         </div>
         <div className="card dashboard-chart-card">
           <h3>{t("dashboard.chartRateByYear")}</h3>
-          <RateLineChart
+          <RateChart
             points={ratePoints}
             average={summary.anomaly_rate}
             averageLabel={t("dashboard.averageRate", { rate: pct(summary.anomaly_rate) })}
             minReliable={MIN_RELIABLE_CONTRACTS}
-            formatPct={(n) => `${Math.round(n * 100)}%`}
-            tableCaption={t("dashboard.tableView")}
-            headers={[t("dashboard.colYear"), t("dashboard.colRate")]}
+            label={t("dashboard.chartRateByYear")}
           />
           <p className="vz-note">{t("dashboard.smallSampleNote", { min: MIN_RELIABLE_CONTRACTS })}</p>
+          <TableView
+            caption={t("dashboard.tableView")}
+            headers={[t("dashboard.colYear"), t("dashboard.colRate")]}
+            rows={ratePoints.map((p) => [p.label, `${p.display} (${p.detail})${p.contracts < MIN_RELIABLE_CONTRACTS ? " *" : ""}`])}
+          />
         </div>
         <div className="card dashboard-chart-card">
           <h3>{t("dashboard.chartTopCategories")}</h3>
-          <HBarChart
-            data={categoryData}
-            tableCaption={t("dashboard.tableView")}
-            headers={[t("dashboard.colCategory"), t("dashboard.colContracts")]}
-          />
+          <SplitBarsChart rows={categoryRows} names={splitNames} label={t("dashboard.chartTopCategories")} locale={locale} />
+          {splitTable(categoryRows, t("dashboard.colCategory"))}
         </div>
-        {!country && countryData.length > 0 && (
+        {!country && countryRows.length > 0 && (
           <div className="card dashboard-chart-card">
             <h3>{t("dashboard.chartCountryComparison")}</h3>
-            <HBarChart
-              data={countryData}
-              tableCaption={t("dashboard.tableView")}
-              headers={[t("dashboard.colCountry"), t("dashboard.colContracts")]}
-            />
+            <SplitBarsChart rows={countryRows} names={splitNames} label={t("dashboard.chartCountryComparison")} locale={locale} />
+            {splitTable(countryRows, t("dashboard.colCountry"))}
           </div>
         )}
       </div>

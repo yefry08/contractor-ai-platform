@@ -7,7 +7,8 @@
     "contact": "Contact us",
     "contracts": "Contracts",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "datos": "Data about the data"
   },
   "language": {
     "select": "Language",
@@ -362,7 +363,9 @@
     "colContracts": "Contracts",
     "colAmount": "Total amount",
     "colAnomalies": "Anomalies",
-    "colRate": "Rate"
+    "colRate": "Rate",
+    "seriesClean": "No anomaly",
+    "seriesFlagged": "With an open anomaly"
   },
   "benchmark": {
     "title": "Why this isn't the same as asking a chatbot",
@@ -406,5 +409,35 @@
     "colContracts": "Contracts",
     "colAnomalies": "Anomalies",
     "colRate": "Rate"
+  },
+  "datos": {
+    "eyebrow": "Studies · findings · comparisons",
+    "title": "Data about the data",
+    "lead": "What we learned from {n} public contracts across 10 Latin American countries. Every figure comes from a script anyone can re-run. Data as of {date}.",
+    "latest": "Latest",
+    "minutes": "{n} min read",
+    "allCountries": "10 countries",
+    "soonTitle": "Coming soon",
+    "soonLead": "The next five investigations. Each one says what data it still needs before it can be published rigorously.",
+    "soon": "Coming soon",
+    "needs": "Still needs",
+    "back": "Data about the data",
+    "dataAt": "data as of {date}",
+    "more": "Keep reading",
+    "disclaimer": "No pattern in this study is, by itself, evidence of corruption: these are signals to guide a review. If you work at one of the institutions mentioned and have context to add, write to us.",
+    "spanishOnly": "Studies are published in Spanish only for now."
+  },
+  "offline": {
+    "title": "Analyze contracts outside the platform",
+    "lead": "The same calculation as this page is published on Hugging Face, open and free, so anyone in the 10 countries can use it without depending on Contractor AI: in the browser, on their own computer with no internet, or inside their own code.",
+    "spaceTitle": "In the browser",
+    "spaceText": "The online analyzer: pick a country, amount, category or buyer and get the verdict. Nothing to install, no account needed.",
+    "spaceCta": "Open the analyzer",
+    "localTitle": "On your computer",
+    "localText": "A dependency-free Python file and the reference model for the 10 countries (median + MAD per buyer, category and country). Works offline.",
+    "localCta": "See the model on Hugging Face",
+    "baseTitle": "Daniel Duque's base model",
+    "baseText": "The original XGBoost (BERT + XGBoost) trained on Paraguayan service contracts, with its model card and the 1,554 features it uses. Useful to reproduce and audit the original work.",
+    "baseCta": "See the base model"
   }
 }

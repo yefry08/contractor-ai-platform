@@ -44,3 +44,6 @@ backups/
 
 # Sondas temporales de exploracion de APIs de paises
 backend/.pe_*.json
+
+# TypeScript incremental build cache
+*.tsbuildinfo

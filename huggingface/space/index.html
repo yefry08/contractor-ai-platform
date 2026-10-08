@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Contractor AI · Analizador</title>
+<style>
+  :root {
+    --bg: #ffffff; --panel: #f6f7fa; --border: #e3e6ec; --text: #14181f; --muted: #5b6472;
+    --accent: #2a78d6; --ok: #0ca30c; --warn: #b07800; --bad: #d03b3b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0b1220; --panel: #121b2e; --border: #24314d; --text: #e6ecf5; --muted: #93a1b8;
+            --accent: #3987e5; --ok: #4fd18a; --warn: #fab219; --bad: #ff6b6b; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 28px 16px 48px; }
+  .eyebrow { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  h1 { margin: 4px 0 8px; font-size: clamp(24px, 4vw, 34px); letter-spacing: -.02em; }
+  .lead { color: var(--muted); max-width: 720px; margin: 0 0 24px; }
+  a { color: var(--accent); }
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 16px; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+  label { display: block; font-size: 13px; font-weight: 600; margin: 0 0 4px; }
+  .field { margin-bottom: 14px; }
+  .hint { font-weight: 400; color: var(--muted); }
+  input, select { width: 100%; padding: 9px 10px; border-radius: 8px; border: 1px solid var(--border);
+                  background: var(--bg); color: var(--text); font: inherit; }
+  button { width: 100%; padding: 10px; border: 0; border-radius: 8px; background: var(--accent); color: #fff;
+           font: inherit; font-weight: 700; cursor: pointer; }
+  button:hover { filter: brightness(1.08); }
+  .examples { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; font-size: 13px; color: var(--muted); }
+  .examples button { width: auto; padding: 4px 10px; background: transparent; color: var(--accent);
+                     border: 1px solid var(--border); font-weight: 600; font-size: 13px; }
+  .verdict { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: 10px; margin-bottom: 14px;
+             border: 1px solid var(--border); background: var(--bg); }
+  .verdict .icon { font-size: 22px; line-height: 1; }
+  .verdict strong { display: block; font-size: 17px; }
+  .v-normal strong { color: var(--ok); } .v-revisar strong { color: var(--warn); } .v-alta strong { color: var(--bad); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  td { padding: 8px 4px; border-bottom: 1px solid var(--border); }
+  td:last-child { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .bar { position: relative; height: 34px; margin: 18px 0 6px; }
+  .track { position: absolute; top: 14px; left: 0; right: 0; height: 6px; border-radius: 3px; background: var(--border); }
+  .iqr { position: absolute; top: 10px; height: 14px; border-radius: 4px; background: color-mix(in srgb, var(--accent) 35%, transparent); }
+  .med { position: absolute; top: 6px; width: 2px; height: 22px; background: var(--accent); }
+  .you { position: absolute; top: 4px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%;
+         border: 3px solid var(--bg); box-shadow: 0 0 0 1px var(--text); }
+  .scale { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+  .note { font-size: 13px; color: var(--muted); margin-top: 14px; }
+  .empty { color: var(--muted); }
+  footer { margin-top: 28px; font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">Contractor AI · 10 países de América Latina</p>
+  <h1>¿Es raro el monto de este contrato público?</h1>
+  <p class="lead">
+    Compara un monto con los contratos ya publicados en Paraguay, Colombia, Costa Rica, República Dominicana, Perú,
+    El Salvador, Brasil, Uruguay, Chile y Guatemala. Es el mismo cálculo de
+    <a href="https://contractor-ai-one.vercel.app/analyze" target="_blank" rel="noopener">contractor-ai-one.vercel.app</a>
+    (mediana + MAD sobre el logaritmo del monto) y corre entero en tu navegador.
+  </p>
+
+  <div class="grid">
+    <form class="card" id="form">
+      <div class="field"><label for="country">País</label><select id="country"></select></div>
+      <div class="field"><label for="currency">Moneda</label><select id="currency"></select></div>
+      <div class="field"><label for="amount">Monto del contrato</label>
+        <input id="amount" type="number" min="0" step="any" inputmode="decimal" required placeholder="ej. 89500" /></div>
+      <div class="field"><label for="category">Categoría <span class="hint">(opcional)</span></label><select id="category"></select></div>
+      <div class="field"><label for="buyer">Comprador <span class="hint">(opcional, con al menos 8 contratos)</span></label>
+        <input id="buyer" list="buyers" autocomplete="off" placeholder="Escribe para buscar" /><datalist id="buyers"></datalist></div>
+      <button type="submit">Analizar</button>
+      <div class="examples">Ejemplos:
+        <button type="button" data-ex="GT,GTQ,89500">Guatemala Q89.500</button>
+        <button type="button" data-ex="DO,DOP,26500000">Rep. Dominicana RD$26,5 M</button>
+      </div>
+    </form>
+
+    <section class="card" id="result" aria-live="polite">
+      <p class="empty">Elige un país, escribe un monto y pulsa «Analizar».</p>
+    </section>
+  </div>
+
+  <footer>
+    Modelo y código abiertos (MIT):
+    <a href="https://huggingface.co/ElDoctor/contractor-ai-latam" target="_blank" rel="noopener">ElDoctor/contractor-ai-latam</a>,
+    incluido el modelo base BERT + XGBoost de Daniel Duque Lozano. Un veredicto es una señal para investigar, nunca una
+    acusación de corrupción.
+  </footer>
+</main>
+
+<script>
+// Same rules as analyzer.py and the platform's /analyze/compare.
+let M = null;
+const $ = (id) => document.getElementById(id);
+const fmt = (x) => x.toLocaleString("es", { maximumFractionDigits: 0 });
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+function currencies(code) {
+  const refs = M.countries[code].currencies;
+  return Object.keys(refs).sort((a, b) => refs[b].country.n - refs[a].country.n);
+}
+const ref = () => M.countries[$("country").value].currencies[$("currency").value];
+
+function fillCurrency() {
+  $("currency").innerHTML = currencies($("country").value).map((c) => `<option>${c}</option>`).join("");
+  fillGroups();
+}
+function fillGroups() {
+  const r = ref();
+  $("category").innerHTML = ['<option value="">—</option>']
+    .concat(Object.keys(r.category).sort().map((c) => `<option value="${esc(c)}">${esc(c)}</option>`)).join("");
+  $("buyers").innerHTML = Object.values(r.buyer).map((b) => `<option value="${esc(b.name)}"></option>`).join("");
+  $("buyer").value = "";
+}
+
+function compare(amount, category, buyer) {
+  const r = ref(), country = $("country").value;
+  const key = buyer.trim().toLowerCase();
+  const byName = Object.fromEntries(Object.values(r.buyer).map((b) => [b.name.trim().toLowerCase(), b]));
+  const b = key && (r.buyer[key] || byName[key]);
+  let stats, group;
+  if (b) { stats = b; group = "mismo comprador"; }
+  else if (category && r.category[category]) { stats = r.category[category]; group = "misma categoría"; }
+  else { stats = r.country; group = "todo el país"; }
+
+  const x = Math.log(amount);
+  let z = stats.mad === 0 ? 0 : (0.6745 * (x - stats.median)) / stats.mad;
+  z = Math.max(-50, Math.min(50, z));
+  const zFlag = Math.abs(z) > M.zscore_threshold;
+  const k = M.iqr_multiplier;
+  const iqrFlag = stats.iqr > 0 && (x < stats.q1 - k * stats.iqr || x > stats.q3 + k * stats.iqr);
+  const verdict = zFlag && Math.abs(z) > 5 ? "alta" : zFlag || iqrFlag ? "revisar" : "normal";
+  const median = Math.exp(stats.median);
+  return { country, stats, group, z, verdict, median, low: Math.exp(stats.q1), high: Math.exp(stats.q3),
+           dev: ((amount - median) / median) * 100, amount };
+}
+
+const VERDICT = {
+  normal: ["🟢", "Normal", "El monto está dentro de lo habitual para su grupo de referencia."],
+  revisar: ["🟡", "Revisar", "El monto se sale del rango típico. Vale la pena mirar el contrato con más detalle."],
+  alta: ["🔴", "Alta desviación", "El monto está muy lejos de lo que pagan contratos similares."],
+};
+
+function render(r) {
+  const cur = $("currency").value;
+  const [icon, title, text] = VERDICT[r.verdict];
+  // Position on a log scale spanning the group's fences, widened to include the amount.
+  const s = r.stats, k = M.iqr_multiplier;
+  const lo = Math.min(s.q1 - k * s.iqr, Math.log(r.amount)) - 0.3;
+  const hi = Math.max(s.q3 + k * s.iqr, Math.log(r.amount)) + 0.3;
+  const pos = (v) => `${((v - lo) / (hi - lo)) * 100}%`;
+  const color = r.verdict === "normal" ? "var(--ok)" : r.verdict === "revisar" ? "var(--warn)" : "var(--bad)";
+  $("result").innerHTML = `
+    <div class="verdict v-${r.verdict}"><span class="icon" aria-hidden="true">${icon}</span>
+      <div><strong>${title}</strong>${text}</div></div>
+    <div class="bar" role="img" aria-label="Monto ingresado frente al rango típico del grupo">
+      <div class="track"></div>
+      <div class="iqr" style="left:${pos(s.q1)};width:calc(${pos(s.q3)} - ${pos(s.q1)})"></div>
+      <div class="med" style="left:${pos(s.median)}"></div>
+      <div class="you" style="left:${pos(Math.log(r.amount))};background:${color}"></div>
+    </div>
+    <div class="scale"><span>más barato</span><span>rango típico · mediana</span><span>más caro</span></div>
+    <table>
+      <tr><td>Comparado contra</td><td>${fmt(s.n)} contratos (${r.group})</td></tr>
+      <tr><td>Monto ingresado</td><td>${fmt(r.amount)} ${cur}</td></tr>
+      <tr><td>Mediana del grupo</td><td>${fmt(r.median)} ${cur}</td></tr>
+      <tr><td>Rango típico (50% central)</td><td>${fmt(r.low)} – ${fmt(r.high)} ${cur}</td></tr>
+      <tr><td>Desviación respecto a la mediana</td><td>${r.dev >= 0 ? "+" : ""}${fmt(r.dev)}%</td></tr>
+      <tr><td>z-score modificado (log)</td><td>${r.z.toLocaleString("es", { maximumFractionDigits: 2 })} (umbral 3,5)</td></tr>
+    </table>
+    <p class="note">Esto no es una acusación de corrupción: es una señal estadística para orientar una revisión.
+      Datos al ${esc(M.version)}.</p>`;
+}
+
+$("form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const amount = parseFloat($("amount").value);
+  if (!(amount > 0)) { $("result").innerHTML = '<p class="empty">Ingresa un monto mayor a 0.</p>'; return; }
+  render(compare(amount, $("category").value, $("buyer").value));
+});
+$("country").addEventListener("change", fillCurrency);
+$("currency").addEventListener("change", fillGroups);
+document.querySelectorAll("[data-ex]").forEach((b) => b.addEventListener("click", () => {
+  const [c, cur, amt] = b.dataset.ex.split(",");
+  $("country").value = c; fillCurrency(); $("currency").value = cur; fillGroups();
+  $("amount").value = amt; $("form").requestSubmit();
+}));
+
+fetch("reference.json").then((r) => r.json()).then((m) => {
+  M = m;
+  const codes = Object.keys(M.countries).sort((a, b) => M.countries[a].name.localeCompare(M.countries[b].name, "es"));
+  $("country").innerHTML = codes.map((c) => `<option value="${c}">${esc(M.countries[c].name)}</option>`).join("");
+  $("country").value = "GT";
+  fillCurrency();
+}).catch(() => { $("result").innerHTML = '<p class="empty">No se pudo cargar el modelo de referencia.</p>'; });
+</script>
+</body>
+</html>

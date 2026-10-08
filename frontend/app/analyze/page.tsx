@@ -1,6 +1,7 @@
 import { AnalyzeWizard } from "@/components/analyze-wizard";
 import { AnalyzeOnboarding } from "@/components/analyze-onboarding";
 import { ModelComparison } from "@/components/model-comparison";
+import { AnalyzeOffline } from "@/components/analyze-offline";
 import { getServerT } from "@/lib/i18n-server";
 
 export const metadata = {
@@ -21,6 +22,8 @@ export default async function AnalyzePage() {
       <AnalyzeOnboarding />
 
       <AnalyzeWizard />
+
+      <AnalyzeOffline />
 
       <hr style={{ margin: "40px 0", border: "none", borderTop: "1px solid var(--border)" }} />
 
