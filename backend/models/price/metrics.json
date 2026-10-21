@@ -1,0 +1,234 @@
+{
+ "BR": {
+  "currency": "BRL",
+  "rows": 2981,
+  "distinct_texts": 2189,
+  "scores": {
+   "reference": {
+    "r2_log": 0.213,
+    "median_factor": 3.95,
+    "within_2x": 0.267
+   },
+   "ridge": {
+    "r2_log": 0.45,
+    "median_factor": 3.24,
+    "within_2x": 0.295
+   },
+   "xgboost": {
+    "r2_log": 0.397,
+    "median_factor": 3.5,
+    "within_2x": 0.299
+   }
+  },
+  "best": "ridge",
+  "error_reduction_vs_reference": 0.145,
+  "seconds": 111
+ },
+ "CL": {
+  "currency": "CLP",
+  "rows": 4953,
+  "distinct_texts": 3102,
+  "scores": {
+   "reference": {
+    "r2_log": -0.006,
+    "median_factor": 3.34,
+    "within_2x": 0.314
+   },
+   "ridge": {
+    "r2_log": 0.154,
+    "median_factor": 3.62,
+    "within_2x": 0.293
+   },
+   "xgboost": {
+    "r2_log": 0.1,
+    "median_factor": 3.46,
+    "within_2x": 0.292
+   }
+  },
+  "best": "xgboost",
+  "error_reduction_vs_reference": -0.029,
+  "seconds": 166
+ },
+ "CO": {
+  "currency": "COP",
+  "rows": 11509,
+  "distinct_texts": 9379,
+  "scores": {
+   "reference": {
+    "r2_log": 0.263,
+    "median_factor": 1.39,
+    "within_2x": 0.782
+   },
+   "ridge": {
+    "r2_log": 0.575,
+    "median_factor": 1.29,
+    "within_2x": 0.858
+   },
+   "xgboost": {
+    "r2_log": 0.524,
+    "median_factor": 1.32,
+    "within_2x": 0.828
+   }
+  },
+  "best": "ridge",
+  "error_reduction_vs_reference": 0.221,
+  "seconds": 301
+ },
+ "CR": {
+  "currency": "CRC",
+  "rows": 3833,
+  "distinct_texts": 2684,
+  "scores": {
+   "reference": {
+    "r2_log": 0.256,
+    "median_factor": 3.92,
+    "within_2x": 0.29
+   },
+   "ridge": {
+    "r2_log": 0.59,
+    "median_factor": 2.55,
+    "within_2x": 0.391
+   },
+   "xgboost": {
+    "r2_log": 0.454,
+    "median_factor": 2.78,
+    "within_2x": 0.36
+   }
+  },
+  "best": "ridge",
+  "error_reduction_vs_reference": 0.315,
+  "seconds": 86
+ },
+ "DO": {
+  "currency": "DOP",
+  "rows": 3997,
+  "distinct_texts": 2798,
+  "scores": {
+   "reference": {
+    "r2_log": 0.025,
+    "median_factor": 2.14,
+    "within_2x": 0.458
+   },
+   "ridge": {
+    "r2_log": 0.214,
+    "median_factor": 2.23,
+    "within_2x": 0.436
+   },
+   "xgboost": {
+    "r2_log": 0.135,
+    "median_factor": 2.31,
+    "within_2x": 0.424
+   }
+  },
+  "best": "ridge",
+  "error_reduction_vs_reference": -0.051,
+  "seconds": 59
+ },
+ "GT": {
+  "currency": "GTQ",
+  "rows": 5000,
+  "distinct_texts": 4574,
+  "scores": {
+   "reference": {
+    "r2_log": 0.113,
+    "median_factor": 1.66,
+    "within_2x": 0.569
+   },
+   "ridge": {
+    "r2_log": 0.612,
+    "median_factor": 1.66,
+    "within_2x": 0.597
+   },
+   "xgboost": {
+    "r2_log": 0.577,
+    "median_factor": 1.63,
+    "within_2x": 0.612
+   }
+  },
+  "best": "xgboost",
+  "error_reduction_vs_reference": 0.041,
+  "seconds": 113
+ },
+ "PE": {
+  "currency": "PEN",
+  "rows": 84,
+  "distinct_texts": 84,
+  "status": "insufficient",
+  "seconds": 0
+ },
+ "PY": {
+  "currency": "PYG",
+  "rows": 5279,
+  "distinct_texts": 4201,
+  "scores": {
+   "reference": {
+    "r2_log": 0.086,
+    "median_factor": 2.38,
+    "within_2x": 0.42
+   },
+   "ridge": {
+    "r2_log": 0.429,
+    "median_factor": 1.89,
+    "within_2x": 0.531
+   },
+   "xgboost": {
+    "r2_log": 0.373,
+    "median_factor": 1.97,
+    "within_2x": 0.507
+   }
+  },
+  "best": "ridge",
+  "error_reduction_vs_reference": 0.267,
+  "seconds": 46
+ },
+ "SV": {
+  "currency": "USD",
+  "rows": 2000,
+  "distinct_texts": 298,
+  "scores": {
+   "reference": {
+    "r2_log": -0.015,
+    "median_factor": 5.45,
+    "within_2x": 0.216
+   },
+   "ridge": {
+    "r2_log": -0.393,
+    "median_factor": 6.93,
+    "within_2x": 0.182
+   },
+   "xgboost": {
+    "r2_log": -0.593,
+    "median_factor": 9.96,
+    "within_2x": 0.145
+   }
+  },
+  "best": "ridge",
+  "error_reduction_vs_reference": -0.142,
+  "seconds": 20
+ },
+ "UY": {
+  "currency": "UYU",
+  "rows": 2646,
+  "distinct_texts": 1631,
+  "scores": {
+   "reference": {
+    "r2_log": 0.223,
+    "median_factor": 2.98,
+    "within_2x": 0.327
+   },
+   "ridge": {
+    "r2_log": 0.322,
+    "median_factor": 3.03,
+    "within_2x": 0.325
+   },
+   "xgboost": {
+    "r2_log": 0.277,
+    "median_factor": 3.09,
+    "within_2x": 0.324
+   }
+  },
+  "best": "ridge",
+  "error_reduction_vs_reference": -0.015,
+  "seconds": 13
+ }
+}

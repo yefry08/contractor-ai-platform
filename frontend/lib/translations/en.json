@@ -39,7 +39,7 @@
     "s1Title": "You browse or filter",
     "s1Text": "Search contracts by country, buyer or category, or go straight to the list of anomalies already found.",
     "s2Title": "We compare the signal",
-    "s2Text": "Every contract is checked against the NLP model (BERT + XGBoost, Paraguay and Colombia) and against a robust statistical layer (median + MAD) that runs across all countries.",
+    "s2Text": "Every contract is checked against an AI model that predicts its price from what it describes (the original BERT + XGBoost in Paraguay; a text model trained and validated per country in Colombia, Costa Rica and Brazil) and against a robust statistical layer (median + MAD) that runs across all countries.",
     "s3Title": "You check the evidence",
     "s3Text": "Each alert shows the kind of deviation, the buyer, the category and the contract itself — never just an isolated score."
   },

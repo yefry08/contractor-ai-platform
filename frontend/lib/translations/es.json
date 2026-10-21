@@ -39,7 +39,7 @@
     "s1Title": "Exploras o filtras",
     "s1Text": "Busca contratos por país, comprador o categoría, o entra directo a la lista de anomalías ya detectadas.",
     "s2Title": "Comparamos la señal",
-    "s2Text": "Cada contrato se contrasta contra el modelo NLP (BERT + XGBoost, Paraguay y Colombia) y contra una capa estadística robusta (mediana + MAD) que corre sobre todos los países.",
+    "s2Text": "Cada contrato se contrasta contra un modelo de IA que predice su precio a partir de lo que describe (el BERT + XGBoost original en Paraguay; un modelo de texto entrenado y validado por país en Colombia, Costa Rica y Brasil) y contra una capa estadística robusta (mediana + MAD) que corre sobre todos los países.",
     "s3Title": "Revisas la evidencia",
     "s3Text": "Cada alerta muestra el tipo de desviación, el comprador, la categoría y el detalle del contrato, nunca solo un puntaje aislado."
   },
