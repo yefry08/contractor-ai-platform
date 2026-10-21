@@ -47,3 +47,9 @@ backend/.pe_*.json
 
 # TypeScript incremental build cache
 *.tsbuildinfo
+
+# Price models: binaries and per-contract predictions are rebuilt by
+# backend/scripts/train_price_models.py; only metrics.json is kept.
+backend/models/price/*.joblib
+backend/models/price/oof_predictions.csv
+backend/models/price/train.log
