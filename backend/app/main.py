@@ -1,7 +1,7 @@
 import csv
 import io
 import os
-import time
+import secrets
 from datetime import datetime
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, Request, UploadFile
@@ -10,7 +10,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
-from . import ai, analysis, dashboard, models, reference, schemas, tenders, providers
+from . import ai, analysis, dashboard, inquiries, models, opportunities, reference, schemas, security, tenders, providers
 from .config import settings
 from .db import get_db
 
@@ -42,6 +42,7 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
+app.middleware("http")(security.add_security_headers)
 
 
 @app.get("/health")
@@ -124,24 +125,8 @@ def list_citizen_reports(contract_id: str, db: Session = Depends(get_db)):
     return db.execute(stmt).scalars().all()
 
 
-# Best-effort in-memory rate limit shared by every write/expensive endpoint
-# below: not a security guarantee (resets on restart, keyed on
-# request.client.host which a proxy can obscure), just a soft deterrent
-# against a script hammering an endpoint. Real abuse resistance would need a
-# shared store (Redis, etc.) and proper proxy IP handling (X-Forwarded-For).
-_rate_hits: dict[str, list[float]] = {}
-
-
-def _rate_limited(request: Request, bucket: str, max_hits: int, window_seconds: int) -> bool:
-    client_ip = request.client.host if request.client else "unknown"
-    key = f"{bucket}:{client_ip}"
-    now = time.time()
-    hits = [t for t in _rate_hits.get(key, []) if now - t < window_seconds]
-    exceeded = len(hits) >= max_hits
-    if not exceeded:
-        hits.append(now)
-        _rate_hits[key] = hits
-    return exceeded
+# Shared limiter, honeypot and Turnstile check: see app/security.py.
+_rate_limited = security.rate_limited
 
 
 MAX_REPORTS_PER_WINDOW = 5
@@ -167,6 +152,8 @@ def create_citizen_report(
 
     if _rate_limited(request, "reports", MAX_REPORTS_PER_WINDOW, REPORT_WINDOW_SECONDS):
         raise HTTPException(status_code=429, detail="Demasiados reportes. Probá de nuevo en unos minutos.")
+    if not security.verify_turnstile(payload.turnstile_token, request):
+        raise HTTPException(status_code=403, detail="No pudimos verificar que seas una persona. Recarga la página e intenta de nuevo.")
 
     report = models.CitizenReport(contract_id=contract_id, comment=payload.comment.strip(), stance=payload.stance)
     db.add(report)
@@ -476,3 +463,152 @@ def analyze_narrative(payload: schemas.NarrativeRequest, request: Request):
 
     narrative = ai.generate_narrative(payload.text, payload.comparison_summary)
     return schemas.NarrativeOut(available=narrative is not None, narrative=narrative)
+
+
+# ---------------------------------------------------------------------------
+# Oportunidades: open calls to sell to the state (app/opportunities.py)
+# ---------------------------------------------------------------------------
+
+
+@app.get("/opportunities", response_model=schemas.OpportunityPage)
+def list_opportunities(
+    country: str | None = Query(default=None, max_length=4),
+    q: str | None = Query(default=None, max_length=200),
+    for_smes: bool | None = None,
+    closing_within_days: int | None = Query(default=None, ge=1, le=365),
+    min_amount: float | None = Query(default=None, ge=0),
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0, le=10_000),
+    db: Session = Depends(get_db),
+):
+    total, items = opportunities.search(
+        db,
+        country=country,
+        q=q,
+        for_smes=for_smes,
+        closing_within_days=closing_within_days,
+        min_amount=min_amount,
+        limit=limit,
+        offset=offset,
+    )
+    histories = opportunities.buyer_histories(db, items)
+    out = []
+    for o in items:
+        item = schemas.OpportunityOut.model_validate(o)
+        h = histories.get((o.country_code, opportunities.normalize(o.buyer_name)))
+        if h:
+            item.buyer_history = schemas.BuyerHistoryOut(**h.__dict__)
+        out.append(item)
+    return schemas.OpportunityPage(
+        total=total, items=out, counts_by_country=opportunities.counts_by_country(db), sources=opportunities.SOURCES
+    )
+
+
+# ---------------------------------------------------------------------------
+# Consultas y reclamos (app/inquiries.py)
+# ---------------------------------------------------------------------------
+
+MAX_INQUIRIES_PER_WINDOW = 5
+INQUIRY_WINDOW_SECONDS = 3600
+
+
+@app.get("/inquiries/channels/{country_code}", response_model=list[schemas.ChannelOut])
+def inquiry_channels(country_code: str):
+    channels = inquiries.channels_for(country_code.upper())
+    if not channels:
+        raise HTTPException(status_code=404, detail="País no cubierto")
+    return channels
+
+
+@app.post("/inquiries", response_model=schemas.InquiryReceiptOut, status_code=201)
+def create_inquiry(payload: schemas.InquiryIn, request: Request, db: Session = Depends(get_db)):
+    country = payload.country_code.upper()
+    channels = inquiries.channels_for(country)
+    if not channels:
+        raise HTTPException(status_code=422, detail="País no cubierto")
+
+    if payload.website:
+        # Honeypot: answer like a success so the bot learns nothing, store nothing.
+        return schemas.InquiryReceiptOut(code=inquiries.new_code(), status="recibido", channels=channels)
+
+    if _rate_limited(request, "inquiries", MAX_INQUIRIES_PER_WINDOW, INQUIRY_WINDOW_SECONDS):
+        raise HTTPException(status_code=429, detail="Demasiadas consultas desde esta conexión. Intenta de nuevo en una hora.")
+    if not security.verify_turnstile(payload.turnstile_token, request):
+        raise HTTPException(status_code=403, detail="No pudimos verificar que seas una persona. Recarga la página e intenta de nuevo.")
+
+    contract_id = payload.contract_id if payload.contract_id and db.get(models.Contract, payload.contract_id) else None
+    opportunity_id = (
+        payload.opportunity_id if payload.opportunity_id and db.get(models.Opportunity, payload.opportunity_id) else None
+    )
+    code = inquiries.new_code()
+    while db.execute(select(models.Inquiry.id).where(models.Inquiry.code == code)).first():
+        code = inquiries.new_code()
+
+    db.add(
+        models.Inquiry(
+            code=code,
+            kind=payload.kind,
+            country_code=country,
+            process_reference=payload.process_reference,
+            institution=payload.institution,
+            contract_id=contract_id,
+            opportunity_id=opportunity_id,
+            subject=payload.subject.strip(),
+            body=payload.body.strip(),
+            contact_email=payload.contact_email,
+        )
+    )
+    db.commit()
+    return schemas.InquiryReceiptOut(code=code, status="recibido", channels=channels)
+
+
+@app.get("/inquiries/{code}", response_model=schemas.InquiryStatusOut)
+def inquiry_status(code: str, request: Request, db: Session = Depends(get_db)):
+    # Codes are 8 characters from a 31-symbol alphabet (~8.5e11); the limit
+    # keeps anyone from walking that space to read other people's status.
+    if _rate_limited(request, "inquiry-lookup", 30, 600):
+        raise HTTPException(status_code=429, detail="Demasiadas búsquedas. Intenta de nuevo en unos minutos.")
+    inquiry = db.execute(select(models.Inquiry).where(models.Inquiry.code == code.strip().upper())).scalar_one_or_none()
+    if inquiry is None:
+        raise HTTPException(status_code=404, detail="Código no encontrado")
+    out = schemas.InquiryStatusOut.model_validate(inquiry)
+    out.channels = [schemas.ChannelOut(**c) for c in inquiries.channels_for(inquiry.country_code)]
+    return out
+
+
+def _require_admin(request: Request) -> None:
+    token = settings.admin_token
+    supplied = request.headers.get("authorization", "")
+    if not token:
+        raise HTTPException(status_code=404, detail="Not Found")
+    if _rate_limited(request, "admin", 60, 600) or not secrets.compare_digest(supplied, f"Bearer {token}"):
+        raise HTTPException(status_code=404, detail="Not Found")
+
+
+@app.get("/admin/inquiries", response_model=list[schemas.AdminInquiryOut], include_in_schema=False)
+def admin_list_inquiries(
+    request: Request,
+    status: str | None = Query(default=None, max_length=20),
+    limit: int = Query(default=100, ge=1, le=500),
+    db: Session = Depends(get_db),
+):
+    _require_admin(request)
+    stmt = select(models.Inquiry).order_by(models.Inquiry.created_at.desc()).limit(limit)
+    if status:
+        stmt = stmt.where(models.Inquiry.status == status)
+    return db.execute(stmt).scalars().all()
+
+
+@app.post("/admin/inquiries/{code}", response_model=schemas.AdminInquiryOut, include_in_schema=False)
+def admin_update_inquiry(code: str, payload: schemas.InquiryUpdateIn, request: Request, db: Session = Depends(get_db)):
+    _require_admin(request)
+    inquiry = db.execute(select(models.Inquiry).where(models.Inquiry.code == code.upper())).scalar_one_or_none()
+    if inquiry is None:
+        raise HTTPException(status_code=404, detail="Código no encontrado")
+    inquiry.status = payload.status
+    if payload.response is not None:
+        inquiry.response = payload.response.strip() or None
+    inquiry.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(inquiry)
+    return inquiry

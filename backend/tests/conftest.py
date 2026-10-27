@@ -16,6 +16,10 @@ os.environ["DATABASE_URL"] = f"sqlite:///{TEST_DB_PATH}"
 # a shared, global free-tier quota. Tests that need "available" behavior
 # monkeypatch app.ai.settings.bazaarlink_api_key explicitly instead.
 os.environ["BAZAARLINK_API_KEY"] = ""
+# Same for Cloudflare Turnstile and the admin token: tests that need them set
+# them explicitly, so a real secret in backend/.env never reaches Cloudflare.
+os.environ["TURNSTILE_SECRET_KEY"] = ""
+os.environ["ADMIN_TOKEN"] = ""
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
@@ -59,15 +63,15 @@ def _clean_tables():
 
 @pytest.fixture(autouse=True)
 def _reset_rate_limits():
-    """app.main's in-memory rate limiter is module-level state keyed by
-    client IP -- and Starlette's TestClient always reports the same fake IP,
+    """The in-memory rate limiter (app/security.py) is module-level state keyed
+    by client IP -- and Starlette's TestClient always reports the same fake IP,
     so without this every test sharing an endpoint's rate-limit bucket would
     silently count hits left over from whichever test ran before it."""
-    from app import main
+    from app import security
 
-    main._rate_hits.clear()
+    security.reset_rate_limits()
     yield
-    main._rate_hits.clear()
+    security.reset_rate_limits()
 
 
 @pytest.fixture

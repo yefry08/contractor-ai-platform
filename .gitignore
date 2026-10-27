@@ -19,6 +19,7 @@ Data/records.csv
 backend/scripts/_pida_secp_processes.csv
 backend/scripts/_chile_cache/
 backend/scripts/_guatemala_cache/
+backend/scripts/_peru_cache/
 *.db
 *.db-journal
 *.db-wal
@@ -52,4 +53,8 @@ backend/.pe_*.json
 # backend/scripts/train_price_models.py; only metrics.json is kept.
 backend/models/price/*.joblib
 backend/models/price/oof_predictions.csv
-backend/models/price/train.log
+backend/models/price/*.log
+backend/models/price/embeddings.npz
+
+# Throwaway database for local form tests (.claude/launch.json)
+forms_test.db

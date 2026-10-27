@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, date
 
-from sqlalchemy import JSON, Boolean, Date, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import JSON, Boolean, Date, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
@@ -197,3 +197,61 @@ class ApiKey(Base):
     rate_limit_per_minute: Mapped[int] = mapped_column(Integer, default=60)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+
+class Opportunity(Base):
+    """An open call -- a tender still taking offers -- copied from a country's
+    official portal so suppliers can find it here and go bid there.
+    Contractor AI never takes or relays a bid: `url` always points back to
+    the official process page."""
+
+    __tablename__ = "opportunities"
+    __table_args__ = (UniqueConstraint("country_code", "external_id", name="uq_opportunity_source_id"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    country_code: Mapped[str] = mapped_column(ForeignKey("countries.code"), index=True)
+    source: Mapped[str] = mapped_column(String(40))  # secop2 | pncp | dgcp
+    external_id: Mapped[str] = mapped_column(String(200))
+    title: Mapped[str] = mapped_column(Text)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    buyer_name: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    region: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    category: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    procurement_method: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    currency: Mapped[str | None] = mapped_column(String(6), nullable=True)
+    estimated_amount: Mapped[float | None] = mapped_column(Float, nullable=True)
+    published_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    deadline: Mapped[datetime] = mapped_column(DateTime, index=True)
+    for_smes: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    url: Mapped[str] = mapped_column(String(600))
+    fetched_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
+class Inquiry(Base):
+    """A question or complaint about a procurement process, filed by anyone.
+
+    Private by design: the text is never published, only reviewed by the
+    team, because an unmoderated accusation against a named institution or
+    supplier can do real harm. The filer gets a tracking code and, every
+    time, the official channel where a formal complaint has legal effect --
+    this is a first stop, not a replacement for it. No IP address or
+    browser fingerprint is stored; the e-mail is optional and only for a
+    reply."""
+
+    __tablename__ = "inquiries"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    code: Mapped[str] = mapped_column(String(20), unique=True, index=True)
+    kind: Mapped[str] = mapped_column(String(20))  # consulta | reclamo | alerta
+    country_code: Mapped[str] = mapped_column(String(4), index=True)
+    process_reference: Mapped[str | None] = mapped_column(String(600), nullable=True)
+    institution: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    contract_id: Mapped[str | None] = mapped_column(ForeignKey("contracts.id"), nullable=True)
+    opportunity_id: Mapped[str | None] = mapped_column(ForeignKey("opportunities.id"), nullable=True)
+    subject: Mapped[str] = mapped_column(String(200))
+    body: Mapped[str] = mapped_column(Text)
+    contact_email: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="recibido")  # recibido | en_revision | derivado | cerrado
+    response: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)

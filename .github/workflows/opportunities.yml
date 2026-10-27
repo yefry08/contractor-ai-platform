@@ -1,0 +1,41 @@
+# Keeps "Oportunidades" current: removes calls whose deadline passed and
+# brings new ones from SECOP II (CO), PNCP (BR) and DGCP (DO).
+#
+# Needs one repository secret, DATABASE_URL (the Neon connection string),
+# under Settings -> Secrets and variables -> Actions. Without it the job
+# stops at the first step with a clear message.
+name: Refresh open calls
+
+on:
+  schedule:
+    - cron: "15 */6 * * *" # every 6 hours
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check the secret
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::Set the DATABASE_URL repository secret to run this job."
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - run: pip install -r backend/requirements.txt
+      - name: Refresh open calls
+        working-directory: backend
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python scripts/ingest_opportunities.py

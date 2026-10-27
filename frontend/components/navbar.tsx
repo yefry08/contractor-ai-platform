@@ -39,11 +39,14 @@ export function Navbar() {
           <a href="/dashboard" onClick={() => setOpen(false)}>
             {t("nav.dashboard")}
           </a>
-          <a href="/tenders" onClick={() => setOpen(false)}>
+          <a href="/oportunidades" onClick={() => setOpen(false)}>
             {t("nav.tenders")}
           </a>
           <a href="/datos" onClick={() => setOpen(false)}>
             {t("nav.datos")}
+          </a>
+          <a href="/reclamos" onClick={() => setOpen(false)}>
+            {t("nav.inquiries")}
           </a>
           <a href="mailto:yefrynunez45@gmail.com" className="navbar-cta navbar-cta-mobile" onClick={() => setOpen(false)}>
             {t("nav.contact")}
