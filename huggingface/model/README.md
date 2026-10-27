@@ -65,7 +65,7 @@ print(r.verdict, r.reference_group, round(r.deviation_pct))
 ## Limitaciones y uso responsable
 
 - Un veredicto «revisar» o «alta» es una **señal para mirar más de cerca**, nunca una acusación de corrupción. Hay compras legítimamente atípicas (urgencias, obras únicas, errores de carga en el portal).
-- Cada país publica distinto: muestras de distinto tamaño y período (ver la sección «Datos de los datos» de la plataforma). Perú tiene muy pocos contratos.
+- Cada país publica distinto: muestras de distinto tamaño y período (ver la sección «Datos de los datos» de la plataforma). Cada muestra cubre entre uno y nueve años según el país.
 - Los montos están en moneda local y **no se comparan entre países**.
 
 ## Cita
