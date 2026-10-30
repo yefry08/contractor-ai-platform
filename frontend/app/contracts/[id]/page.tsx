@@ -126,6 +126,12 @@ export default async function ContractDetailPage({
         </div>
       )}
 
+      <p className="contract-inquiry">
+        <a href={`/reclamos?${new URLSearchParams({ pais: c.country_code, contrato: c.id, tipo: "alerta", ...(c.buyer?.name ? { institucion: c.buyer.name } : {}), ...(c.source_url ? { proceso: c.source_url } : {}) }).toString()}`}>
+          {t("contract.inquiryLink")} →
+        </a>
+      </p>
+
       <CitizenReports contractId={c.id} initialReports={reports} />
     </>
   );

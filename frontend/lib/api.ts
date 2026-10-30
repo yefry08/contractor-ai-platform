@@ -117,6 +117,14 @@ export type Comparison = {
   comparables: Comparable[];
 };
 
+// FastAPI sends a string for HTTPException and a list of {loc, msg} for
+// validation errors; the list would otherwise print as "[object Object]".
+function detailMessage(detail: unknown): string | null {
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail)) return detail.map((d) => (d && typeof d === "object" && "msg" in d ? String(d.msg) : "")).filter(Boolean).join("; ");
+  return null;
+}
+
 export class ApiError extends Error {
   constructor(message: string, public status: number) {
     super(message);
@@ -127,7 +135,7 @@ async function apiFetchForm<T>(path: string, form: FormData): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, { method: "POST", body: form });
   if (!res.ok) {
     const body = await res.json().catch(() => null);
-    throw new ApiError(body?.detail || `API ${path} devolvió ${res.status}`, res.status);
+    throw new ApiError(detailMessage(body?.detail) || `API ${path} devolvió ${res.status}`, res.status);
   }
   return res.json();
 }
@@ -140,7 +148,7 @@ async function apiFetchJson<T>(path: string, payload: unknown): Promise<T> {
   });
   if (!res.ok) {
     const body = await res.json().catch(() => null);
-    throw new ApiError(body?.detail || `API ${path} devolvió ${res.status}`, res.status);
+    throw new ApiError(detailMessage(body?.detail) || `API ${path} devolvió ${res.status}`, res.status);
   }
   return res.json();
 }
@@ -240,7 +248,7 @@ export function listCitizenReports(contractId: string) {
 
 export function submitCitizenReport(
   contractId: string,
-  payload: { comment: string; stance: "flag" | "context"; website?: string },
+  payload: { comment: string; stance: "flag" | "context"; website?: string; turnstile_token?: string | null },
 ) {
   return apiFetchJson<CitizenReport>(`/contracts/${contractId}/reports`, payload);
 }
@@ -350,4 +358,86 @@ export function getGeographicFavoritism() {
 
 export function getTemporalPatterns(country?: string) {
   return apiFetch<TemporalCluster[]>(`/providers/temporal-patterns${providerQuery(country)}`);
+}
+
+
+export type BuyerHistory = {
+  contracts: number;
+  median_amount: number | null;
+  currency: string | null;
+  anomaly_rate: number | null;
+};
+
+export type Opportunity = {
+  id: string;
+  country_code: string;
+  source: string;
+  title: string;
+  description: string | null;
+  buyer_name: string | null;
+  region: string | null;
+  category: string | null;
+  procurement_method: string | null;
+  currency: string | null;
+  estimated_amount: number | null;
+  published_at: string | null;
+  deadline: string;
+  for_smes: boolean | null;
+  url: string;
+  buyer_history: BuyerHistory | null;
+};
+
+export type OpportunityPage = {
+  total: number;
+  items: Opportunity[];
+  counts_by_country: Record<string, number>;
+  sources: Record<string, string>;
+};
+
+export function listOpportunities(params: Record<string, string | number | boolean | undefined>) {
+  const qs = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    if (v !== undefined && v !== "" && v !== false) qs.set(k, String(v));
+  }
+  return apiFetch<OpportunityPage>(`/opportunities?${qs.toString()}`);
+}
+
+export type Channel = { role: "procurement" | "oversight"; name: string; url: string };
+export type InquiryKind = "consulta" | "reclamo" | "alerta";
+export type InquiryReceipt = { code: string; status: string; channels: Channel[] };
+export type InquiryStatus = {
+  code: string;
+  kind: InquiryKind;
+  country_code: string;
+  status: "recibido" | "en_revision" | "derivado" | "cerrado";
+  response: string | null;
+  created_at: string;
+  updated_at: string;
+  channels: Channel[];
+};
+
+export function submitInquiry(payload: {
+  kind: InquiryKind;
+  country_code: string;
+  process_reference?: string;
+  institution?: string;
+  contract_id?: string;
+  opportunity_id?: string;
+  subject: string;
+  body: string;
+  contact_email?: string;
+  website?: string;
+  turnstile_token?: string | null;
+}) {
+  return apiFetchJson<InquiryReceipt>("/inquiries", payload);
+}
+
+export async function getInquiry(code: string): Promise<InquiryStatus | null> {
+  const res = await fetch(`${API_URL}/inquiries/${encodeURIComponent(code.trim())}`, { cache: "no-store" });
+  if (res.status === 404) return null;
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new ApiError(body?.detail || `API devolvió ${res.status}`, res.status);
+  }
+  return res.json();
 }

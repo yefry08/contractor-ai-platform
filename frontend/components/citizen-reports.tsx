@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ApiError, CitizenReport, submitCitizenReport } from "@/lib/api";
 import { useLanguage } from "@/lib/language-context";
+import { Turnstile, turnstileEnabled } from "@/components/turnstile";
 
 export function CitizenReports({ contractId, initialReports }: { contractId: string; initialReports: CitizenReport[] }) {
   const { t, locale } = useLanguage();
@@ -13,6 +14,8 @@ export function CitizenReports({ contractId, initialReports }: { contractId: str
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+  const [resetKey, setResetKey] = useState(0);
 
   function fmtDate(iso: string) {
     return new Date(iso).toLocaleDateString(locale, { year: "numeric", month: "short", day: "numeric" });
@@ -27,7 +30,12 @@ export function CitizenReports({ contractId, initialReports }: { contractId: str
     setSubmitting(true);
     setError(null);
     try {
-      const created = await submitCitizenReport(contractId, { comment: comment.trim(), stance, website });
+      const created = await submitCitizenReport(contractId, {
+        comment: comment.trim(),
+        stance,
+        website,
+        turnstile_token: token,
+      });
       if (created.id !== "0") {
         setReports((prev) => [created, ...prev]);
       }
@@ -37,6 +45,7 @@ export function CitizenReports({ contractId, initialReports }: { contractId: str
       setError(err instanceof ApiError ? err.message : t("citizen.sendError"));
     } finally {
       setSubmitting(false);
+      setResetKey((k) => k + 1); // a Turnstile token works once
     }
   }
 
@@ -93,10 +102,12 @@ export function CitizenReports({ contractId, initialReports }: { contractId: str
           aria-hidden="true"
         />
 
+        <Turnstile onToken={setToken} resetKey={resetKey} />
+
         {error && <div className="wizard-warning">{error}</div>}
         {done && !error && <div className="wizard-note">{t("citizen.thanks")}</div>}
 
-        <button type="submit" className="wizard-btn-primary" disabled={submitting}>
+        <button type="submit" className="wizard-btn-primary" disabled={submitting || (turnstileEnabled && !token)}>
           {submitting ? t("citizen.sending") : t("citizen.send")}
         </button>
       </form>

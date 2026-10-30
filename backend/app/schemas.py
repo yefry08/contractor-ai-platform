@@ -189,6 +189,7 @@ class CitizenReportIn(BaseModel):
     comment: str = Field(min_length=5, max_length=1000)
     stance: str = "flag"
     website: str = Field(default="", max_length=200)  # honeypot -- real users leave this blank
+    turnstile_token: str | None = Field(default=None, max_length=4096)
 
     @field_validator("stance")
     @classmethod
@@ -271,3 +272,114 @@ class TemporalClusterOut(BaseModel):
     buyer_name: str
     contract_amount_usd: float
     consecutive_awards: int
+
+
+class BuyerHistoryOut(BaseModel):
+    contracts: int
+    median_amount: float | None
+    currency: str | None
+    anomaly_rate: float | None
+
+
+class OpportunityOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    country_code: str
+    source: str
+    title: str
+    description: str | None
+    buyer_name: str | None
+    region: str | None
+    category: str | None
+    procurement_method: str | None
+    currency: str | None
+    estimated_amount: float | None
+    published_at: datetime | None
+    deadline: datetime
+    for_smes: bool | None
+    url: str
+    buyer_history: BuyerHistoryOut | None = None
+
+
+class OpportunityPage(BaseModel):
+    total: int
+    items: list[OpportunityOut]
+    counts_by_country: dict[str, int]
+    sources: dict[str, str]
+
+
+class ChannelOut(BaseModel):
+    role: str  # procurement | oversight
+    name: str
+    url: str
+
+
+_EMAIL = r"^[^@\s]{1,64}@[^@\s]{1,190}\.[A-Za-z]{2,24}$"
+
+
+class InquiryIn(BaseModel):
+    kind: str
+    country_code: str = Field(min_length=2, max_length=4)
+    process_reference: str | None = Field(default=None, max_length=600)
+    institution: str | None = Field(default=None, max_length=300)
+    contract_id: str | None = Field(default=None, max_length=36)
+    opportunity_id: str | None = Field(default=None, max_length=36)
+    subject: str = Field(min_length=5, max_length=200)
+    body: str = Field(min_length=20, max_length=5000)
+    contact_email: str | None = Field(default=None, max_length=200, pattern=_EMAIL)
+    website: str = Field(default="", max_length=200)  # honeypot
+    turnstile_token: str | None = Field(default=None, max_length=4096)
+
+    @field_validator("kind")
+    @classmethod
+    def _valid_kind(cls, v: str) -> str:
+        if v not in ("consulta", "reclamo", "alerta"):
+            raise ValueError("kind must be consulta, reclamo or alerta")
+        return v
+
+    @field_validator("contact_email", "process_reference", "institution", "contract_id", "opportunity_id", mode="before")
+    @classmethod
+    def _blank_is_none(cls, v):
+        return v.strip() or None if isinstance(v, str) else v
+
+
+class InquiryReceiptOut(BaseModel):
+    code: str
+    status: str
+    channels: list[ChannelOut]
+
+
+class InquiryStatusOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    code: str
+    kind: str
+    country_code: str
+    status: str
+    response: str | None
+    created_at: datetime
+    updated_at: datetime
+    channels: list[ChannelOut] = []
+
+
+class AdminInquiryOut(InquiryStatusOut):
+    process_reference: str | None
+    institution: str | None
+    contract_id: str | None
+    opportunity_id: str | None
+    subject: str
+    body: str
+    contact_email: str | None
+
+
+class InquiryUpdateIn(BaseModel):
+    status: str
+    response: str | None = Field(default=None, max_length=5000)
+
+    @field_validator("status")
+    @classmethod
+    def _valid_status(cls, v: str) -> str:
+        if v not in ("recibido", "en_revision", "derivado", "cerrado"):
+            raise ValueError("unknown status")
+        return v

@@ -33,21 +33,38 @@ directly to the address already validated — a meaningfully bigger rewrite
 than this best-effort text-extraction feature currently warrants. Flagged
 here, and in the code, so it isn't forgotten.
 
-**Rate limiting.** `/analyze/extract`, `/analyze/compare`, and
-`POST /contracts/{id}/reports` share a best-effort in-memory limiter keyed
-by client IP (`app/main.py::_rate_limited`). It resets on process restart
-and depends on `request.client.host`, which a reverse proxy can obscure —
-this is a deterrent against casual abuse, not a hard guarantee. Real abuse
-resistance at scale would need a shared store (Redis) and proper
-`X-Forwarded-For` handling.
+**Rate limiting.** `/analyze/*`, `POST /contracts/{id}/reports`,
+`POST /inquiries`, the inquiry lookup and the admin endpoints share an
+in-memory limiter keyed by the real client IP (`app/security.py`): Cloudflare's
+`CF-Connecting-IP` when it fronts the site, otherwise the last hop of
+`X-Forwarded-For` that Render appends -- never the client-supplied leftmost
+entries, and never `request.client.host`, which behind Render is the proxy
+itself (every visitor used to share one bucket). It resets on restart and
+isn't shared between instances; a Cloudflare WAF rate-limiting rule is the
+layer that stops a real flood (docs/security/cloudflare.md).
 
-**Citizen reports** (`POST /contracts/{id}/reports`) are public and
-unauthenticated by design — that's the point of the feature. Two mitigations
-against spam: a honeypot field real browsers never fill (a bot that fills it
-gets a fake success response, so it doesn't learn to skip the field) and the
-same rate limiter described above. Comments are rendered as plain text on
-the frontend (React's default escaping, no `dangerouslySetInnerHTML`
-anywhere near user content), so this isn't a stored-XSS vector.
+**Bot checks on forms.** Citizen reports and inquiries carry a honeypot field
+real browsers never fill (a bot that fills it gets a fake success, so it
+doesn't learn to skip it) and, when `TURNSTILE_SECRET_KEY` is set, a
+Cloudflare Turnstile token verified server-side; verification fails closed if
+Cloudflare can't be reached. User text is rendered as plain text (React's
+escaping, no `dangerouslySetInnerHTML` near user content), so it isn't a
+stored-XSS vector.
+
+**Inquiries are private.** `POST /inquiries` stores no IP address or
+fingerprint, the e-mail is optional, and the text is never returned by any
+public endpoint: the tracking lookup shows only kind, status and the team's
+answer. Codes are 8 characters from a 31-symbol alphabet and the lookup is
+rate-limited, so walking the code space isn't practical. The admin endpoints
+answer 404 unless `ADMIN_TOKEN` is set and matched (constant-time compare).
+
+**Headers and crawlers.** The API sends `nosniff`, `X-Frame-Options: DENY`,
+HSTS and a `default-src 'none'` policy. The frontend sends HSTS, a content
+security policy that only allows scripts from itself, Cloudflare Turnstile and
+Spline, `frame-ancestors 'none'`, and a restrictive Permissions-Policy.
+Self-identified AI crawlers and scraping libraries get a 403
+(`frontend/middleware.ts`) and are disallowed in robots.txt; bots that lie
+about their user agent need Cloudflare's Bot Fight Mode.
 
 **Upload limits.** PDF uploads are capped at 15 MB
 (`main.py::MAX_UPLOAD_BYTES`); link fetches are capped at 3 MB

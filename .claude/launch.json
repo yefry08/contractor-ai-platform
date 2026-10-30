@@ -13,6 +13,41 @@
       "runtimeExecutable": "backend/.venv/Scripts/uvicorn.exe",
       "runtimeArgs": ["app.main:app", "--app-dir", "backend", "--host", "127.0.0.1", "--port", "8000"],
       "port": 8000
+    },
+    {
+      "name": "backend-dev-8010",
+      "runtimeExecutable": "backend/.venv/Scripts/uvicorn.exe",
+      "runtimeArgs": ["app.main:app", "--app-dir", "backend", "--host", "127.0.0.1", "--port", "8010"],
+      "port": 8010
+    },
+    {
+      "name": "frontend-dev-8010",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "frontend", "run", "dev"],
+      "port": 3000,
+      "autoPort": true,
+      "env": { "NEXT_PUBLIC_API_URL": "http://localhost:8010" }
+    },
+    {
+      "name": "backend-forms-test",
+      "runtimeExecutable": "backend/.venv/Scripts/uvicorn.exe",
+      "runtimeArgs": ["app.main:app", "--app-dir", "backend", "--host", "127.0.0.1", "--port", "8011"],
+      "port": 8011,
+      "env": {
+        "DATABASE_URL": "sqlite:///./forms_test.db",
+        "TURNSTILE_SECRET_KEY": "1x0000000000000000000000000000000AA",
+        "ADMIN_TOKEN": "local-test-token"
+      }
+    },
+    {
+      "name": "frontend-forms-test",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "frontend", "run", "dev", "--", "--port", "3011"],
+      "port": 3011,
+      "env": {
+        "NEXT_PUBLIC_API_URL": "http://localhost:8011",
+        "NEXT_PUBLIC_TURNSTILE_SITE_KEY": "1x00000000000000000000AA"
+      }
     }
   ]
 }

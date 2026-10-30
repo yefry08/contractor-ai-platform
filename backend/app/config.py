@@ -33,5 +33,14 @@ class Settings(BaseSettings):
     # backend/.env works too -- pydantic-settings doesn't export .env values.
     typesafe_api_key: str | None = None
 
+    # Cloudflare Turnstile secret (dashboard -> Turnstile -> the site's widget).
+    # When unset, forms are protected by the honeypot and rate limits only;
+    # production should set it. See docs/security/cloudflare.md.
+    turnstile_secret_key: str | None = None
+
+    # Bearer token for the /admin endpoints the team uses to read and answer
+    # inquiries. Unset = those endpoints answer 404, so they don't exist.
+    admin_token: str | None = None
+
 
 settings = Settings()
