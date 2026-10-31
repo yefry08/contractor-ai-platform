@@ -219,45 +219,51 @@ def main():
     args = parser.parse_args()
 
     Base.metadata.create_all(engine)  # adds the opportunities/inquiries tables on first run
-    db = SessionLocal()
-    try:
+    with SessionLocal() as db:
         removed = db.execute(delete(models.Opportunity).where(models.Opportunity.deadline < datetime.utcnow())).rowcount
         db.commit()
-        print(f"[limpieza] {removed} llamados vencidos eliminados")
+    print(f"[limpieza] {removed} llamados vencidos eliminados")
 
-        for code in args.countries:
-            existing = {
-                o.external_id: o
-                for o in db.execute(select(models.Opportunity).where(models.Opportunity.country_code == code)).scalars()
-            }
-            new = updated = failed = 0
-            try:
-                for item in FETCHERS[code](args.cap):
-                    if not item["external_id"]:
-                        continue
+    for code in args.countries:
+        # Download first, write after: PNCP needs minutes of throttled paging,
+        # and Neon closes a connection left idle inside a transaction that long
+        # (it did, and took the next country down with it).
+        items, fetch_error = {}, None
+        try:
+            for item in FETCHERS[code](args.cap):
+                if item["external_id"]:
                     item["title"] = item["title"][:2000]
                     item["url"] = item["url"][:600]
-                    row = existing.get(item["external_id"])
+                    items[item["external_id"]] = item
+        except Exception as exc:  # noqa: BLE001
+            # Keep what came before the failure; the next run picks up the rest.
+            fetch_error = f"{type(exc).__name__}: {exc}"
+
+        new = updated = 0
+        try:
+            with SessionLocal() as db:
+                existing = {
+                    o.external_id: o
+                    for o in db.execute(select(models.Opportunity).where(models.Opportunity.country_code == code)).scalars()
+                }
+                now = datetime.utcnow()
+                for external_id, item in items.items():
+                    row = existing.get(external_id)
                     if row is None:
-                        row = models.Opportunity(**item)
-                        db.add(row)
-                        existing[item["external_id"]] = row
+                        db.add(models.Opportunity(**item))
                         new += 1
                     else:
                         for k, v in item.items():
                             setattr(row, k, v)
-                        row.fetched_at = datetime.utcnow()
+                        row.fetched_at = now
                         updated += 1
-                    if (new + updated) % 500 == 0:
-                        db.commit()
-            except Exception as exc:  # noqa: BLE001
-                # One portal failing must not lose what the others brought.
-                failed += 1
-                print(f"[{code}] error: {type(exc).__name__}: {exc}", file=sys.stderr)
-            db.commit()
-            print(f"[{code}] nuevos={new} actualizados={updated} errores={failed}")
-    finally:
-        db.close()
+                db.commit()
+        except Exception as exc:  # noqa: BLE001
+            # One portal failing must not lose what the others bring.
+            print(f"[{code}] error al guardar: {type(exc).__name__}: {exc}"[:500], file=sys.stderr)
+        if fetch_error:
+            print(f"[{code}] descarga incompleta: {fetch_error}"[:500], file=sys.stderr)
+        print(f"[{code}] nuevos={new} actualizados={updated}")
 
 
 if __name__ == "__main__":
