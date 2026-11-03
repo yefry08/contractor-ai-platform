@@ -9,7 +9,8 @@
     "openMenu": "Abrir menú",
     "closeMenu": "Cerrar menú",
     "datos": "Estudios",
-    "inquiries": "Reclamos"
+    "inquiries": "Reclamos",
+    "territories": "Territorios"
   },
   "language": {
     "select": "Idioma",
@@ -540,5 +541,138 @@
       "derivado": "Derivado",
       "cerrado": "Cerrado"
     }
+  },
+  "terr": {
+    "eyebrow": "Para autoridades, candidatos y vecinos",
+    "title": "Qué necesita cada lugar",
+    "lead": "Para cada departamento, provincia o municipio: qué le falta a su población según las cifras oficiales, qué está fallando en sus compras públicas y en qué se está gastando. Todo con su fuente, para que cualquiera pueda comprobarlo.",
+    "how1": "Elige un país y un lugar. Verás sus carencias medidas por el censo y las estadísticas oficiales.",
+    "how2": "Las carencias se ordenan por cuánto peor está el lugar frente a los demás del país.",
+    "how3": "Al lado de cada una, cuánto de lo que contrata ese lugar va a ese sector, y qué contratos tienen alertas.",
+    "disclaimer": "Esto es una señal basada en datos públicos, no una recomendación política. Las cifras del censo pueden tener años; el orden muestra brechas medidas, no lo que la población votaría ni lo que cuesta resolverlas.",
+    "countries": "Países",
+    "hasNeeds": "Con indicadores de necesidades por territorio",
+    "error": "No se pudieron cargar los datos de territorios. Inténtalo de nuevo en unos minutos.",
+    "placesTitle": "Lugares de {country}",
+    "noNeeds": "Para este país todavía no encontramos un indicador oficial de necesidades por territorio publicado como datos abiertos. Abajo están sus instituciones, con su gasto y sus alertas.",
+    "noNeedsSV": "El Salvador reorganizó sus municipios en 2024 y aún no publica indicadores de necesidades por municipio como datos abiertos. Abajo están sus alcaldías e instituciones, con su gasto y sus alertas.",
+    "searchPlace": "Buscar un lugar…",
+    "placesCount": "{n} lugares",
+    "nationalIs": "nacional: {v}",
+    "worseThan": "peor que el {p} de los demás",
+    "contractsN": "{n} contratos",
+    "noHeadline": "Sin indicador principal",
+    "institutionsTitle": "Instituciones",
+    "institutionsLead": "Los gobiernos locales primero. Disponible en los 10 países: en qué gastan y qué alertas tienen sus contratos.",
+    "searchInstitution": "Buscar una institución…",
+    "noInstitutions": "No hay instituciones con al menos 3 contratos que coincidan.",
+    "localGov": "Gobierno local",
+    "institution": "Institución pública",
+    "alertsPct": "{p} con alertas",
+    "methodTitle": "Cómo se calcula",
+    "method1": "Necesidades: Necesidades Básicas Insatisfechas del censo (DANE 2018 en Colombia, INE 2022 en Paraguay), cobertura y deserción escolar del Ministerio de Educación de Colombia, y pobreza monetaria por región de la ONE en República Dominicana.",
+    "method2": "Prioridad: cada componente se ordena por la proporción de lugares del mismo nivel del país que están mejor. Los totales (como el NBI total) se muestran pero no se ordenan, porque resumen a los demás.",
+    "method3": "Gasto: los contratos se asignan a un lugar sólo cuando el portal dice dónde están o cuando el comprador es el gobierno local con ese nombre. El sector sale de lo que el contrato dice que compra (y del código UNSPSC en Colombia). Es una aproximación por número de contratos.",
+    "method4": "Fallas: la tasa de alertas es la proporción de contratos con una alerta abierta (estadística o del modelo de precios) frente a la del país. Una alerta no prueba una irregularidad: indica qué revisar primero.",
+    "summary": "Su brecha más marcada: {need}, peor que el {p} de {peers} del país.",
+    "needsTitle": "Qué necesita la población",
+    "needsLead": "Ordenado por cuánto peor está este lugar frente a {peers} del país. La barra llena es el peor.",
+    "noIndicators": "No hay indicadores oficiales para este lugar.",
+    "worseThanPeers": "Peor que el {p} de {peers}",
+    "higherIsBetter": "aquí más alto es mejor",
+    "spendShare": "Contratos de {sector}: {local} de los de aquí, frente al {national} en el país",
+    "lowSpend": "se contrata menos que en el resto del país",
+    "failingTitle": "Qué está fallando",
+    "worsened": "empeoró de {from} ({y0}) a {to} ({y1}).",
+    "alertRate": "de los contratos con alertas",
+    "vsNational": "en el país: {v}",
+    "flaggedContracts": "contratos con alertas abiertas",
+    "inquiries": "consultas y reclamos recibidos",
+    "fileInquiry": "Hacer una consulta o reclamo",
+    "untitled": "(sin título)",
+    "noContracts": "Todavía no tenemos contratos vinculados a este lugar.",
+    "spendTitle": "En qué se gasta",
+    "spendLead": "Reparto de {n} contratos por sector.",
+    "localShare": "aquí",
+    "nationalShare": "en el país",
+    "callsTitle": "Llamados abiertos aquí",
+    "allCalls": "Ver todos los llamados del país →",
+    "closes": "cierra el {date}",
+    "allIndicators": "Todos los indicadores",
+    "indicator": "Indicador",
+    "national": "Nacional",
+    "year": "Año",
+    "source": "Fuente",
+    "institutionSummary": "{n} contratos publicados en el portal nacional.",
+    "medianIs": "Contrato típico (mediana): {v}.",
+    "seeNeeds": "Qué necesita la población del lugar donde contrata:",
+    "noTerritory": "Esta institución no está vinculada a un territorio con indicadores de necesidades.",
+    "sectors": {
+      "agua_saneamiento": "Agua y saneamiento",
+      "educacion": "Educación",
+      "salud": "Salud",
+      "vias_transporte": "Vías y transporte",
+      "vivienda": "Vivienda",
+      "alimentacion": "Alimentación",
+      "seguridad": "Seguridad",
+      "energia": "Energía y alumbrado",
+      "ambiente": "Ambiente y residuos",
+      "administracion": "Personal y administración",
+      "otros": "Otros",
+      "pobreza": "Pobreza",
+      "empleo": "Ingresos y empleo"
+    },
+    "indicators": {
+      "nbi_total": "Personas con al menos una necesidad básica insatisfecha",
+      "nbi_miseria": "Personas en miseria (dos o más NBI)",
+      "nbi_vivienda": "Viviendas inadecuadas",
+      "nbi_servicios": "Sin agua o saneamiento adecuados",
+      "nbi_hacinamiento": "Hacinamiento crítico",
+      "nbi_inasistencia": "Niños de 6 a 12 años que no van a la escuela",
+      "nbi_dependencia": "Hogares con alta dependencia económica",
+      "nbi_hogares_total": "Hogares con al menos una necesidad básica insatisfecha",
+      "nbi_calidad_vivienda": "Hogares con vivienda de mala calidad",
+      "nbi_infra_sanitaria": "Hogares sin infraestructura sanitaria",
+      "nbi_acceso_educacion": "Hogares sin acceso a la educación",
+      "nbi_subsistencia": "Hogares sin capacidad de subsistencia",
+      "edu_cobertura_neta": "Cobertura neta de educación (5 a 16 años)",
+      "edu_desercion": "Deserción escolar",
+      "pobreza_general": "Pobreza monetaria",
+      "pobreza_extrema": "Pobreza monetaria extrema"
+    },
+    "levels": {
+      "CO": {
+        "department": "Departamento",
+        "municipality": "Municipio"
+      },
+      "PY": {
+        "department": "Departamento",
+        "municipality": "Distrito"
+      },
+      "DO": {
+        "region": "Región de desarrollo"
+      }
+    },
+    "peers": {
+      "CO": {
+        "department": "los departamentos",
+        "municipality": "los municipios"
+      },
+      "PY": {
+        "department": "los departamentos",
+        "municipality": "los distritos"
+      },
+      "DO": {
+        "region": "las regiones"
+      }
+    },
+    "anomaly": {
+      "overcost": "posible sobreprecio",
+      "undercost": "precio inusualmente bajo",
+      "process": "alerta de proceso",
+      "other": "alerta"
+    },
+    "summaryWorst": "Su brecha más marcada: {need}, la peor entre {peers} del país.",
+    "worstOfPeers": "El peor entre {peers} del país"
   }
 }

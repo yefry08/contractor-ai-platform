@@ -42,6 +42,9 @@ export function Navbar() {
           <a href="/oportunidades" onClick={() => setOpen(false)}>
             {t("nav.tenders")}
           </a>
+          <a href="/territorios" onClick={() => setOpen(false)}>
+            {t("nav.territories")}
+          </a>
           <a href="/datos" onClick={() => setOpen(false)}>
             {t("nav.datos")}
           </a>

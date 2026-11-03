@@ -10,7 +10,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
-from . import ai, analysis, dashboard, inquiries, models, opportunities, reference, schemas, security, tenders, providers
+from . import ai, analysis, dashboard, inquiries, models, opportunities, reference, schemas, security, tenders, territories, providers
 from .config import settings
 from .db import get_db
 
@@ -502,6 +502,57 @@ def list_opportunities(
     return schemas.OpportunityPage(
         total=total, items=out, counts_by_country=opportunities.counts_by_country(db), sources=opportunities.SOURCES
     )
+
+
+# ---------------------------------------------------------------------------
+# Territorios (app/territories.py)
+# ---------------------------------------------------------------------------
+
+
+@app.get("/territories/overview")
+def territories_overview(db: Session = Depends(get_db)):
+    return {"countries": territories.countries_overview(db), "sectors": territories.SECTORS}
+
+
+@app.get("/territories")
+def list_territories(
+    country: str = Query(max_length=4),
+    level: str | None = Query(default=None, pattern="^(region|department|municipality)$"),
+    q: str | None = Query(default=None, max_length=100),
+    limit: int = Query(default=50, ge=1, le=200),
+    offset: int = Query(default=0, ge=0, le=5_000),
+    db: Session = Depends(get_db),
+):
+    total, items = territories.list_territories(db, country.upper(), level, q, limit, offset)
+    return {"total": total, "items": items}
+
+
+@app.get("/territories/{territory_id}")
+def territory_profile(territory_id: str, db: Session = Depends(get_db)):
+    profile = territories.territory_profile(db, territory_id[:60])
+    if profile is None:
+        raise HTTPException(status_code=404, detail="Territorio no encontrado")
+    return profile
+
+
+@app.get("/institutions")
+def list_institutions(
+    country: str = Query(max_length=4),
+    q: str | None = Query(default=None, max_length=100),
+    limit: int = Query(default=30, ge=1, le=100),
+    offset: int = Query(default=0, ge=0, le=5_000),
+    db: Session = Depends(get_db),
+):
+    total, items = territories.list_institutions(db, country.upper(), q, limit, offset)
+    return {"total": total, "items": items}
+
+
+@app.get("/institutions/{buyer_id}")
+def institution_profile(buyer_id: str, db: Session = Depends(get_db)):
+    profile = territories.institution_profile(db, buyer_id[:36])
+    if profile is None:
+        raise HTTPException(status_code=404, detail="Institución no encontrada")
+    return profile
 
 
 # ---------------------------------------------------------------------------
