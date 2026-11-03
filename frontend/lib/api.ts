@@ -441,3 +441,147 @@ export async function getInquiry(code: string): Promise<InquiryStatus | null> {
   }
   return res.json();
 }
+
+// --- Territorios -----------------------------------------------------------
+
+export type TerritoryLevel = "region" | "department" | "municipality";
+
+export type TerritoryIndicator = {
+  key: string;
+  label: string;
+  sector: string;
+  value: number;
+  national_value: number | null;
+  unit: string;
+  worse_when: "high" | "low";
+  year: number;
+  peer_percentile: number | null;
+  source: string;
+  source_url: string;
+};
+
+export type TerritoryPriority = TerritoryIndicator & {
+  local_contract_share: number | null;
+  national_contract_share: number | null;
+};
+
+export type SectorSpend = {
+  sector: string;
+  contracts: number;
+  contract_share: number;
+  amount: number;
+  amount_share: number;
+  currency: string | null;
+  national_contract_share?: number | null;
+};
+
+export type FlaggedContract = {
+  contract_id: string;
+  title: string | null;
+  buyer?: string | null;
+  amount: number | null;
+  currency: string | null;
+  anomaly_type: string;
+};
+
+export type Failures = {
+  anomalies: number;
+  anomaly_rate: number | null;
+  national_anomaly_rate: number | null;
+  flagged_contracts: FlaggedContract[];
+  inquiries: number;
+};
+
+export type OpenCall = {
+  id: string;
+  title: string;
+  buyer?: string | null;
+  deadline: string;
+  url: string;
+  estimated_amount: number | null;
+  currency: string | null;
+};
+
+export type TerritoryListItem = {
+  id: string;
+  level: TerritoryLevel;
+  name: string;
+  code: string;
+  headline: TerritoryIndicator | null;
+  linked_contracts: number;
+};
+
+export type TerritoryProfile = {
+  id: string;
+  country_code: string;
+  level: TerritoryLevel;
+  code: string;
+  name: string;
+  parent: { id: string; name: string; level: TerritoryLevel } | null;
+  indicators: TerritoryIndicator[];
+  priorities: TerritoryPriority[];
+  worsening: (TerritoryIndicator & { previous_value: number; previous_year: number })[];
+  spending: { linked_contracts: number; sectors: SectorSpend[] };
+  failures: Failures;
+  open_calls: OpenCall[];
+};
+
+export type InstitutionListItem = {
+  id: string;
+  name: string;
+  contracts: number;
+  anomaly_rate: number;
+  local_government: boolean;
+};
+
+export type InstitutionProfile = {
+  id: string;
+  name: string;
+  country_code: string;
+  local_government: boolean;
+  territory: { id: string; name: string; level: TerritoryLevel } | null;
+  contracts: number;
+  median_amount: number | null;
+  currency: string | null;
+  spending: SectorSpend[];
+  failures: Failures;
+  open_calls: OpenCall[];
+};
+
+export type TerritoriesOverview = {
+  countries: Record<string, { territories_with_indicators: number; linked_contracts: number }>;
+  sectors: string[];
+};
+
+function query(params: Record<string, string | number | boolean | undefined>) {
+  const qs = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== "") qs.set(k, String(v));
+  return qs.toString();
+}
+
+export function getTerritoriesOverview() {
+  return apiFetch<TerritoriesOverview>("/territories/overview");
+}
+
+export function listTerritories(params: { country: string; level?: string; q?: string; limit?: number; offset?: number }) {
+  return apiFetch<{ total: number; items: TerritoryListItem[] }>(`/territories?${query(params)}`);
+}
+
+export function listInstitutions(params: { country: string; q?: string; limit?: number; offset?: number }) {
+  return apiFetch<{ total: number; items: InstitutionListItem[] }>(`/institutions?${query(params)}`);
+}
+
+async function getOrNull<T>(path: string): Promise<T | null> {
+  const res = await fetch(`${API_URL}${path}`, { cache: "no-store" });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new ApiError(`API devolvió ${res.status}`, res.status);
+  return res.json();
+}
+
+export function getTerritory(id: string) {
+  return getOrNull<TerritoryProfile>(`/territories/${encodeURIComponent(id)}`);
+}
+
+export function getInstitution(id: string) {
+  return getOrNull<InstitutionProfile>(`/institutions/${encodeURIComponent(id)}`);
+}

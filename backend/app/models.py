@@ -255,3 +255,58 @@ class Inquiry(Base):
     response: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
+class Territory(Base):
+    """A department, region or municipality, with the official code its
+    statistics office uses. Parent links a municipality to its department."""
+
+    __tablename__ = "territories"
+    __table_args__ = (UniqueConstraint("country_code", "level", "code", name="uq_territory_code"),)
+
+    id: Mapped[str] = mapped_column(String(60), primary_key=True)  # e.g. "CO-mun-05001", stable for URLs
+    country_code: Mapped[str] = mapped_column(String(4), index=True)
+    level: Mapped[str] = mapped_column(String(20))  # region | department | municipality
+    code: Mapped[str] = mapped_column(String(20))
+    name: Mapped[str] = mapped_column(String(200))
+    normalized_name: Mapped[str] = mapped_column(String(200), index=True)
+    parent_id: Mapped[str | None] = mapped_column(ForeignKey("territories.id"), nullable=True, index=True)
+
+
+class TerritoryIndicator(Base):
+    """One official needs indicator for one territory. `national_value` is
+    the country figure from the same source and year, so a reader always sees
+    the comparison the ranking is built on."""
+
+    __tablename__ = "territory_indicators"
+    __table_args__ = (UniqueConstraint("territory_id", "key", "year", name="uq_territory_indicator"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    territory_id: Mapped[str] = mapped_column(ForeignKey("territories.id"), index=True)
+    key: Mapped[str] = mapped_column(String(60))  # e.g. nbi_servicios
+    sector: Mapped[str] = mapped_column(String(40))  # agua_saneamiento | educacion | vivienda | empleo | pobreza
+    value: Mapped[float] = mapped_column(Float)
+    national_value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    unit: Mapped[str] = mapped_column(String(20), default="%")
+    worse_when: Mapped[str] = mapped_column(String(4), default="high")  # high | low
+    year: Mapped[int] = mapped_column(Integer)
+    # Share of same-level territories in the country doing better (0-1, 1 =
+    # worst of all). Computed by the ingestion script for the latest year.
+    peer_percentile: Mapped[float | None] = mapped_column(Float, nullable=True)
+    source: Mapped[str] = mapped_column(String(200))
+    source_url: Mapped[str] = mapped_column(String(600))
+
+
+class ContractTerritory(Base):
+    """Where a contract's money lands, when the data says so: the portal's own
+    department/city fields (Colombia), or a local government buyer whose name
+    matches exactly one official district (Paraguay). Unlinked contracts
+    simply have no row -- nothing is guessed."""
+
+    __tablename__ = "contract_territories"
+
+    contract_id: Mapped[str] = mapped_column(ForeignKey("contracts.id"), primary_key=True)
+    territory_id: Mapped[str] = mapped_column(ForeignKey("territories.id"), index=True)
+    department_id: Mapped[str | None] = mapped_column(ForeignKey("territories.id"), nullable=True, index=True)
+    sector: Mapped[str] = mapped_column(String(40), index=True)
+    method: Mapped[str] = mapped_column(String(40))  # portal_fields | buyer_name
