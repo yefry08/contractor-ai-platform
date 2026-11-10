@@ -266,26 +266,43 @@
   },
   "graph": {
     "title": "Mapa de contrataciones",
-    "hint": "El tamaño del nodo refleja la cantidad de contratos. Arrastra los nodos para reorganizar y usa la rueda del mouse para acercar.",
+    "hint": "El ancho de cada franja es la cantidad de contratos (o el monto). Pasa el cursor para seguir un flujo; haz clic en una institución para abrir su ficha, o en un país para verlo solo.",
     "legendCountry": "País",
     "legendInstitution": "Institución",
-    "legendCategory": "Categoría",
+    "legendSector": "Sector",
     "contracts": "{n} contrato(s)",
+    "alertsOf": "{n} con alerta ({pct})",
     "loading": "Cargando contratos…",
     "empty": "No hay contratos para este filtro.",
     "error": "No se pudieron cargar los contratos.",
-    "basisComplete": "Sobre los {n} contratos que cumplen el filtro.",
-    "basisPartial": "Sobre los {n} contratos más recientes de {total}: no es el total del período.",
-    "showing": "Se muestran las {buyers} instituciones y {categories} categorías con más contratos.",
+    "metricLabel": "Tamaño según:",
+    "metric": {
+      "contracts": "N.º de contratos",
+      "value": "Monto"
+    },
+    "valueNeedsCountry": "Para comparar montos elige un país: cada país publica en su propia moneda.",
+    "basis": "Calculado sobre los {n} contratos que cumplen el filtro, todo el período.",
+    "coverage": "Las {buyers} instituciones del mapa suman {n} de ellos ({pct}).",
+    "perCountry": "Sin país elegido se muestran las instituciones con más contratos de cada país, para que todos aparezcan.",
+    "currencyNote": "Montos en {currency}; los contratos en otras monedas no se suman.",
+    "highAlerts": "Tasa de alertas muy por encima de la de su país",
+    "highAlertsNote": "Borde rojo: institución cuya proporción de contratos con alerta supera en más de 1,5 veces la de su país.",
+    "clickInstitution": "Clic para abrir su ficha",
+    "clickCountry": "Clic para ver solo este país",
+    "tableTitle": "Instituciones del mapa",
+    "restSectors": "Otros sectores menores",
+    "colValue": "Monto ({currency})",
+    "colAlerts": "Con alerta",
+    "colSector": "Sector principal",
     "view": {
-      "hierarchy": "País → Institución → Categoría",
-      "bipartite": "Institución ↔ Categoría",
-      "anomalies": "Contratos marcados"
+      "hierarchy": "País → Institución → Sector",
+      "bipartite": "Institución ↔ Sector",
+      "anomalies": "Solo contratos con alerta"
     },
     "blurb": {
-      "hierarchy": "Cada país se conecta con sus instituciones compradoras, y cada institución con las categorías que contrata.",
-      "bipartite": "Mapa de dos lados: qué instituciones concentran qué categorías, sin la capa de país.",
-      "anomalies": "Solo contratos con anomalía abierta, agrupados por país, institución y categoría."
+      "hierarchy": "Cada país se conecta con sus instituciones compradoras, y cada institución con los sectores en los que contrata.",
+      "bipartite": "Qué instituciones concentran qué sectores, sin la capa de país.",
+      "anomalies": "Solo contratos con una alerta abierta: dónde se concentran por país, institución y sector."
     }
   },
   "fav": {
@@ -617,6 +634,12 @@
       "seguridad": "Seguridad",
       "energia": "Energía y alumbrado",
       "ambiente": "Ambiente y residuos",
+      "tecnologia": "Tecnología e informática",
+      "vehiculos_combustible": "Vehículos y combustible",
+      "obras": "Obras y construcción",
+      "comunicacion": "Comunicación y publicidad",
+      "mantenimiento_limpieza": "Mantenimiento y limpieza",
+      "sin_detalle": "Sin descripción",
       "administracion": "Personal y administración",
       "otros": "Otros",
       "pobreza": "Pobreza",

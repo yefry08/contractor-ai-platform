@@ -42,13 +42,16 @@ SECTOR_KEYWORDS: list[tuple[str, tuple[str, ...]]] = [
                    "útiles escolares", "escolar", "escola", "educação", "educacao", "universidad", "liceo")),
     ("salud", ("salud", "hospital", "medicament", "clinic", "clínic", "medico", "médic", "vacun", "ambulancia",
                "odontolog", "laboratorio clinico", "laboratorio clínico", "saúde", "saude", "farmac", "puesto de salud",
-               "centro de salud", "insumos medicos", "insumos médicos", "quirurg", "quirúrg")),
+               "centro de salud", "insumos medicos", "insumos médicos", "quirurg", "quirúrg", "reactivo", "diagnostic",
+               "rayos x", "biomedic", "biomédic", "oxigeno medicinal", "oxígeno medicinal", "comprimido", "tableta",
+               "inyectable", "ampolla", "jeringa", "osteosintesis", "osteosíntesis", "oncolog", "paciente", " mg ")),
     ("vias_transporte", ("via ", "vía ", "vias ", "vías ", "carretera", "pavimenta", "asfalt", "puente", "camino vecinal",
                          "malla vial", "bacheo", "señalizacion vial", "señalización vial", "rodovia", "estrada",
                          "pavimentação", "pavimentacao", "transporte publico", "transporte público", "calles")),
     ("vivienda", ("vivienda", "mejoramiento de vivienda", "habitacional", "moradia", "habitação", "habitacao")),
     ("alimentacion", ("alimentos", "alimentacion", "alimentación", "raciones", "comedor", "viveres", "víveres",
-                      "kits alimentarios", "alimentação", "alimentacao", "merienda")),
+                      "kits alimentarios", "alimentação", "alimentacao", "merienda", "catering", "almuerzo",
+                      "refrigerio", "generos alimenticios", "gêneros alimentícios")),
     ("seguridad", ("seguridad ciudadana", "vigilancia", "policia", "policía", "camaras de seguridad", "cámaras de seguridad",
                    "segurança", "seguranca", "carcel", "cárcel", "penitenciari")),
     ("energia", ("energia electrica", "energía eléctrica", "alumbrado", "electrificacion", "electrificación",
@@ -56,7 +59,41 @@ SECTOR_KEYWORDS: list[tuple[str, tuple[str, ...]]] = [
     ("ambiente", ("residuos solidos", "residuos sólidos", "recoleccion de basura", "recolección de basura", "relleno sanitario",
                   "reforestacion", "reforestación", "ambiental", "resíduos", "residuos")),
 ]
-SECTORS = [s for s, _ in SECTOR_KEYWORDS] + ["administracion", "otros"]
+# What most of the rest buys. These are not needs a census measures, so they
+# are only tried after the sectors above and the UNSPSC code have said nothing.
+GENERIC_KEYWORDS: list[tuple[str, tuple[str, ...]]] = [
+    ("tecnologia", ("software", "hardware", "informatic", "informátic", "computador", "computo", "cómputo", "servidores",
+                    "licencias de", "licenciamiento", "internet", "telecomunicac", "impresora", "toner", "tóner", "conectividad", "laptop",
+                    "ciberseguridad", "sistema de informacion", "sistema de información", "centro de datos",
+                    "fibra optica", "fibra óptica", "fibras opticas", "fibras ópticas")),
+    ("vehiculos_combustible", ("combustible", "diesel", "diésel", "gasolina", "lubricante", "llantas", "neumatic",
+                               "neumátic", "repuesto", "automotriz", "vehiculo", "vehículo", "automotor", "camion", "camión",
+                               "combustivel", "combustível", "veiculo", "veículo", "pneus", "peças automotivas")),
+    ("obras", ("construccion", "construcción", "construção", "construcao", " obra ", " obras ", "obra civil",
+               "remodelacion", "remodelación", "adecuacion", "adecuación", "infraestructura", "edificacion",
+               "edificación", "ampliacion", "ampliación", "cerramiento", "engenharia", "arquitetura", "reforma predial")),
+    ("comunicacion", ("publicidad", "publicitari", "difusion", "difusión", "comunicacion", "comunicación", "periodis",
+                      "audiovisual", "evento", "material grafico", "material gráfico", "impresion de", "impresión de",
+                      "divulgação", "divulgacao", "publicidade", "prensa", "periodico", "periódico", "publicacion",
+                      "publicación", "suscripcion", "suscripción")),
+    ("mantenimiento_limpieza", ("limpieza", " aseo", "fumigacion", "fumigación", "jardineria", "jardinería", "extintores",
+                                "ascensor", "mantenimiento", "manutenção", "manutencao", "limpeza", "reparacion",
+                                "reparación", "ferreter", "plomeria", "plomería", "pintura", "cerrajeria", "cerrajería",
+                                "aire acondicionado", "zafacon", "zafacón")),
+    ("administracion", ("servicios profesionales", "apoyo a la gestion", "apoyo a la gestión", "prestacion de servicios",
+                        "prestación de servicios", "prestar servicios", "consultoria", "consultoría", "asesoria",
+                        "asesoría", "auditoria", "auditoría", "papeleria", "papelería", "utiles de oficina",
+                        "útiles de oficina", "articulos de oficina", "artículos de oficina", "material de escritorio",
+                        "mobiliario", "uniformes", "indumentaria", "arrendamiento", "alquiler de", "capacitacion",
+                        "capacitación", "seguros", "poliza", "póliza", "pasajes", "viaticos", "viáticos",
+                        "material de consumo", "material de expediente", "pasaje", "papel", "material de oficina",
+                        "calzado", "zapato")),
+]
+SECTORS = (
+    [s for s, _ in SECTOR_KEYWORDS]
+    + [s for s, _ in GENERIC_KEYWORDS if s != "administracion"]
+    + ["administracion", "sin_detalle", "otros"]
+)
 
 # When the words say nothing, the UNSPSC code SECOP publishes often does.
 # Longest prefix wins.
@@ -100,18 +137,63 @@ def region_key(name: str | None) -> str:
     return REGION_ALIASES.get(key, key)
 
 
+# Keywords without accents, matched against text without accents. A keyword
+# found in the text is also found once both lose their accents, so this gives
+# what comparing each keyword both ways did, at a fraction of the cost:
+# stripping every keyword on every call took ~30 s over the corpus, and a
+# regex alternation is slower than plain substring checks.
+def _folded(groups: list[tuple[str, tuple[str, ...]]]) -> list[tuple[str, tuple[str, ...]]]:
+    return [(s, tuple(dict.fromkeys(strip_accents(w) for w in words))) for s, words in groups]
+
+
+_SECTOR_WORDS = _folded(SECTOR_KEYWORDS)
+_GENERIC_WORDS = _folded(GENERIC_KEYWORDS)
+
+# strip_accents for the letters these portals use, without decomposing every
+# character; anything else still goes through unicodedata.
+_FOLD = str.maketrans("áàâãäéèêëíìîïóòôõöúùûüçñ", "aaaaaeeeeiiiiooooouuuucn")
+
+
+def _fold(text: str) -> str:
+    folded = text.translate(_FOLD)
+    return folded if folded.isascii() else strip_accents(folded)
+
+
+# Words that describe the procedure, not what is bought. A text made only of
+# these (and reference numbers) says nothing about the purchase: Brazil
+# publishes many contracts whose whole text is the standard supplier clause.
+_PROCEDURE_WORDS = {
+    "contrato", "contratos", "contratacion", "contratacao", "pedido", "orden", "compra", "compras", "directa", "direta",
+    "licitacion", "licitacao", "pregao", "dispensa", "edital", "proceso", "processo", "expediente", "empenho", "empenha",
+    "valor", "fornecedor", "vincula", "proposta", "instrumento", "convocatorio", "anexos", "hipoteses", "infracao",
+    "artigo", "estao", "previstas", "seus", "suas", "conforme", "atender", "despesa", "despesas", "numero", "item",
+    "itens", "lote", "lotes", "para", "como", "segun", "acuerdo", "marco", "convenio", "aquisicao", "adquisicion",
+}
+
+
+def _describes_something(plain: str) -> bool:
+    for token in plain.split():
+        word = token.strip(".,;:()\"'")
+        if len(word) >= 4 and word.isalpha() and word not in _PROCEDURE_WORDS:
+            return True
+    return False
+
+
 def classify_sector(*texts: str | None, unspsc: str | None = None) -> str:
-    haystack = " " + " ".join(t for t in texts if t).lower() + " "
-    plain = strip_accents(haystack)
-    for sector, words in SECTOR_KEYWORDS:
-        for w in words:
-            if w in haystack or strip_accents(w) in plain:
-                return sector
+    plain = _fold(" " + " ".join(t for t in texts if t).lower() + " ")
+    for sector, words in _SECTOR_WORDS:
+        if any(w in plain for w in words):
+            return sector
     digits = re.sub(r"\D", "", (unspsc or "").split(".")[-1])
     for prefix, sector in UNSPSC_SECTORS:
         if digits.startswith(prefix):
             return sector
-    return "otros"
+    for sector, words in _GENERIC_WORDS:
+        if any(w in plain for w in words):
+            return sector
+    # Some portals publish only a reference number or boilerplate: say so
+    # rather than filing it with contracts whose words we could not place.
+    return "otros" if _describes_something(plain) else "sin_detalle"
 
 
 # ---------------------------------------------------------------------------

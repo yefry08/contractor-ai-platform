@@ -35,7 +35,27 @@ def test_classify_sector_reads_words_then_unspsc():
     # Words say nothing; SECOP's UNSPSC code does.
     assert classify_sector("Prestación de servicios de apoyo a la gestión", unspsc="V1.80111600") == "administracion"
     assert classify_sector("Contrato 45", unspsc="V1.85101500") == "salud"
-    assert classify_sector("Contrato 45") == "otros"
+    assert classify_sector("Compra de sillas plegables") == "otros"
+
+
+def test_classify_sector_fills_gaps_after_needs_and_unspsc():
+    # The needs sectors and the UNSPSC code still win over the generic ones.
+    assert classify_sector("Mantenimiento de la red de alcantarillado") == "agua_saneamiento"
+    assert classify_sector("Mantenimiento correctivo", unspsc="V1.85101500") == "salud"
+    assert classify_sector("Mantenimiento de equipos de cómputo") == "tecnologia"
+    assert classify_sector("COMPRA DIRECTA DIESEL") == "vehiculos_combustible"
+    assert classify_sector("Servicio de limpieza de oficinas") == "mantenimiento_limpieza"
+    assert classify_sector("LOSARTAN (COMPRIMIDO)") == "salud"
+    # "aseo" inside "paseo" is not cleaning.
+    assert classify_sector("Paseo cultural de fin de año") == "otros"
+
+
+def test_classify_sector_says_when_there_is_no_description():
+    assert classify_sector("R/214931520013") == "sin_detalle"
+    assert classify_sector("CP-ABR-44-2026-GRA-SEDECENTRAL-1") == "sin_detalle"
+    assert classify_sector("Contrato 45") == "sin_detalle"
+    assert classify_sector("AE 132266. O FORNECEDOR SE VINCULA A SUA PROPOSTA E AO INSTRUMENTO "
+                           "CONVOCATÓRIO E SEUS ANEXOS.") == "sin_detalle"
 
 
 def test_place_names_normalize_across_spellings():

@@ -310,3 +310,15 @@ class ContractTerritory(Base):
     department_id: Mapped[str | None] = mapped_column(ForeignKey("territories.id"), nullable=True, index=True)
     sector: Mapped[str] = mapped_column(String(40), index=True)
     method: Mapped[str] = mapped_column(String(40))  # portal_fields | buyer_name
+
+
+class ContractSector(Base):
+    """What a contract buys, as app.territories.classify_sector reads its text.
+    Stored so the contract map can group the whole corpus without classifying
+    every contract on each request; scripts/classify_contracts.py fills it.
+    Contracts without a row are classified when they are read."""
+
+    __tablename__ = "contract_sectors"
+
+    contract_id: Mapped[str] = mapped_column(ForeignKey("contracts.id"), primary_key=True)
+    sector: Mapped[str] = mapped_column(String(40), index=True)
