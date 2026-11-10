@@ -10,7 +10,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
-from . import ai, analysis, dashboard, inquiries, models, opportunities, reference, schemas, security, tenders, territories, providers
+from . import ai, analysis, contract_map, dashboard, inquiries, models, opportunities, reference, schemas, security, tenders, territories, providers
 from .config import settings
 from .db import get_db
 
@@ -553,6 +553,19 @@ def institution_profile(buyer_id: str, db: Session = Depends(get_db)):
     if profile is None:
         raise HTTPException(status_code=404, detail="Institución no encontrada")
     return profile
+
+
+@app.get("/graph/contracts")
+def contracts_graph(
+    country: str | None = Query(default=None, max_length=4),
+    only_anomalous: bool = False,
+    metric: str = Query(default="contracts", pattern="^(contracts|value)$"),
+    limit: int = Query(default=20, ge=3, le=40),
+    db: Session = Depends(get_db),
+):
+    if metric == "value" and not country:
+        raise HTTPException(status_code=422, detail="El monto solo se compara dentro de un país")
+    return contract_map.contract_map(db, country.upper() if country else None, only_anomalous, metric, limit)
 
 
 # ---------------------------------------------------------------------------

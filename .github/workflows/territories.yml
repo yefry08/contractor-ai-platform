@@ -1,4 +1,5 @@
-# Keeps "Territorios" current: reloads the official needs indicators (DANE,
+# Keeps "Territorios" and the dashboard's contract map current: classifies
+# every contract by sector, reloads the official needs indicators (DANE,
 # MEN, INE, ONE) and links the contracts ingested since the last run to
 # their place. The indicators change once a year at most; the links change
 # whenever new contracts arrive, hence monthly.
@@ -34,6 +35,13 @@ jobs:
           cache: pip
           cache-dependency-path: backend/requirements.txt
       - run: pip install -r backend/requirements.txt
+      # What each contract buys, for the dashboard's contract map. Contracts
+      # loaded in between are classified when the map reads them.
+      - name: Classify contracts by sector
+        working-directory: backend
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python scripts/classify_contracts.py
       - name: Refresh territories
         working-directory: backend
         env:

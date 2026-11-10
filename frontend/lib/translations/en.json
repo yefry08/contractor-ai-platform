@@ -266,26 +266,43 @@
   },
   "graph": {
     "title": "Procurement map",
-    "hint": "Node size reflects the number of contracts. Drag nodes to rearrange them and use the mouse wheel to zoom.",
+    "hint": "Each band is as wide as its number of contracts (or amount). Hover to follow a flow; click an institution to open its profile, or a country to see it alone.",
     "legendCountry": "Country",
     "legendInstitution": "Institution",
-    "legendCategory": "Category",
+    "legendSector": "Sector",
     "contracts": "{n} contract(s)",
+    "alertsOf": "{n} with an alert ({pct})",
     "loading": "Loading contracts…",
     "empty": "No contracts match this filter.",
     "error": "The contracts could not be loaded.",
-    "basisComplete": "Across the {n} contracts matching the filter.",
-    "basisPartial": "Across the {n} most recent contracts of {total}: not the whole period.",
-    "showing": "Showing the {buyers} institutions and {categories} categories with the most contracts.",
+    "metricLabel": "Size by:",
+    "metric": {
+      "contracts": "Number of contracts",
+      "value": "Amount"
+    },
+    "valueNeedsCountry": "To compare amounts, pick a country: each country publishes in its own currency.",
+    "basis": "Based on the {n} contracts matching the filter, whole period.",
+    "coverage": "The {buyers} institutions on the map account for {n} of them ({pct}).",
+    "perCountry": "With no country picked, the map shows each country's institutions with most contracts, so every country appears.",
+    "currencyNote": "Amounts in {currency}; contracts in other currencies are not added.",
+    "highAlerts": "Alert rate well above its country's",
+    "highAlertsNote": "Red border: an institution whose share of contracts with an alert is more than 1.5 times its country's.",
+    "clickInstitution": "Click to open its profile",
+    "clickCountry": "Click to see only this country",
+    "tableTitle": "Institutions on the map",
+    "restSectors": "Other small sectors",
+    "colValue": "Amount ({currency})",
+    "colAlerts": "With an alert",
+    "colSector": "Main sector",
     "view": {
-      "hierarchy": "Country → Institution → Category",
-      "bipartite": "Institution ↔ Category",
-      "anomalies": "Flagged contracts"
+      "hierarchy": "Country → Institution → Sector",
+      "bipartite": "Institution ↔ Sector",
+      "anomalies": "Flagged contracts only"
     },
     "blurb": {
-      "hierarchy": "Each country connects to its buying institutions, and each institution to the categories it contracts.",
-      "bipartite": "A two-sided map: which institutions concentrate which categories, without the country layer.",
-      "anomalies": "Only contracts with an open anomaly, grouped by country, institution and category."
+      "hierarchy": "Each country links to its buying institutions, and each institution to the sectors it contracts in.",
+      "bipartite": "Which institutions concentrate which sectors, without the country layer.",
+      "anomalies": "Only contracts with an open alert: where they cluster by country, institution and sector."
     }
   },
   "fav": {
@@ -617,6 +634,12 @@
       "seguridad": "Security",
       "energia": "Energy and lighting",
       "ambiente": "Environment and waste",
+      "tecnologia": "Technology and IT",
+      "vehiculos_combustible": "Vehicles and fuel",
+      "obras": "Construction works",
+      "comunicacion": "Communication and advertising",
+      "mantenimiento_limpieza": "Maintenance and cleaning",
+      "sin_detalle": "No description",
       "administracion": "Staff and administration",
       "otros": "Other",
       "pobreza": "Poverty",

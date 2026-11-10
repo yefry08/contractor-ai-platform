@@ -585,3 +585,24 @@ export function getTerritory(id: string) {
 export function getInstitution(id: string) {
   return getOrNull<InstitutionProfile>(`/institutions/${encodeURIComponent(id)}`);
 }
+
+// --- Contract map (dashboard graph) -------------------------------------------
+
+/** Contracts, value in the country's own currency (0 with no country), and how
+ * many carry an open alert. */
+export type MapTotals = { contracts: number; value: number; flagged: number };
+
+export type ContractMap = {
+  metric: "contracts" | "value";
+  currency: string | null;
+  total: MapTotals;
+  shown: MapTotals;
+  countries: ({ code: string } & MapTotals)[];
+  buyers: ({ id: string; name: string; country_code: string; main_sector: string | null } & MapTotals)[];
+  sectors: ({ key: string } & MapTotals)[];
+  links: ({ buyer_id: string; sector: string } & MapTotals)[];
+};
+
+export function getContractMap(params: { country?: string; only_anomalous?: boolean; metric?: string; limit?: number }) {
+  return apiFetch<ContractMap>(`/graph/contracts?${query(params)}`);
+}
