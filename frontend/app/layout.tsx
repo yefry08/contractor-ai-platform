@@ -12,6 +12,8 @@ export const metadata = {
   description: `Búsqueda y detección de anomalías en contratos públicos. Cubre ${COUNTRIES.length} países: ${COUNTRIES.map((c) => c.name).join(", ")}.`,
 };
 
+const THEME_INIT_SCRIPT = `try{if(localStorage.getItem('theme')==='light')document.documentElement.setAttribute('data-theme','light')}catch(e){}`;
+
 // The closest free match for Söhne, the grotesque humata.ai sets everything in.
 const sans = Inter_Tight({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-sans", display: "swap" });
 
@@ -19,9 +21,12 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const language = await getServerLanguage();
 
   return (
-    // Always dark: the site has a single black theme, and the charts and
-    // Turnstile pick their palette from this attribute.
-    <html lang={language} data-theme="dark" className={sans.variable}>
+    // Night by default; THEME_INIT_SCRIPT switches to day before the first
+    // paint when the visitor chose it, so the page never flashes black first.
+    <html lang={language} data-theme="dark" className={sans.variable} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body>
         <LanguageProvider initialLanguage={language}>
           <Navbar />

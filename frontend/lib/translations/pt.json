@@ -10,7 +10,9 @@
     "closeMenu": "Fechar menu",
     "datos": "Estudos",
     "inquiries": "Reclamações",
-    "territories": "Territórios"
+    "territories": "Territórios",
+    "themeDay": "Mudar para modo dia",
+    "themeNight": "Mudar para modo noite"
   },
   "language": {
     "select": "Idioma",
