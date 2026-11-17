@@ -1,4 +1,3 @@
-import { Spotlight } from "@/components/ui/spotlight";
 import { SplineScene } from "@/components/ui/spline-scene";
 import { COUNTRIES } from "@/lib/countries";
 import { getServerT } from "@/lib/i18n-server";
@@ -8,8 +7,6 @@ export async function Hero() {
 
   return (
     <section className="hero-card">
-      <Spotlight className="hero-spotlight" fill="white" />
-
       <div className="hero-grid">
         <div className="hero-copy">
           <img src="/logo.png" alt="Contractor IA" className="hero-logo" width={1862} height={416} />
