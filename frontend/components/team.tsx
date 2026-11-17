@@ -59,46 +59,31 @@ const MEMBERS: Member[] = [
     initials: "YN",
     x: "#",
   },
-  {
-    name: "Natalia Ramírez Pérez",
-    roleKey: "cto",
-    // LinkedIn CDN link, expires 2026-10-22: refresh it with "copy image
-    // address" on her LinkedIn photo (see the note above the array).
-    photo:
-      "https://media.licdn.com/dms/image/v2/D4E03AQHI4Vu3-_lhJA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1705888131569?e=1792627200&v=beta&t=KLFZr1MzLdgx_u7T3cs-ZsGBx1LSUt_bqnBD2_-zjnc",
-    initials: "NR",
-    linkedin: "https://www.linkedin.com/in/natalia-ramirez-datamath",
-    email: "narp1212@gmail.com",
-  },
-  {
-    name: "Domingo Aybar Santos",
-    roleKey: "information",
-    // LinkedIn CDN link, expires 2026-10-22: refresh it the same way as above.
-    photo:
-      "https://media.licdn.com/dms/image/v2/D4E03AQFq3lOQgCc0EQ/profile-displayphoto-crop_800_800/B4EZ1y6gMTG4AM-/0/1775749434786?e=1792627200&v=beta&t=Khf4LhLl3SqrWv06k5qRgFUePSIpq7CEKGx7v0hrnE4",
-    initials: "DA",
-    linkedin: "https://www.linkedin.com/in/domingo-aybar-santos-527a08249",
-    email: "domingo8537@gmail.com",
-  },
+  // Served from public/team/ rather than LinkedIn's CDN, whose signed links
+  // expired and left these three showing initials.
   {
     name: "Nicole Checo",
     roleKey: "politics",
-    // LinkedIn CDN link, expires 2026-10-22: refresh it the same way as above.
-    photo:
-      "https://media.licdn.com/dms/image/v2/D4E03AQHo5OTUUKwPtA/profile-displayphoto-crop_800_800/B4EaDN_.7cIsAI-/0/1790162498966?e=1792627200&v=beta&t=XwWhfkGiyhaNYhuMzhMlnkr-CinDIvEzCil5R-6saxo",
+    photo: "/team/nicole-checo.jpg",
     initials: "NC",
     linkedin: "https://www.linkedin.com/in/nicole-checo",
     email: "nicolecheco99@gmail.com",
   },
   {
-    name: "Jomayris Rosario Medina",
-    roleKey: "financial",
-    // LinkedIn CDN link, expires 2026-10-22: refresh it the same way as above.
-    photo:
-      "https://media.licdn.com/dms/image/v2/D4E03AQF-tJtL6Gqa4w/profile-displayphoto-scale_200_200/B4EZwCZnhLGcAY-/0/1769566798483?e=1792627200&v=beta&t=rItaO07V-Kc9nSs-Wm-EUMFyIMfPri8_NpJbiuVFhGg",
-    initials: "JR",
-    linkedin: "https://www.linkedin.com/in/jomayris-rosario-medina13",
-    email: "jomayris13@live.com",
+    name: "Domingo Aybar Santos",
+    roleKey: "information",
+    photo: "/team/domingo-aybar.jpg",
+    initials: "DA",
+    linkedin: "https://www.linkedin.com/in/domingo-aybar-santos-527a08249",
+    email: "domingo8537@gmail.com",
+  },
+  {
+    name: "Natalia Ramírez Pérez",
+    roleKey: "cto",
+    photo: "/team/natalia-ramirez.jpg",
+    initials: "NR",
+    linkedin: "https://www.linkedin.com/in/natalia-ramirez-datamath",
+    email: "narp1212@gmail.com",
   },
 ];
 

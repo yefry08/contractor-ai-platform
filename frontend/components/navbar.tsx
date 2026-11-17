@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { useLanguage } from "@/lib/language-context";
 
@@ -54,14 +53,10 @@ export function Navbar() {
           <a href="mailto:yefrynunez45@gmail.com" className="navbar-cta navbar-cta-mobile" onClick={() => setOpen(false)}>
             {t("nav.contact")}
           </a>
-          <div className="navbar-theme-mobile">
-            <ThemeToggle />
-          </div>
         </nav>
 
         <div className="navbar-actions">
           <LanguageSwitcher />
-          <ThemeToggle />
           <a href="mailto:yefrynunez45@gmail.com" className="navbar-cta">
             {t("nav.contact")}
           </a>
