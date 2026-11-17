@@ -1,5 +1,6 @@
 import "./globals.css";
 import type { ReactNode } from "react";
+import { Inter_Tight } from "next/font/google";
 import { Navbar } from "@/components/navbar";
 import { LanguageProvider } from "@/lib/language-context";
 import { COUNTRIES } from "@/lib/countries";
@@ -11,17 +12,16 @@ export const metadata = {
   description: `Búsqueda y detección de anomalías en contratos públicos. Cubre ${COUNTRIES.length} países: ${COUNTRIES.map((c) => c.name).join(", ")}.`,
 };
 
-const THEME_INIT_SCRIPT = `try{if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}`;
+// The closest free match for Söhne, the grotesque humata.ai sets everything in.
+const sans = Inter_Tight({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-sans", display: "swap" });
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const language = await getServerLanguage();
 
   return (
-    // THEME_INIT_SCRIPT sets data-theme before React hydrates, on purpose.
-    <html lang={language} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
-      </head>
+    // Always dark: the site has a single black theme, and the charts and
+    // Turnstile pick their palette from this attribute.
+    <html lang={language} data-theme="dark" className={sans.variable}>
       <body>
         <LanguageProvider initialLanguage={language}>
           <Navbar />

@@ -375,10 +375,10 @@ export function ContractsGraph({ initialCountry }: { initialCountry?: string }) 
 
   const empty = !loading && !error && (!data || data.buyers.length === 0);
   const button = (active: boolean) => ({
-    background: active ? "var(--accent)" : "transparent",
-    color: active ? "#fff" : "var(--text)",
+    background: active ? "var(--text)" : "transparent",
+    color: active ? "var(--bg)" : "var(--text)",
     border: "1px solid var(--border)",
-    borderRadius: 6,
+    borderRadius: 8,
     padding: "6px 12px",
     cursor: "pointer",
   });

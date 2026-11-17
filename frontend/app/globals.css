@@ -1,42 +1,42 @@
-:root {
-  --bg: #ffffff;
-  --panel: #f6f7fa;
-  --border: #e3e6ec;
-  --text: #14181f;
-  --muted: #5b6472;
-  --accent: #2f6feb;
-  --danger: #d64545;
-  --ok: #1f9d5c;
-  --navbar-bg: rgba(255, 255, 255, 0.85);
-  --warning-bg: rgba(214, 69, 69, 0.08);
-  --warning-border: rgba(214, 69, 69, 0.25);
-  --warning-text: #b3261e;
-  --amber: #a15c00;
-}
-
+/* One theme: black, after humata.ai's layout and type with its cream and
+   brown swapped for black. The root element always carries
+   data-theme="dark" (app/layout.tsx), which the charts and Turnstile read;
+   :root holds the same values so nothing flashes before it applies. */
+:root,
 [data-theme="dark"] {
-  --bg: #0b1220;
-  --panel: #121b2e;
-  --border: #24314d;
-  --text: #e6ecf5;
-  --muted: #93a1b8;
-  --accent: #4f8cff;
-  --danger: #ff6b6b;
-  --ok: #4fd18a;
-  --navbar-bg: rgba(11, 18, 32, 0.85);
-  --warning-bg: rgba(255, 107, 107, 0.1);
-  --warning-border: rgba(255, 107, 107, 0.3);
-  --warning-text: #ffb0b0;
-  --amber: #ffc107;
+  --bg: #000000;
+  --panel: #0d0d0d;
+  --panel-2: #151515;
+  --border: #232323;
+  --text: #f5f5f4;
+  --muted: #a3a3a3;
+  /* Humata's highlight orange; text on it is black, not white. */
+  --accent: #f79009;
+  --on-accent: #0a0a0a;
+  --danger: #f97066;
+  --ok: #47cd89;
+  --navbar-bg: rgba(0, 0, 0, 0.72);
+  --warning-bg: rgba(249, 112, 102, 0.1);
+  --warning-border: rgba(249, 112, 102, 0.3);
+  --warning-text: #fda29b;
+  --amber: #fdb022;
+  --radius: 8px;
+  --radius-lg: 16px;
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  background: var(--bg);
+  /* A faint grain over the black, like Humata's textured backgrounds. */
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.045 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-sans), "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   /* No transition here on purpose: Chrome (and others) can throttle a
      tab's rendering while it's in the background, and if the theme
      changed color mid-transition before backgrounding, the tab can come
@@ -89,11 +89,12 @@ form.filters input, form.filters select {
 }
 
 form.filters button {
-  background: var(--accent);
+  background: var(--text);
   border: none;
-  color: white;
+  color: var(--bg);
+  font-weight: 600;
   padding: 8px 16px;
-  border-radius: 6px;
+  border-radius: var(--radius);
   cursor: pointer;
 }
 
@@ -121,7 +122,7 @@ th { color: var(--muted); font-weight: 600; }
 }
 
 .badge.overcost { background: rgba(255,107,107,0.15); color: var(--danger); }
-.badge.undercost { background: rgba(79,140,255,0.15); color: var(--accent); }
+.badge.undercost { background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent); }
 
 .pagination {
   display: flex;
@@ -206,8 +207,8 @@ th { color: var(--muted); font-weight: 600; }
   flex-wrap: wrap;
 }
 
-.navbar-links a { color: var(--text); white-space: nowrap; }
-.navbar-links a:hover { color: var(--accent); text-decoration: none; }
+.navbar-links a { color: var(--muted); white-space: nowrap; transition: color 0.15s; }
+.navbar-links a:hover { color: var(--text); text-decoration: none; }
 
 .navbar-actions {
   margin-left: auto;
@@ -223,15 +224,15 @@ th { color: var(--muted); font-weight: 600; }
 }
 
 .navbar-cta {
-  background: var(--accent);
-  color: white;
+  background: var(--text);
+  color: var(--bg);
   font-size: 0.85rem;
   font-weight: 600;
-  padding: 7px 14px;
-  border-radius: 7px;
+  padding: 8px 16px;
+  border-radius: var(--radius);
   white-space: nowrap;
 }
-.navbar-cta:hover { background: #3a72e6; text-decoration: none; }
+.navbar-cta:hover { background: #ffffff; text-decoration: none; }
 
 .navbar-burger {
   display: none;
@@ -257,7 +258,6 @@ th { color: var(--muted); font-weight: 600; }
 }
 
 .navbar-cta-mobile { display: none; }
-.navbar-theme-mobile { display: none; }
 
 /* Seven links plus the language picker need ~1180px on one row; below that
    they wrap onto a second line, so the burger takes over earlier. */
@@ -291,12 +291,6 @@ th { color: var(--muted); font-weight: 600; }
   .navbar-cta-mobile {
     display: block;
     text-align: center;
-    margin-top: 10px;
-  }
-
-  .navbar-theme-mobile {
-    display: flex;
-    justify-content: center;
     margin-top: 10px;
   }
 }
@@ -347,9 +341,9 @@ th { color: var(--muted); font-weight: 600; }
 }
 
 .wizard-step-current .wizard-step-n {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: white;
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
 }
 
 .wizard-step-done .wizard-step-n {
@@ -388,7 +382,7 @@ th { color: var(--muted); font-weight: 600; }
 }
 
 .wizard-method:hover { border-color: var(--accent); }
-.wizard-method-active { border-color: var(--accent); background: rgba(79,140,255,0.08); }
+.wizard-method-active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
 
 .wizard-method-icon { display: block; font-size: 1.6rem; margin-bottom: 8px; }
 .wizard-method-title { display: block; font-weight: 600; font-size: 0.92rem; }
@@ -426,9 +420,9 @@ th { color: var(--muted); font-weight: 600; }
 }
 
 .wizard-btn-primary {
-  background: var(--accent);
+  background: var(--text);
   border: none;
-  color: white;
+  color: var(--bg);
 }
 .wizard-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -678,9 +672,14 @@ th { color: var(--muted); font-weight: 600; }
 .hero-card {
   position: relative;
   overflow: hidden;
-  background: #050810;
+  /* Humata sets its hero on a warm photo under a dark veil; here the same
+     warmth comes from a low glow on black. */
+  background:
+    radial-gradient(70% 90% at 78% 30%, rgba(247, 144, 9, 0.1), transparent 60%),
+    radial-gradient(60% 80% at 10% 100%, rgba(255, 255, 255, 0.05), transparent 60%),
+    #050505;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   margin-bottom: 40px;
   min-height: 480px;
 }
@@ -711,21 +710,19 @@ th { color: var(--muted); font-weight: 600; }
 }
 
 .hero-eyebrow {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--accent);
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--muted);
 }
 
 .hero-title {
-  font-size: 3rem;
+  font-size: clamp(2.6rem, 1.8rem + 3vw, 3.75rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
   line-height: 1.05;
   margin: 0;
-  background: linear-gradient(to bottom, #ffffff, #93a1b8);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #ffffff;
 }
 
 /* .hero-card stays dark in both themes, so the logo uses the brand's
@@ -739,10 +736,10 @@ th { color: var(--muted); font-weight: 600; }
 }
 
 .hero-lead {
-  color: #c7d0e0;
+  color: #a3a3a3;
   max-width: 46ch;
-  font-size: 1.05rem;
-  line-height: 1.6;
+  font-size: 1.15rem;
+  line-height: 1.55;
   margin: 0;
 }
 
@@ -754,26 +751,26 @@ th { color: var(--muted); font-weight: 600; }
 }
 
 .hero-btn {
-  padding: 10px 20px;
-  border-radius: 8px;
+  padding: 12px 20px;
+  border-radius: var(--radius);
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
 .hero-btn-primary {
-  background: var(--accent);
-  color: white;
+  background: #f5f5f4;
+  color: #0a0a0a;
 }
-.hero-btn-primary:hover { background: #3a72e6; text-decoration: none; }
+.hero-btn-primary:hover { background: #ffffff; text-decoration: none; }
 
 .hero-btn-secondary {
   /* Fixed, not var(--border)/var(--text): .hero-card's background stays
      dark in both themes by design, but --text flips to near-black in light
      mode, which made this button's label invisible against the dark card. */
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  color: #e6ecf5;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #f5f5f4;
 }
-.hero-btn-secondary:hover { border-color: var(--accent); text-decoration: none; }
+.hero-btn-secondary:hover { border-color: rgba(255, 255, 255, 0.5); text-decoration: none; }
 
 .hero-scene {
   position: relative;
@@ -907,14 +904,14 @@ th { color: var(--muted); font-weight: 600; }
   font-size: 2rem;
   font-weight: 700;
   color: var(--accent);
-  background: linear-gradient(160deg, rgba(79,140,255,0.18), rgba(79,140,255,0.04));
+  background: linear-gradient(160deg, rgba(247,144,9,0.16), rgba(247,144,9,0.03));
 }
 
 .team-card-content {
   position: absolute;
   inset: auto 0 0 0;
   padding: 14px 16px 16px;
-  background: linear-gradient(to top, rgba(5,8,16,0.95), rgba(5,8,16,0.55) 70%, transparent);
+  background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.55) 70%, transparent);
 }
 
 .team-card-content h3 {
@@ -926,7 +923,7 @@ th { color: var(--muted); font-weight: 600; }
 .team-card-content p {
   margin: 2px 0 10px;
   font-size: 0.85rem;
-  color: #b7c0d4;
+  color: #a3a3a3;
 }
 
 .team-card-content ul {
@@ -950,6 +947,7 @@ th { color: var(--muted); font-weight: 600; }
 
 .team-card-content a:hover {
   background: var(--accent);
+  color: var(--on-accent);
   text-decoration: none;
 }
 
@@ -1020,10 +1018,7 @@ th { color: var(--muted); font-weight: 600; }
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  background: linear-gradient(90deg, #2a78d6, #1baf7a 55%, #eb6834);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--accent);
 }
 .datos-title { font-size: clamp(1.8rem, 4vw, 2.6rem); margin: 0 0 8px; letter-spacing: -0.02em; }
 .datos-lead { max-width: 720px; font-size: 1.02rem; line-height: 1.55; }
@@ -1037,7 +1032,7 @@ th { color: var(--muted); font-weight: 600; }
   color: var(--accent);
   background: color-mix(in srgb, var(--accent) 12%, transparent);
 }
-.datos-tag-new { color: #fff; background: linear-gradient(90deg, #2a78d6, #1baf7a); }
+.datos-tag-new { color: var(--on-accent); background: var(--accent); }
 .datos-tag-soon { color: var(--amber); background: color-mix(in srgb, var(--amber) 14%, transparent); }
 .datos-meta { font-size: 0.78rem; color: var(--muted); }
 
@@ -1681,25 +1676,6 @@ footer.site .footer-links {
   gap: 18px;
 }
 
-/* ---------- Theme toggle ---------- */
-
-.theme-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  cursor: pointer;
-  font-size: 1rem;
-  line-height: 1;
-  color: var(--text);
-}
-
-.theme-toggle:hover { border-color: var(--accent); }
-
 /* ---------- Eye-blink loader ---------- */
 /* From Uiverse.io by FWDJc */
 
@@ -1792,7 +1768,7 @@ footer.site .footer-links {
 .opp-how div { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: 12px; background: var(--panel); border: 1px solid var(--border); font-size: 0.9rem; }
 .opp-how strong {
   flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
-  color: #fff; background: linear-gradient(135deg, #2a78d6, #1baf7a); font-size: 0.85rem;
+  color: var(--bg); background: var(--text); font-size: 0.85rem;
 }
 .opp-filters input[type="search"] { flex: 1 1 260px; min-width: 0; }
 .opp-check { display: flex; align-items: center; gap: 6px; font-size: 0.88rem; color: var(--text); }
@@ -1800,7 +1776,7 @@ footer.site .footer-links {
 .opp-list { display: grid; gap: 14px; }
 .opp-card { margin: 0; display: flex; flex-direction: column; gap: 10px; }
 .opp-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-.opp-sme { color: #fff; background: linear-gradient(90deg, #1baf7a, #2a78d6); }
+.opp-sme { color: var(--on-accent); background: var(--accent); }
 .opp-deadline { margin-left: auto; font-size: 0.82rem; font-weight: 700; color: var(--text); }
 .opp-deadline small { font-weight: 400; color: var(--muted); }
 .opp-deadline-urgent { color: var(--danger); }
@@ -1895,9 +1871,9 @@ a.opp-portal:hover { text-decoration: none; border-color: var(--accent); }
   border: 1px solid var(--border); color: var(--text); font-size: 0.86rem;
 }
 .terr-tab:hover { border-color: var(--accent); text-decoration: none; }
-.terr-tab-on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.terr-tab-on { background: var(--text); border-color: var(--text); color: var(--bg); }
 .terr-tab-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); }
-.terr-tab-on .terr-tab-dot { background: #fff; }
+.terr-tab-on .terr-tab-dot { background: var(--bg); }
 .terr-section { margin-top: 32px; }
 .terr-section > .wizard-note { margin-top: -4px; }
 .terr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin: 12px 0; }
@@ -1958,3 +1934,50 @@ a.opp-portal:hover { text-decoration: none; border-color: var(--accent); }
   .terr-bar-row { grid-template-columns: 1fr auto; }
   .terr-bar-track { grid-column: 1 / -1; grid-row: 2; }
 }
+
+/* ---------- Type and surfaces, after humata.ai ----------
+   Semibold headings with tight tracking, 16px panels, 8px controls,
+   hairline borders, muted secondary text. Kept last so it settles the
+   older per-component radii and weights without editing each block. */
+
+h1, h2, h3, h4 { font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; }
+h1 { font-size: clamp(1.9rem, 1.5rem + 1.4vw, 2.5rem); }
+h2 { font-size: clamp(1.4rem, 1.2rem + 0.8vw, 1.85rem); }
+p.subtitle { font-size: 1.05rem; line-height: 1.55; }
+
+::selection { background: color-mix(in srgb, var(--accent) 40%, transparent); color: #fff; }
+
+.card, .metric-card, .how-step, .dashboard-chart-card, .terr-card, .datos-card,
+.opp-card, .wizard-card, .post-stat {
+  border-radius: var(--radius-lg);
+  border-color: var(--border);
+}
+
+.metric-value, .tender-benchmark-value {
+  font-family: inherit;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+input, select, textarea, form.filters input, form.filters select {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: var(--radius);
+  font-family: inherit;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+button, .wizard-btn-primary, .wizard-btn-secondary, .hero-btn { font-family: inherit; }
+.wizard-btn-primary, .wizard-btn-secondary { border-radius: var(--radius); }
+
+.navbar { border-bottom-color: rgba(255, 255, 255, 0.06); }
+.navbar-logo-word { letter-spacing: -0.02em; }
+
+table th { font-weight: 500; letter-spacing: 0.01em; }
+footer.site { border-top: 1px solid rgba(255, 255, 255, 0.06); color: var(--muted); }
