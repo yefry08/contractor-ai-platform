@@ -1,9 +1,12 @@
-/* One theme: black, after humata.ai's layout and type with its cream and
-   brown swapped for black. The root element always carries
-   data-theme="dark" (app/layout.tsx), which the charts and Turnstile read;
-   :root holds the same values so nothing flashes before it applies. */
+/* Two themes after humata.ai's layout and type. Night (default): its cream
+   and brown swapped for black. Day: its cream backgrounds, with the blue of
+   the earlier Contractor AI design as the accent. The root element always
+   carries an explicit data-theme (app/layout.tsx), which the charts and
+   Turnstile read; :root holds the night values so nothing flashes first. */
 :root,
 [data-theme="dark"] {
+  /* White specks at 4.5 %: Humata's grain, readable on black. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.045 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   --bg: #000000;
   --panel: #0d0d0d;
   --panel-2: #151515;
@@ -25,14 +28,34 @@
   color-scheme: dark;
 }
 
+[data-theme="light"] {
+  /* Dark specks on Humata's cream. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.39 0 0 0 0 0.26 0 0 0 0 0.19 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --bg: #fff8f3;
+  --panel: #ffffff;
+  --panel-2: #f7e8dc;
+  --border: #eadbd0;
+  --text: #101828;
+  --muted: #475467;
+  /* The earlier design's blue, kept for links and highlights. */
+  --accent: #2f6feb;
+  --on-accent: #ffffff;
+  --danger: #d64545;
+  --ok: #1f9d5c;
+  --navbar-bg: rgba(255, 248, 243, 0.85);
+  --warning-bg: rgba(214, 69, 69, 0.08);
+  --warning-border: rgba(214, 69, 69, 0.25);
+  --warning-text: #b3261e;
+  --amber: #a15c00;
+  color-scheme: light;
+}
+
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  /* A faint grain over the black, like Humata's textured backgrounds. */
-  background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.045 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
-    var(--bg);
+  /* A faint grain, like Humata's textured backgrounds (see --grain). */
+  background: var(--grain), var(--bg);
   color: var(--text);
   font-family: var(--font-sans), "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -232,7 +255,7 @@ th { color: var(--muted); font-weight: 600; }
   border-radius: var(--radius);
   white-space: nowrap;
 }
-.navbar-cta:hover { background: #ffffff; text-decoration: none; }
+.navbar-cta:hover { background: color-mix(in srgb, var(--text) 85%, var(--bg)); text-decoration: none; }
 
 .navbar-burger {
   display: none;
@@ -258,6 +281,21 @@ th { color: var(--muted); font-weight: 600; }
 }
 
 .navbar-cta-mobile { display: none; }
+.navbar-theme-mobile { display: none; }
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  color: var(--text);
+}
+.theme-toggle:hover { border-color: var(--muted); }
 
 /* Seven links plus the language picker need ~1180px on one row; below that
    they wrap onto a second line, so the burger takes over earlier. */
@@ -291,6 +329,12 @@ th { color: var(--muted); font-weight: 600; }
   .navbar-cta-mobile {
     display: block;
     text-align: center;
+    margin-top: 10px;
+  }
+
+  .navbar-theme-mobile {
+    display: flex;
+    justify-content: center;
     margin-top: 10px;
   }
 }
@@ -713,7 +757,8 @@ th { color: var(--muted); font-weight: 600; }
   font-size: 1.1rem;
   font-weight: 600;
   letter-spacing: 0;
-  color: var(--muted);
+  /* Fixed, not var(--muted): the hero stays dark in both themes. */
+  color: #a3a3a3;
 }
 
 .hero-title {
