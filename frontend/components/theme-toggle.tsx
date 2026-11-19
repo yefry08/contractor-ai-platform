@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useLanguage } from "@/lib/language-context";
 
 type Theme = "light" | "dark";
@@ -10,21 +11,49 @@ type Theme = "light" | "dark";
 // Turnstile read to pick their palette.
 export function ThemeToggle() {
   const { t } = useLanguage();
+  const pathname = usePathname();
   const [theme, setTheme] = useState<Theme>("light");
 
   useEffect(() => {
-    setTheme(document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark");
-  }, []);
+    function syncTheme() {
+      let next: Theme = "light";
+      try {
+        next = localStorage.getItem("theme-v2") === "dark" ? "dark" : "light";
+      } catch {
+        next = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+      }
+
+      if (document.documentElement.getAttribute("data-theme") !== next) {
+        document.documentElement.setAttribute("data-theme", next);
+      }
+      setTheme(next);
+    }
+
+    syncTheme();
+    const themeObserver = new MutationObserver(syncTheme);
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+    window.addEventListener("themechange", syncTheme);
+    window.addEventListener("storage", syncTheme);
+    return () => {
+      themeObserver.disconnect();
+      window.removeEventListener("themechange", syncTheme);
+      window.removeEventListener("storage", syncTheme);
+    };
+  }, [pathname]);
 
   function toggle() {
     const next: Theme = theme === "dark" ? "light" : "dark";
     setTheme(next);
     document.documentElement.setAttribute("data-theme", next);
     try {
-      localStorage.setItem("theme", next);
+      localStorage.setItem("theme-v2", next);
     } catch {
       // Private mode or blocked storage: the switch still applies to this page.
     }
+    window.dispatchEvent(new CustomEvent("themechange"));
   }
 
   const label = theme === "dark" ? t("nav.themeDay") : t("nav.themeNight");

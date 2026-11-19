@@ -1,0 +1,12 @@
+{
+  "name": "contractor-ai-platform",
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace=frontend",
+    "vercel-build": "npm run build",
+    "dev": "npm run dev --workspace=frontend"
+  }
+}

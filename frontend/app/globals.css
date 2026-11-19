@@ -1815,11 +1815,11 @@ footer.site .footer-links {
 .opp-deadline-urgent { color: var(--danger); }
 .opp-title {
   margin: 0; font-size: 1.02rem; line-height: 1.35;
-  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
 }
 .opp-desc {
   margin: 0; color: var(--muted); font-size: 0.86rem; line-height: 1.5;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
 .opp-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px 16px; margin: 0; }
 .opp-facts dt { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
@@ -1947,7 +1947,7 @@ a.opp-portal:hover { text-decoration: none; border-color: var(--accent); }
 }
 .terr-flagged a, .terr-calls a {
   font-weight: 600; font-size: 0.9rem; overflow-wrap: anywhere;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
 .terr-flag-meta { font-size: 0.76rem; color: var(--muted); }
 .terr-bars { display: grid; gap: 8px; margin: 12px 0; }
