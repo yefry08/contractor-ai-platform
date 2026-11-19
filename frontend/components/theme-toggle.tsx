@@ -5,12 +5,12 @@ import { useLanguage } from "@/lib/language-context";
 
 type Theme = "light" | "dark";
 
-// Day is the default; the choice is remembered per visitor. The root
+// Night is the default; the choice is remembered per visitor. The root
 // element always carries an explicit data-theme, which the charts and
 // Turnstile read to pick their palette.
 export function ThemeToggle() {
   const { t } = useLanguage();
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>("dark");
 
   useEffect(() => {
     setTheme(document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark");
