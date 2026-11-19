@@ -12,7 +12,7 @@ export const metadata = {
   description: `Búsqueda y detección de anomalías en contratos públicos. Cubre ${COUNTRIES.length} países: ${COUNTRIES.map((c) => c.name).join(", ")}.`,
 };
 
-const THEME_INIT_SCRIPT = `try{if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}`;
+const THEME_INIT_SCRIPT = `try{const theme=localStorage.getItem('theme')==='dark'?'dark':'light';document.documentElement.setAttribute('data-theme',theme)}catch(e){}`;
 
 // The closest free match for Söhne, the grotesque humata.ai sets everything in.
 const sans = Inter_Tight({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-sans", display: "swap" });
