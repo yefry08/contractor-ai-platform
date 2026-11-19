@@ -18,7 +18,7 @@ export function ThemeToggle() {
     function syncTheme() {
       let next: Theme = "light";
       try {
-        next = localStorage.getItem("theme") === "dark" ? "dark" : "light";
+        next = localStorage.getItem("theme-v2") === "dark" ? "dark" : "light";
       } catch {
         next = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
       }
@@ -49,7 +49,7 @@ export function ThemeToggle() {
     setTheme(next);
     document.documentElement.setAttribute("data-theme", next);
     try {
-      localStorage.setItem("theme", next);
+      localStorage.setItem("theme-v2", next);
     } catch {
       // Private mode or blocked storage: the switch still applies to this page.
     }
