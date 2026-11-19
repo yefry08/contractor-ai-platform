@@ -12,7 +12,7 @@ export const metadata = {
   description: `Búsqueda y detección de anomalías en contratos públicos. Cubre ${COUNTRIES.length} países: ${COUNTRIES.map((c) => c.name).join(", ")}.`,
 };
 
-const THEME_INIT_SCRIPT = `try{if(localStorage.getItem('theme')==='light')document.documentElement.setAttribute('data-theme','light')}catch(e){}`;
+const THEME_INIT_SCRIPT = `try{if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}`;
 
 // The closest free match for Söhne, the grotesque humata.ai sets everything in.
 const sans = Inter_Tight({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-sans", display: "swap" });
@@ -21,9 +21,9 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const language = await getServerLanguage();
 
   return (
-    // Night by default; THEME_INIT_SCRIPT switches to day before the first
-    // paint when the visitor chose it, so the page never flashes black first.
-    <html lang={language} data-theme="dark" className={sans.variable} suppressHydrationWarning>
+    // Day by default; THEME_INIT_SCRIPT restores night before the first
+    // paint when the visitor chose it, so the page never flashes light first.
+    <html lang={language} data-theme="light" className={sans.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>

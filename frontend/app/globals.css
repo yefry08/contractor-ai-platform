@@ -1,9 +1,31 @@
-/* Two themes after humata.ai's layout and type. Night (default): its cream
-   and brown swapped for black. Day: its cream backgrounds, with the blue of
-   the earlier Contractor AI design as the accent. The root element always
-   carries an explicit data-theme (app/layout.tsx), which the charts and
-   Turnstile read; :root holds the night values so nothing flashes first. */
+/* Two themes after humata.ai's layout and type. Day (default): its cream
+   backgrounds, with the blue of the earlier Contractor AI design as the accent.
+   Night: cream swapped for black and its highlights switched to orange. The
+   root element always carries an explicit data-theme (app/layout.tsx), which
+   the charts and Turnstile read; :root holds the day values so nothing flashes first. */
 :root,
+[data-theme="light"] {
+  /* Dark specks on Humata's cream. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.39 0 0 0 0 0.26 0 0 0 0 0.19 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --bg: #fff8f3;
+  --panel: #ffffff;
+  --panel-2: #f7e8dc;
+  --border: #eadbd0;
+  --text: #101828;
+  --muted: #475467;
+  /* The earlier design's blue, kept for links and highlights. */
+  --accent: #2f6feb;
+  --on-accent: #ffffff;
+  --danger: #d64545;
+  --ok: #1f9d5c;
+  --navbar-bg: rgba(255, 248, 243, 0.85);
+  --warning-bg: rgba(214, 69, 69, 0.08);
+  --warning-border: rgba(214, 69, 69, 0.25);
+  --warning-text: #b3261e;
+  --amber: #a15c00;
+  color-scheme: light;
+}
+
 [data-theme="dark"] {
   /* White specks at 4.5 %: Humata's grain, readable on black. */
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.045 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -26,28 +48,6 @@
   --radius: 8px;
   --radius-lg: 16px;
   color-scheme: dark;
-}
-
-[data-theme="light"] {
-  /* Dark specks on Humata's cream. */
-  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.39 0 0 0 0 0.26 0 0 0 0 0.19 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  --bg: #fff8f3;
-  --panel: #ffffff;
-  --panel-2: #f7e8dc;
-  --border: #eadbd0;
-  --text: #101828;
-  --muted: #475467;
-  /* The earlier design's blue, kept for links and highlights. */
-  --accent: #2f6feb;
-  --on-accent: #ffffff;
-  --danger: #d64545;
-  --ok: #1f9d5c;
-  --navbar-bg: rgba(255, 248, 243, 0.85);
-  --warning-bg: rgba(214, 69, 69, 0.08);
-  --warning-border: rgba(214, 69, 69, 0.25);
-  --warning-text: #b3261e;
-  --amber: #a15c00;
-  color-scheme: light;
 }
 
 * { box-sizing: border-box; }
